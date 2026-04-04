@@ -272,7 +272,7 @@
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 20px;
-    padding: 32px;
+    padding: 36px;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -280,17 +280,19 @@
 .testimonial-card::before {
     content: '"';
     position: absolute;
-    top: 20px;
-    left: 28px;
-    font-size: 80px;
+    top: 24px;
+    left: 32px;
+    font-size: 100px;
     font-family: Georgia, serif;
-    color: rgba(37, 99, 235, 0.08);
+    color: rgba(37, 99, 235, 0.06);
     line-height: 1;
+    pointer-events: none;
 }
 
 .testimonial-card:hover {
-    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-4px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+    border-color: #CBD5E1;
 }
 
 /* Mobile optimizations */
