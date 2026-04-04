@@ -36,7 +36,7 @@ export default function Header() {
             <nav className="container-custom">
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2" data-testid="logo-link">
+                    <Link to="/" className="flex items-center gap-2" data-testid="logo-link" aria-label="Home">
                         <span className="font-heading text-xl md:text-2xl font-semibold text-primary">
                             EdVNova
                         </span>
