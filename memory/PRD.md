@@ -11,14 +11,15 @@ Build EdVNova Learning - Advanced IGCSE Coaching Platform (Pune, India). Full-st
 ## Core Requirements (Static)
 - Premium Apple/Stripe style design
 - Color scheme: Primary #0B1F3A, Accent #2563EB, Background #F8FAFC
-- Font: Outfit (headings), Inter (body)
+- Font: Inter (headings + body, no decorative fonts)
 - JWT authentication with role-based access
 - Course management (4 subjects: Math, Physics, Chemistry, Biology)
 - Workshop registration system
 - Resource library with premium content (locked for guests)
 - E-commerce store with cart
 - Student and Admin dashboards
-- Contact form
+- Contact form with WhatsApp redirect
+- WhatsApp floating button on all pages
 
 ## Tech Stack
 - Frontend: React 19 + TailwindCSS + Shadcn UI
@@ -27,25 +28,25 @@ Build EdVNova Learning - Advanced IGCSE Coaching Platform (Pune, India). Full-st
 - Auth: JWT with httpOnly cookies
 - Payment: Razorpay (MOCKED for now)
 
-## What's Been Implemented (Jan 4, 2026)
+## What's Been Implemented
 
-### ✅ Frontend Pages
-- Homepage with hero, programs, testimonials, resources preview, CTA
+### Frontend Pages
+- Homepage with hero, stats bar, Why Different, Our Vision, Programs, Teaching Approach, Profile Building, Testimonials, Locations, Final CTA
 - About page with vision, philosophy, stats
 - Programs listing page
 - Program detail page with enrollment
 - Workshops listing with registration
 - Resources library (locked content for non-authenticated)
 - Store with products and category filters
-- Cart with checkout (mock payment)
-- Contact page with form
+- Cart with checkout (mock payment + WhatsApp redirect + full address)
+- Contact page with form (WhatsApp redirect)
 - Login/Register pages
 - Student Dashboard
 - Admin Panel with tabs (Overview, Users, Orders, Contacts)
 - Profile Building page
 - Career Guidance page
 
-### ✅ Backend APIs
+### Backend APIs
 - Complete auth system (register, login, logout, me, refresh)
 - Courses CRUD and enrollment
 - Workshops CRUD and registration
@@ -55,7 +56,7 @@ Build EdVNova Learning - Advanced IGCSE Coaching Platform (Pune, India). Full-st
 - Contact form submissions
 - Admin stats and management endpoints
 
-### ✅ Database
+### Database
 - Users collection with role-based access
 - Courses with sample data (4 subjects)
 - Workshops with sample data (2 workshops)
@@ -63,80 +64,53 @@ Build EdVNova Learning - Advanced IGCSE Coaching Platform (Pune, India). Full-st
 - Products with sample data (3 products)
 - Orders, Enrollments, Workshop registrations, Contacts
 
-### ✅ Design Implementation
-- Premium minimal design following design guidelines
-- Glassmorphism header
-- Premium card hover effects
-- Consistent spacing and typography
-- Mobile responsive
+### Design & UI (Completed Feb 4, 2026)
+15-Part UI/UX Refinement Applied:
+1. Removed personal branding ("IISER Pune Graduate")
+2. Hero typography fixed (text-6xl, Inter bold, tracking-tight)
+3. Hero copy refined (headline + subheadline + supporting line)
+4. "Our Vision" section added to homepage
+5. Inter font enforced globally (no decorative fonts)
+6. Visual polish (py-20/py-24 spacing, rounded-xl cards, shadow-sm hover:shadow-lg)
+7. Profile Building visible in nav and homepage
+8. Real testimonials displayed (Ishika, Venkat, Pallavi)
+9. CTA year updated to "2026-2028 batch"
+10. Strong final CTA ("Limited Seats. Serious Students Only.")
+11. Contact form redirects to WhatsApp after submission
+12. Store checkout includes full address (mandatory) + WhatsApp redirect
+13. WhatsApp floating button on all pages
+14. Navbar clean with CTA button; Footer with correct contact info
+15. Premium minimal design feel throughout
+
+### CRO & Conversion Optimization
+- "Limited Seats. Serious Students Only." messaging
+- Multiple CTAs across sections
+- Stats bar: 67+ Chapters, 50+ Students, 95%+ Success Rate, A*/A Grade
+- Real testimonials from edvnova.com
+- WhatsApp quick-contact on every page
 
 ## Prioritized Backlog
 
 ### P0 (Critical - Next Sprint)
-- [ ] Integrate real Razorpay payment gateway
-- [ ] Add email notifications (welcome, order confirmation)
-- [ ] Implement password reset flow
+- [ ] Integrate email sending to info@edvnova.com on form/order submit (Resend/SendGrid)
+- [ ] Integrate Razorpay for actual payments
 
 ### P1 (High Priority)
 - [ ] Add course content/lessons pages
 - [ ] Add progress tracking for enrolled courses
 - [ ] Implement file upload for resources
-- [ ] Add more comprehensive admin CRUD for courses/workshops
+- [ ] Add password reset flow
 
 ### P2 (Medium Priority)
+- [ ] Google Analytics / Meta Pixel for conversion tracking
 - [ ] Add video content support
 - [ ] Implement search functionality
-- [ ] Add filters for workshops by date
 - [ ] Add user profile editing
 - [ ] Implement batch/class scheduling
 
 ### P3 (Low Priority)
-- [ ] Add analytics dashboard for admin
-- [ ] Implement notifications system
-- [ ] Add testimonials management
+- [ ] Analytics dashboard for admin
+- [ ] Notifications system
+- [ ] Testimonials management via admin
 - [ ] Social media integration
 - [ ] Blog/News section
-
-## Next Tasks List
-1. Add real Razorpay integration when API keys are available
-2. Implement email service for notifications
-3. Build course content delivery system
-4. Add progress tracking for students
-5. Enhance admin panel with more management features
-
-## CRO & UI Upgrade (Jan 4, 2026 - Session 2)
-
-### Trust Building Sections Added
-- **Why EdVNova is Different**: Concept-First Learning, A* Grade Focus, Structured Academic System, Personalized Attention
-- **Built for Serious Students**: Deep Understanding, Long-Term Academic Growth, University Preparation
-
-### Conversion Optimization
-- "Limited Seats. Serious Students Only." messaging throughout
-- Multiple CTAs across sections (Book Free Demo Class, WhatsApp Us)
-- Stats bar: 67+ Chapters, 50+ Students, 95%+ Success Rate, A*/A Grade
-
-### Real Testimonials (from edvnova.com)
-- Ishika Dhomse (IGCSE Student)
-- Venkat (Parent)
-- Pallavi Kumar (Parent)
-
-### Form & Lead System
-- Contact form with Student Name, Grade, Phone, Email
-- Auto-redirect to WhatsApp after form submission
-- Pre-filled WhatsApp message with form data
-
-### Store Checkout Enhanced
-- Full address fields: Address, City, Pincode
-- Customer details: Name, Email, Phone
-- Order summary sent to WhatsApp for confirmation
-
-### WhatsApp Integration
-- Floating button on all pages (bottom right)
-- Links to: https://wa.me/919652546434
-- Contact page WhatsApp quick-contact button
-
-### Visual Enhancements
-- Larger hero headline (text-6xl/7xl)
-- Improved whitespace and spacing
-- Enhanced testimonial cards with initials
-- Better visual hierarchy throughout
