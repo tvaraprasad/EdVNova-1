@@ -103,3 +103,40 @@ Build EdVNova Learning - Advanced IGCSE Coaching Platform (Pune, India). Full-st
 3. Build course content delivery system
 4. Add progress tracking for students
 5. Enhance admin panel with more management features
+
+## CRO & UI Upgrade (Jan 4, 2026 - Session 2)
+
+### Trust Building Sections Added
+- **Why EdVNova is Different**: Concept-First Learning, A* Grade Focus, Structured Academic System, Personalized Attention
+- **Built for Serious Students**: Deep Understanding, Long-Term Academic Growth, University Preparation
+
+### Conversion Optimization
+- "Limited Seats. Serious Students Only." messaging throughout
+- Multiple CTAs across sections (Book Free Demo Class, WhatsApp Us)
+- Stats bar: 67+ Chapters, 50+ Students, 95%+ Success Rate, A*/A Grade
+
+### Real Testimonials (from edvnova.com)
+- Ishika Dhomse (IGCSE Student)
+- Venkat (Parent)
+- Pallavi Kumar (Parent)
+
+### Form & Lead System
+- Contact form with Student Name, Grade, Phone, Email
+- Auto-redirect to WhatsApp after form submission
+- Pre-filled WhatsApp message with form data
+
+### Store Checkout Enhanced
+- Full address fields: Address, City, Pincode
+- Customer details: Name, Email, Phone
+- Order summary sent to WhatsApp for confirmation
+
+### WhatsApp Integration
+- Floating button on all pages (bottom right)
+- Links to: https://wa.me/919652546434
+- Contact page WhatsApp quick-contact button
+
+### Visual Enhancements
+- Larger hero headline (text-6xl/7xl)
+- Improved whitespace and spacing
+- Enhanced testimonial cards with initials
+- Better visual hierarchy throughout
