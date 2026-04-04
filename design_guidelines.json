@@ -1,0 +1,123 @@
+{
+  "theme": "LIGHT",
+  "archetype": "4 (Swiss & High-Contrast - Apple/Stripe Minimalist Variant)",
+  "brand_identity": {
+    "domain": "Education & Coaching (Premium IGCSE)",
+    "tone": "Premium, Academic, Trustworthy, Global",
+    "visual_mood": "Minimal, lots of whitespace, crisp, clean desk environments, serious study focus."
+  },
+  "typography": {
+    "font_family": {
+      "heading": "Outfit, sans-serif",
+      "body": "Inter, sans-serif"
+    },
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter font-medium text-primary",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight font-medium text-primary",
+      "h3": "text-xl sm:text-2xl tracking-tight font-medium",
+      "h4": "text-lg sm:text-xl font-medium",
+      "body": "text-base text-text-secondary leading-relaxed",
+      "small": "text-sm text-text-secondary",
+      "overline": "text-xs font-bold uppercase tracking-[0.2em] text-accent"
+    },
+    "rules": [
+      "Headings (H1/H2) must use tight letter spacing (`tracking-tight` or `tracking-tighter`).",
+      "Never center text by default; define explicit alignment and hierarchy. Left-align dense content and paragraphs.",
+      "Never use Inter for headings. Use Outfit for a premium Apple/Stripe look.",
+      "Ensure hierarchy gap rule: jump between heading and subheading must not exceed 2 Tailwind steps."
+    ]
+  },
+  "colors": {
+    "primary": "#0B1F3A",
+    "secondary": "#1E3A5F",
+    "background": "#F8FAFC",
+    "surface": "#FFFFFF",
+    "accent": "#2563EB",
+    "accent_hover": "#1D4ED8",
+    "text_primary": "#0F172A",
+    "text_secondary": "#475569",
+    "border": "#E2E8F0",
+    "rules": [
+      "Use primary (#0B1F3A) for main headings and critical emphasis.",
+      "Use accent (#2563EB) strictly for CTAs, active states, and primary buttons. Limit its use.",
+      "No generic full-screen gradients. Use subtle lighting or clean solid backgrounds (#F8FAFC).",
+      "Ensure 4.5:1 contrast ratio for normal text and 3:1 for large text.",
+      "Tint neutral greys with a tiny bit of blue (cool) to match the brand."
+    ]
+  },
+  "layout_and_spacing": {
+    "spacing_scale": "p-4, p-6, p-8, p-12, p-16, p-24, p-32",
+    "philosophy": "Generous Spacing Philosophy. Use 2-3x more spacing than typical designs. Focus on negative space to create a premium feel.",
+    "marketing_grid": "The 'Tetris' Grid: grid-cols-1 md:grid-cols-8 lg:grid-cols-12 with wide gaps (gap-8 to gap-12). Prioritize asymmetry.",
+    "dashboard_grid": "The 'Control Room' Grid: grid-cols-1 md:grid-cols-3 lg:grid-cols-4 with tight gaps (gap-4 or gap-6). Utilize all pixels.",
+    "rules": [
+      "Containers with borders must have internal padding (p-6 or p-8).",
+      "Mobile-first responsive. Images MUST NOT exceed 80vh on mobile.",
+      "Grid items MUST be direct children of grid containers."
+    ]
+  },
+  "surfaces_and_components": {
+    "cards": "Flat background (surface #FFFFFF), 1px subtle border (#E2E8F0), no shadow by default. On hover: slight lift (-translate-y-1) and subtle shadow (shadow-lg).",
+    "header": "Crystal Glassmorphism: backdrop-blur-xl bg-white/70, 1px delicate inner stroke (border-white/40). Never use fully transparent.",
+    "buttons": "Crisp edges, moderate radii (rounded-md or rounded-lg). High contrast text on hover. e.g. hover:bg-accent-hover hover:text-white.",
+    "borders": "Nested radii (child <= parent). Crisp edges via semi-transparent borders.",
+    "shadcn_rules": [
+      "Use Shadcn UI for dashboard, forms, tables, dialogs, and interactive logic.",
+      "Use raw HTML + Tailwind for marketing page structures to maintain creative freedom.",
+      "Customize Shadcn components to remove the 'default Vercel' look and match the premium academic brand."
+    ]
+  },
+  "motion_and_interactions": {
+    "hover_states": "ALWAYS explicitly set text color on hover. focus:ring-2 focus:ring-accent/50.",
+    "transitions": "Use specific properties for transitions, not 'all' (e.g., transition: transform 0.2s ease, opacity 0.2s ease).",
+    "micro_interactions": "Subtle scale on hover for cards. Smooth entrances for list items."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1514369118554-e20d93546b30?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzJ8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwc3R1ZHlpbmclMjBzZXJpb3VzbHl8ZW58MHx8fHwxNzc1MzM3ODg2fDA&ixlib=rb-4.1.0&q=85",
+        "category": "Hero / Testimonials",
+        "description": "Student studying seriously, woman writing on book"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1675179190669-ef6bc809d8d7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzJ8MHwxfHNlYXJjaHwyfHxzdHVkZW50JTIwc3R1ZHlpbmclMjBzZXJpb3VzbHl8ZW58MHx8fHwxNzc1MzM3ODg2fDA&ixlib=rb-4.1.0&q=85",
+        "category": "Student Dashboard / About",
+        "description": "Man sitting at desk working on computer, focused"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1505209487757-5114235191e5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwzfHxjbGVhbiUyMGNsYXNzcm9vbSUyMGRlc2t8ZW58MHx8fHwxNzc1MzM3ODg2fDA&ixlib=rb-4.1.0&q=85",
+        "category": "Methodology / Environment",
+        "description": "Clean modern desk setup with Apple hardware"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1758685848095-249ad965f4f3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwyfHxtYXRoJTIwc2NpZW5jZSUyMGFic3RyYWN0fGVufDB8fHx8MTc3NTMzNzg4Nnww&ixlib=rb-4.1.0&q=85",
+        "category": "Programs (Math/Physics)",
+        "description": "Woman writing complex mathematical formulas on a chalkboard"
+      }
+    ],
+    "rules": [
+      "Hero image overlay max opacity: bg-black/50 or bg-white/40. If image isn't visible, overlay is too heavy.",
+      "Never use placeholder URLs.",
+      "Use lucide-react for standard icons."
+    ]
+  },
+  "testing_attributes": {
+    "rule": "All interactive and key informational elements MUST include a `data-testid` attribute.",
+    "convention": "kebab-case, role-based (NOT appearance-based)",
+    "examples": [
+      "data-testid=\"hero-cta-button\"",
+      "data-testid=\"course-enrollment-card\"",
+      "data-testid=\"student-dashboard-nav\""
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Read this file entirely before beginning implementation.",
+    "Ensure Tailwind config is updated with the exact colors provided.",
+    "Install and configure 'Outfit' for headings and 'Inter' for body.",
+    "Implement the Apple/Stripe aesthetic: generous padding, clean 1px borders, white surfaces on light gray backgrounds.",
+    "Use raw HTML/Tailwind for the landing page to ensure layout flexibility and use Shadcn exclusively for complex interactive components (forms, dashboard tables, dropdowns).",
+    "Apply `data-testid` consistently across all interactive elements.",
+    "Do NOT use 'Inter' for headings. Strict enforcement.",
+    "Incorporate the media URLs provided instead of placeholders."
+  ]
+}
