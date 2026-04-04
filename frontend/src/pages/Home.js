@@ -91,14 +91,17 @@ export default function Home() {
                 <div className="container-custom">
                     <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
                         <div className="max-w-xl">
-                            <p className="text-sm font-semibold text-accent tracking-wide uppercase mb-6">
-                                IISER Pune Graduate • Expert IGCSE Coaching
+                            <p className="text-sm font-medium text-accent tracking-wide uppercase mb-6">
+                                Advanced IGCSE Coaching
                             </p>
-                            <h1 className="text-5xl sm:text-6xl font-bold text-primary tracking-tight leading-[1.1] mb-8">
+                            <h1 className="text-5xl sm:text-6xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.08] mb-6">
                                 The Most Advanced IGCSE Coaching in Pune
                             </h1>
-                            <p className="text-xl text-gray-600 leading-relaxed mb-10">
+                            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed mb-3">
                                 We help students master concepts, think scientifically, and achieve A* results in Mathematics and Sciences.
+                            </p>
+                            <p className="text-sm text-gray-500 mb-10">
+                                Built for students who are serious about understanding, not memorizing.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 mb-6">
                                 <Link
@@ -118,7 +121,7 @@ export default function Home() {
                                 </Link>
                             </div>
                             <p className="text-sm text-gray-500">
-                                Limited seats available for 2024-25 batch
+                                Limited seats available for 2026–2028 batch
                             </p>
                         </div>
                         <div className="relative">
@@ -184,8 +187,25 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Our Vision */}
+            <section className="py-24 md:py-32 bg-white" data-testid="vision-section">
+                <div className="container-custom">
+                    <div className="max-w-3xl mx-auto text-center">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-8">
+                            Our Vision
+                        </h2>
+                        <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                            EdVNova is built with a simple goal — to transform the way students learn Mathematics and Science.
+                        </p>
+                        <p className="text-gray-600 text-lg leading-relaxed">
+                            We aim to make high-quality, concept-driven education accessible to students across the world, helping them think clearly, solve problems independently, and build a strong academic foundation for the future.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
             {/* Programs Section */}
-            <section className="py-24 md:py-32 bg-white" data-testid="programs-section">
+            <section className="py-24 md:py-32 bg-gray-50" data-testid="programs-section">
                 <div className="container-custom">
                     <div className="max-w-2xl mx-auto text-center mb-16">
                         <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-6">
@@ -222,7 +242,7 @@ export default function Home() {
             </section>
 
             {/* Teaching Approach */}
-            <section className="py-24 md:py-32 bg-gray-50">
+            <section className="py-24 md:py-32 bg-white">
                 <div className="container-custom">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
