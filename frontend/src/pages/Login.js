@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -34,23 +34,26 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen pt-20 flex items-center justify-center bg-background" data-testid="login-page">
-            <div className="w-full max-w-md px-6">
-                <div className="premium-card p-8">
-                    <div className="text-center mb-8">
-                        <h1 className="font-heading text-2xl font-medium text-primary mb-2">Welcome back</h1>
-                        <p className="text-text-secondary">Sign in to access your account</p>
+        <div className="min-h-screen pt-20 flex items-center justify-center bg-gradient-to-b from-background to-white" data-testid="login-page">
+            <div className="w-full max-w-md px-6 py-12">
+                <div className="premium-card p-8 md:p-10">
+                    <div className="text-center mb-10">
+                        <Link to="/" className="inline-block mb-6">
+                            <span className="font-heading text-2xl font-bold text-primary">EdVNova</span>
+                        </Link>
+                        <h1 className="font-heading text-3xl font-bold text-primary mb-3">Welcome back</h1>
+                        <p className="text-gray-600">Sign in to access your account</p>
                     </div>
 
                     {error && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm" data-testid="login-error">
+                        <div className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm" data-testid="login-error">
                             {error}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <Label htmlFor="email" className="text-text-primary">Email</Label>
+                            <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
                             <Input
                                 id="email"
                                 type="email"
@@ -58,13 +61,13 @@ export default function Login() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
                                 required
-                                className="mt-2"
+                                className="mt-2 h-12"
                                 data-testid="login-email-input"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="password" className="text-text-primary">Password</Label>
+                            <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
                             <div className="relative mt-2">
                                 <Input
                                     id="password"
@@ -73,12 +76,13 @@ export default function Login() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Enter your password"
                                     required
+                                    className="h-12 pr-12"
                                     data-testid="login-password-input"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
@@ -88,16 +92,21 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3 bg-accent text-white font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
+                            className="w-full py-4 bg-accent text-white font-semibold rounded-xl hover:bg-accent-hover transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-accent/20"
                             data-testid="login-submit-button"
                         >
-                            {loading ? 'Signing in...' : 'Sign In'}
+                            {loading ? 'Signing in...' : (
+                                <>
+                                    Sign In
+                                    <ArrowRight className="w-5 h-5" />
+                                </>
+                            )}
                         </button>
                     </form>
 
-                    <p className="mt-6 text-center text-text-secondary">
+                    <p className="mt-8 text-center text-gray-600">
                         Don't have an account?{' '}
-                        <Link to="/register" className="text-accent hover:underline" data-testid="register-link">
+                        <Link to="/register" className="text-accent font-semibold hover:underline" data-testid="register-link">
                             Sign up
                         </Link>
                     </p>
