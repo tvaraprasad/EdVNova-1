@@ -43,8 +43,9 @@ module.exports = {
                 },
             },
             fontFamily: {
-                heading: ['Outfit', 'sans-serif'],
-                body: ['Inter', 'sans-serif'],
+                sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                heading: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                body: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
             },
             borderRadius: {
                 lg: "var(--radius)",

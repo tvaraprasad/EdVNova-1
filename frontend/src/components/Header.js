@@ -25,9 +25,9 @@ export default function Header() {
 
     const navLinks = [
         { name: 'Programs', href: '/programs' },
+        { name: 'Profile Building', href: '/profile-building' },
         { name: 'Workshops', href: '/workshops' },
         { name: 'Resources', href: '/resources' },
-        { name: 'Store', href: '/store' },
         { name: 'About', href: '/about' },
         { name: 'Contact', href: '/contact' },
     ];
@@ -40,9 +40,9 @@ export default function Header() {
         <header className="fixed top-0 left-0 right-0 z-50 glass-header" data-testid="main-header">
             <nav className="container-custom">
                 <div className="flex items-center justify-between h-18 md:h-20">
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2" data-testid="logo-link" aria-label="Home">
-                        <span className="font-heading text-2xl md:text-[26px] font-bold text-primary tracking-tight">
+                    {/* Logo - Clean, Premium */}
+                    <Link to="/" className="flex items-center" data-testid="logo-link" aria-label="Home">
+                        <span className="text-[22px] md:text-[24px] font-bold text-primary tracking-tight">
                             EdVNova
                         </span>
                     </Link>
