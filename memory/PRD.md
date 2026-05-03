@@ -20,7 +20,7 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 - 15-part UI/UX refinement (institutional tone, Inter font, no gradients)
 - Real testimonials, CRO optimizations
 
-### Phase 2: Content Management System (Complete - Feb 4, 2026)
+### Phase 2: Content Management System (Complete)
 - Admin panel with 8 tabs: Overview, Topics, Courses, Resources, Products, Users, Orders, Contacts
 - Course hierarchy: Course -> Modules -> Lessons (video URL/upload, PDF, worksheet, preview flag)
 - File upload system (/api/uploads/file) for PDFs, videos, worksheets
@@ -30,66 +30,43 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 - Course content viewer at /course/:courseId with module sidebar + lesson player
 - Access control: free preview vs enrolled content
 
-### Phase 3: Curriculum System (Complete - May 3, 2026)
-**World-class academic learning platform for Cambridge students:**
+### Phase 3: Curriculum System (Complete)
 - 3 Boards: Cambridge IGCSE, AS Level, A Level
 - 4 Subjects: Mathematics, Physics, Chemistry, Biology
-- 340 Topics seeded across all boards/subjects (10 published with full content, 330 drafts)
-- SEO-friendly URLs: /igcse/chemistry/atomic-structure/isotopes
+- 340 Topics seeded (10 published with full content, 330 drafts)
+- SEO-friendly URLs, premium topic pages, bookmarks, progress tracking, search
 
-**Pages Built:**
-- /boards - Board selection (3 gradient cards)
-- /:board - Subject selection (4 colored subject cards)
-- /:board/:subject - Chapter listing (numbered, with published counts)
-- /:board/:subject/:chapter - Topic listing (with difficulty, study time, status)
-- /:board/:subject/:chapter/:topic - Premium topic page
-- /search - Search with board/subject filters
+### Phase 4: Admin Topic Editor & Email (Complete)
+- Full topic management UI with search/filter/pagination/editor
+- Email integration (mock mode, ready for Resend API key)
+- 10 published showcase topics
 
-**Topic Page Features:**
-- Clean hero with breadcrumb, study time, difficulty badge
-- Sticky Table of Contents sidebar with active section highlighting
-- Blue Definitions Box, Purple Formulas Box, Green Worked Examples Box
-- Amber Common Mistakes Box, Accent Examiner Tips Box, Gray Summary Box
-- Related Topics pills, Previous/Next topic navigation
-- Bookmark (save) and Mark Complete buttons (auth required)
+### Phase 5: UX Transformation (Complete - May 3, 2026)
+**Homepage Overhaul:**
+- Premium hero: "The Premium Learning Platform for IGCSE, AS & A Level Students"
+- Trust Strip: 340+ Topics, 3 Boards, 4 Subjects, 95%+ Success, A*/A Grade
+- Choose Your Path: 3 cards (Coaching, Notes & Worksheets, Self-Paced Learning)
+- Board Selection: 3 gradient cards (IGCSE, AS Level, A Level)
+- Why EdVNova: 6 differentiators (concept-first, structured, A*, resources, guidance, foundation)
+- Subjects Preview: 4 subject cards with icons
+- Testimonials: 3 real testimonials with premium layout
+- Final CTA: "Start Your Cambridge Learning Journey Today"
 
-### Phase 4: Admin Topic Editor & Email (Complete - May 3, 2026)
-**Admin Topic Editor:**
-- Full topic management UI under Admin > Topics tab
-- Stats dashboard: Total (340), Published (10), Draft (330)
-- Search, filter by Board/Subject/Status, pagination (30 per page)
-- Quick publish/unpublish toggle from list view
-- Full structured editor with collapsible sections:
-  - Topic Meta (Title, SEO Title, Meta Description, Study Time, Difficulty)
-  - Main Content (Introduction + dynamic content sections)
-  - Definitions (term/definition pairs)
-  - Formulas (name/formula/description)
-  - Worked Examples (question/solution pairs)
-  - Examiner Tips (one per line)
-  - Common Mistakes (one per line)
-  - Summary (one per line)
-- Save Draft / Save & Publish workflow
-- Designed for speed: admin can publish hundreds of topics quickly
+**Resources Page Upgrade:**
+- Hero with prominent search bar
+- Subject category filter cards (Mathematics, Physics, Chemistry, Biology) with counts
+- Type and access (free/premium) dropdown filters
+- Clear all filters button
+- Premium empty state with messaging
+- "Browse Topics" CTA linking to /boards
+- Premium resource cards with subject badges, premium/free tags
 
-**Email Integration (Mock Mode):**
-- Resend email service architecture fully wired
-- Contact form (POST /api/contact) → sends email to info@edvnova.com
-- Order creation (POST /api/orders/create) → sends order notification email
-- Mock mode: When RESEND_API_KEY is empty, emails are logged server-side
-- Production ready: Set RESEND_API_KEY and SENDER_EMAIL in .env to enable real emails
-- Professional HTML email templates for contact forms and order notifications
-
-**10 Published Showcase Topics:**
-1. IGCSE Chemistry > Atomic Structure > Isotopes
-2. IGCSE Physics > Motion > Acceleration
-3. IGCSE Biology > Movement In and Out of Cells > Osmosis
-4. IGCSE Biology > Plant Nutrition > Photosynthesis
-5. IGCSE Chemistry > Bonding > Ionic Bonding
-6. IGCSE Chemistry > Stoichiometry > Mole Concept
-7. IGCSE Physics > Forces > Newton Laws
-8. IGCSE Physics > Electricity > Resistance
-9. IGCSE Mathematics > Algebra > Equations
-10. IGCSE Mathematics > Number > Percentages
+**Global Updates:**
+- Header: 6 nav links (Boards, Programs, Resources, Workshops, About, Contact)
+- Footer: Global messaging ("Based in India · Teaching Globally Online")
+- Copy consistency: Cambridge-inclusive messaging throughout
+- Removed "Locations Across Pune" section
+- Removed IGCSE-only hero messaging, replaced with inclusive Cambridge messaging
 
 ## Database Collections
 - users, courses, enrollments, workshops, workshop_registrations
@@ -101,18 +78,16 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 ## Key API Endpoints
 - Auth: /api/auth/login, /register, /logout, /me, /refresh
 - Courses: /api/courses, /api/admin/courses
-- Content: /api/modules/*, /api/lessons/*, /api/uploads/file, /api/content/course/:id
-- Curriculum Browse: /api/curriculum/boards/*, /api/curriculum/search
-- Curriculum Student: /api/curriculum/user/bookmark, /api/curriculum/user/progress
-- Curriculum Admin: /api/curriculum/admin/topics (list), /api/curriculum/admin/topics/:id (get/update), /api/curriculum/admin/topics/:id/publish, /api/curriculum/admin/topics-stats
+- Content: /api/modules/*, /api/lessons/*, /api/uploads/file
+- Curriculum: /api/curriculum/boards/*, /api/curriculum/search, /api/curriculum/admin/topics
 - Contact: /api/contact (with email notification)
 - Orders: /api/orders/create (with email notification)
 
 ## Prioritized Backlog
 
 ### P1 (High Priority)
-- [ ] Improve resources browsing UX (search, filters, topic categories)
 - [ ] Razorpay payment integration (currently mocked)
+- [ ] More published topic content (currently 10/340 published)
 
 ### P2 (Medium Priority)
 - [ ] Google Analytics / Meta Pixel for conversion tracking
@@ -124,11 +99,7 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 
 ### P3 (Low Priority)
 - [ ] Revision notes printing/PDF export
-- [ ] Schema markup for SEO
-- [ ] Sitemap generation
+- [ ] Schema markup for SEO / Sitemap generation
 - [ ] Student progress analytics dashboard
-- [ ] Topical questions by chapter
-- [ ] Continue-where-left-off feature
-- [ ] Difficulty-based topic filtering
 - [ ] Social sharing for topics
 - [ ] Scale to CBSE, ICSE, JEE, NEET, SAT, AP boards

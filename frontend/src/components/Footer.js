@@ -92,7 +92,7 @@ export default function Footer() {
                                 <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
                                     <MapPin className="w-5 h-5" />
                                 </div>
-                                <span>Pune, India &middot; Online Worldwide</span>
+                                <span>Based in India &middot; Teaching Globally Online</span>
                             </div>
                         </div>
                     </div>
