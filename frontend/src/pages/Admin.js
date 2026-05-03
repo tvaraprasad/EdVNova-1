@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap } from 'lucide-react';
+import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool } from 'lucide-react';
 import { toast } from 'sonner';
 import CourseManager from '../components/admin/CourseManager';
 import ResourceManager from '../components/admin/ResourceManager';
 import ProductManager from '../components/admin/ProductManager';
+import TopicEditor from '../components/admin/TopicEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -42,6 +43,7 @@ export default function Admin() {
 
     const tabs = [
         { id: 'overview', name: 'Overview', icon: BookOpen },
+        { id: 'topics', name: 'Topics', icon: PenTool },
         { id: 'courses', name: 'Courses', icon: GraduationCap },
         { id: 'resources', name: 'Resources', icon: FileText },
         { id: 'products', name: 'Products', icon: Package },
@@ -184,6 +186,13 @@ export default function Admin() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Topics Tab */}
+                {activeTab === 'topics' && (
+                    <div data-testid="admin-topics">
+                        <TopicEditor />
                     </div>
                 )}
 

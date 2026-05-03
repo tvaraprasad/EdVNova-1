@@ -499,9 +499,17 @@ async def create_order(order_data: OrderCreate, request: Request):
         "payment_status": "pending"
     }
     result = await db.orders.insert_one(order)
-    
+    order_id = str(result.inserted_id)
+
+    # Send email notification (mock or real depending on RESEND_API_KEY)
+    from email_service import notify_new_order
+    try:
+        await notify_new_order(order_id, user["email"], items, total, order_data.shipping_address, order_data.phone)
+    except Exception as e:
+        logger.error(f"Order email notification failed: {e}")
+
     return {
-        "id": str(result.inserted_id),
+        "id": order_id,
         "total": total,
         "status": "pending",
         "message": "Order created successfully. Proceed to payment."
@@ -539,6 +547,12 @@ async def submit_contact(form: ContactForm):
         "status": "new"
     }
     await db.contacts.insert_one(contact)
+    # Send email notification (mock or real depending on RESEND_API_KEY)
+    from email_service import notify_contact_form
+    try:
+        await notify_contact_form(form.name, form.email, form.phone, form.message, form.subject)
+    except Exception as e:
+        logger.error(f"Email notification failed: {e}")
     return {"message": "Thank you for contacting us. We will get back to you soon."}
 
 # Admin Routes

@@ -274,7 +274,188 @@ SAMPLE_CONTENT = {
             "Gradient of velocity-time graph gives acceleration",
             "Use SUVAT equations for uniform acceleration problems",
         ],
-    }
+    },
+    ("igcse", "biology", "movement-in-and-out-of-cells", "osmosis"): {
+        "introduction": "Osmosis is the net movement of water molecules from a region of higher water potential to a region of lower water potential through a partially permeable membrane.",
+        "sections": [
+            {"title": "How Osmosis Works", "content": "Water molecules are small enough to pass through the tiny pores in a partially permeable membrane. They move randomly in all directions, but there is a net movement from the dilute solution (high water potential) to the concentrated solution (low water potential)."},
+            {"title": "Osmosis in Plant Cells", "content": "When a plant cell is placed in pure water, water enters by osmosis. The cell swells but does not burst because the rigid cell wall provides support. The cell becomes turgid.\n\nWhen placed in a concentrated solution, water leaves the cell. The cell membrane pulls away from the cell wall — this is called plasmolysis."},
+            {"title": "Osmosis in Animal Cells", "content": "Animal cells have no cell wall. In pure water, they swell and may burst (lysis). In concentrated solutions, they shrink and become crenated."},
+        ],
+        "definitions": [
+            {"term": "Osmosis", "definition": "The net movement of water molecules from a region of higher water potential to a region of lower water potential through a partially permeable membrane."},
+            {"term": "Partially Permeable Membrane", "definition": "A membrane that allows some molecules (like water) to pass through but not others."},
+            {"term": "Turgid", "definition": "A plant cell that is firm and swollen because it has absorbed water by osmosis."},
+            {"term": "Plasmolysis", "definition": "The shrinking of the cell membrane away from the cell wall when water leaves a plant cell by osmosis."},
+        ],
+        "formulas": [],
+        "worked_examples": [
+            {"question": "A piece of potato is placed in pure water. After 30 minutes, the potato has increased in mass. Explain why.", "solution": "1. The pure water has a higher water potential than the potato cells.\n2. Water molecules move into the potato cells by osmosis.\n3. This occurs through the partially permeable cell membranes.\n4. The net movement is from high water potential to low water potential.\n5. This causes the cells to gain water and increase in mass."},
+        ],
+        "common_mistakes": [
+            "Saying water moves from low concentration to high concentration — use water potential terminology",
+            "Forgetting to mention the partially permeable membrane",
+            "Confusing osmosis with diffusion — osmosis is specifically about water through a membrane",
+        ],
+        "examiner_tips": [
+            "Always mention: water molecules, water potential, partially permeable membrane",
+            "In practical questions, explain the direction of water movement using water potential",
+            "Know the difference between turgid, flaccid, and plasmolysed cells",
+        ],
+        "summary": [
+            "Osmosis is the movement of water from high to low water potential through a partially permeable membrane",
+            "Plant cells become turgid in water, plasmolysed in concentrated solutions",
+            "Animal cells may burst in water or shrink in concentrated solutions",
+        ],
+    },
+    ("igcse", "biology", "plant-nutrition", "photosynthesis"): {
+        "introduction": "Photosynthesis is the process by which green plants use light energy to convert carbon dioxide and water into glucose and oxygen.",
+        "sections": [
+            {"title": "The Equation", "content": "6CO2 + 6H2O → C6H12O6 + 6O2\n\nCarbon dioxide + Water → Glucose + Oxygen\n\nLight energy is absorbed by chlorophyll in the chloroplasts."},
+            {"title": "Limiting Factors", "content": "Three main factors limit the rate of photosynthesis:\n\n1. Light intensity — more light increases rate up to a point\n2. Carbon dioxide concentration — more CO2 increases rate\n3. Temperature — enzymes work faster up to an optimum, then denature"},
+        ],
+        "definitions": [
+            {"term": "Photosynthesis", "definition": "The process by which plants use light energy to convert CO2 and water into glucose and oxygen."},
+            {"term": "Chlorophyll", "definition": "The green pigment in chloroplasts that absorbs light energy."},
+            {"term": "Limiting Factor", "definition": "The factor in shortest supply that restricts the rate of photosynthesis."},
+        ],
+        "formulas": [
+            {"name": "Photosynthesis Equation", "formula": "6CO2 + 6H2O → C6H12O6 + 6O2", "description": "Requires light energy and chlorophyll."},
+        ],
+        "worked_examples": [
+            {"question": "A student measured oxygen bubbles at different light distances. At 10cm: 5 bubbles/min. At 5cm: 18 bubbles/min. Explain.", "solution": "1. At 5cm, light intensity is higher.\n2. Higher light intensity increases rate of photosynthesis.\n3. More photosynthesis produces more oxygen.\n4. Therefore more oxygen bubbles are released per minute."},
+        ],
+        "common_mistakes": ["Thinking photosynthesis only happens in daytime — correct, but respiration happens all the time", "Forgetting temperature affects enzymes in photosynthesis"],
+        "examiner_tips": ["Learn both word and balanced symbol equations", "In graph questions, explain what limits the rate at the plateau"],
+        "summary": ["Photosynthesis converts CO2 and water into glucose and oxygen", "Chlorophyll absorbs light energy in chloroplasts", "Rate limited by light, CO2, and temperature"],
+    },
+    ("igcse", "chemistry", "bonding", "ionic-bonding"): {
+        "introduction": "Ionic bonding involves the transfer of electrons from a metal atom to a non-metal atom, creating oppositely charged ions held together by strong electrostatic forces.",
+        "sections": [
+            {"title": "How Ionic Bonds Form", "content": "Metal atoms lose electrons to form positive ions (cations). Non-metal atoms gain electrons to form negative ions (anions).\n\nFor example, sodium (Na) loses one electron to become Na+, and chlorine (Cl) gains one electron to become Cl-."},
+            {"title": "Properties of Ionic Compounds", "content": "Ionic compounds have:\n- High melting and boiling points\n- Conduct electricity when molten or dissolved (ions free to move)\n- Do not conduct when solid (ions fixed in lattice)\n- Usually soluble in water"},
+        ],
+        "definitions": [
+            {"term": "Ionic Bond", "definition": "The strong electrostatic force of attraction between oppositely charged ions."},
+            {"term": "Cation", "definition": "A positively charged ion formed when an atom loses electrons."},
+            {"term": "Anion", "definition": "A negatively charged ion formed when an atom gains electrons."},
+        ],
+        "formulas": [],
+        "worked_examples": [
+            {"question": "Describe the formation of magnesium oxide (MgO).", "solution": "1. Magnesium (2,8,2) loses 2 electrons → Mg2+ (2,8)\n2. Oxygen (2,6) gains 2 electrons → O2- (2,8)\n3. Strong electrostatic attraction between Mg2+ and O2- forms the ionic bond.\n4. Both ions have stable full outer shells."},
+        ],
+        "common_mistakes": ["Saying electrons are shared — they are transferred", "Forgetting the compound is electrically neutral overall"],
+        "examiner_tips": ["Always state 'electrostatic force of attraction between oppositely charged ions'", "Metals LOSE electrons, non-metals GAIN electrons"],
+        "summary": ["Ionic bonds form by electron transfer from metals to non-metals", "Creates cations and anions", "High melting points, conduct when molten/dissolved"],
+    },
+    ("igcse", "chemistry", "stoichiometry", "mole-concept"): {
+        "introduction": "The mole is the chemist's counting unit. One mole contains 6.02 x 10^23 particles (Avogadro's number). It links mass to number of particles.",
+        "sections": [
+            {"title": "What is a Mole?", "content": "A mole is the amount of substance containing 6.02 x 10^23 particles. The molar mass is the relative formula mass in grams. For water (H2O), molar mass = 18 g/mol."},
+            {"title": "Mole Calculations", "content": "Key relationship: moles = mass / molar mass\n\nFor gases at RTP, one mole occupies 24 dm^3."},
+        ],
+        "definitions": [
+            {"term": "Mole", "definition": "The amount of substance containing 6.02 x 10^23 particles."},
+            {"term": "Avogadro's Constant", "definition": "6.02 x 10^23 — the number of particles in one mole."},
+            {"term": "Molar Mass", "definition": "The mass of one mole of a substance in g/mol."},
+        ],
+        "formulas": [
+            {"name": "Moles from Mass", "formula": "n = m / M", "description": "n = moles, m = mass (g), M = molar mass (g/mol)"},
+            {"name": "Moles of Gas", "formula": "n = V / 24", "description": "V = volume in dm^3 at RTP"},
+            {"name": "Concentration", "formula": "c = n / V", "description": "c = mol/dm^3, n = moles, V = volume (dm^3)"},
+        ],
+        "worked_examples": [
+            {"question": "Calculate moles in 11g of CO2. [C=12, O=16]", "solution": "M(CO2) = 12 + (16 x 2) = 44 g/mol\nn = m/M = 11/44 = 0.25 mol"},
+        ],
+        "common_mistakes": ["Not converting cm^3 to dm^3 (divide by 1000)", "Forgetting the correct volume at RTP (24 dm^3)"],
+        "examiner_tips": ["Always show working: write formula, substitute, calculate", "The triangle method (n = m/M) helps rearranging"],
+        "summary": ["One mole = 6.02 x 10^23 particles", "Moles = mass / molar mass", "One mole of gas at RTP = 24 dm^3"],
+    },
+    ("igcse", "physics", "forces", "newton-laws"): {
+        "introduction": "Newton's three laws of motion describe the relationship between forces acting on an object and its motion.",
+        "sections": [
+            {"title": "Newton's First Law", "content": "An object remains at rest or constant velocity unless acted upon by an unbalanced (resultant) force."},
+            {"title": "Newton's Second Law", "content": "F = ma. Acceleration is proportional to resultant force and inversely proportional to mass."},
+            {"title": "Newton's Third Law", "content": "For every action, there is an equal and opposite reaction. These force pairs act on different objects."},
+        ],
+        "definitions": [
+            {"term": "Resultant Force", "definition": "The single force that has the same effect as all forces combined."},
+            {"term": "Newton (N)", "definition": "SI unit of force. 1 N gives a 1 kg mass an acceleration of 1 m/s^2."},
+        ],
+        "formulas": [
+            {"name": "Newton's Second Law", "formula": "F = ma", "description": "Force (N) = mass (kg) x acceleration (m/s^2)"},
+            {"name": "Weight", "formula": "W = mg", "description": "Weight (N) = mass (kg) x g (9.8 N/kg on Earth)"},
+        ],
+        "worked_examples": [
+            {"question": "A 1200 kg car accelerates at 2.5 m/s^2. Find the resultant force.", "solution": "F = ma = 1200 x 2.5 = 3000 N"},
+        ],
+        "common_mistakes": ["Confusing mass and weight", "Third Law pairs act on DIFFERENT objects", "F = ma uses RESULTANT force"],
+        "examiner_tips": ["For Third Law, identify the TWO objects and TWO forces", "Draw free-body diagrams with all forces labelled"],
+        "summary": ["1st Law: No resultant force = no change in motion", "2nd Law: F = ma", "3rd Law: Equal and opposite reaction on different objects"],
+    },
+    ("igcse", "physics", "electricity", "resistance"): {
+        "introduction": "Resistance is the opposition to current flow, measured in ohms. It determines how much current flows for a given voltage.",
+        "sections": [
+            {"title": "Ohm's Law", "content": "For a conductor at constant temperature, current is proportional to voltage. V = IR. Ohmic conductors have a straight-line I-V graph through the origin."},
+            {"title": "Factors Affecting Resistance", "content": "Resistance depends on: length (longer = more), cross-sectional area (thinner = more), material, and temperature (higher = more for metals)."},
+        ],
+        "definitions": [
+            {"term": "Resistance", "definition": "Opposition to current flow, measured in ohms."},
+            {"term": "Ohm's Law", "definition": "Current is proportional to voltage at constant temperature."},
+        ],
+        "formulas": [
+            {"name": "Ohm's Law", "formula": "V = IR", "description": "Voltage (V) = Current (A) x Resistance (ohm)"},
+            {"name": "Series", "formula": "R_total = R1 + R2 + R3", "description": "Total resistance in series"},
+            {"name": "Parallel", "formula": "1/R_total = 1/R1 + 1/R2", "description": "Total resistance in parallel"},
+        ],
+        "worked_examples": [
+            {"question": "A 12V battery connects to a 4 ohm resistor. Find the current.", "solution": "I = V/R = 12/4 = 3 A"},
+        ],
+        "common_mistakes": ["Confusing series and parallel formulas", "Parallel resistors DECREASE total resistance"],
+        "examiner_tips": ["State Ohm's Law with 'at constant temperature'", "Gradient of V vs I graph = resistance"],
+        "summary": ["V = IR (Ohm's Law)", "Series: resistances add", "Parallel: total resistance decreases", "Resistance depends on length, area, material, temperature"],
+    },
+    ("igcse", "mathematics", "algebra", "equations"): {
+        "introduction": "Equations are mathematical statements where two expressions are equal. Solving means finding the unknown value that makes the equation true.",
+        "sections": [
+            {"title": "Linear Equations", "content": "Isolate the variable by performing the same operations on both sides.\n\nExample: 3x + 5 = 14 → 3x = 9 → x = 3"},
+            {"title": "Simultaneous Equations", "content": "Two equations with two unknowns. Solve by elimination or substitution."},
+        ],
+        "definitions": [
+            {"term": "Equation", "definition": "A mathematical statement that two expressions are equal."},
+            {"term": "Simultaneous Equations", "definition": "A set of equations sharing variables, solved together."},
+        ],
+        "formulas": [
+            {"name": "Quadratic Formula", "formula": "x = (-b +/- sqrt(b^2 - 4ac)) / 2a", "description": "Solves ax^2 + bx + c = 0"},
+        ],
+        "worked_examples": [
+            {"question": "Solve: 2x + y = 7 and x - y = 2", "solution": "Add equations: 3x = 9, so x = 3\nSubstitute: 3 - y = 2, so y = 1\nSolution: x = 3, y = 1"},
+        ],
+        "common_mistakes": ["Forgetting to do same operation on BOTH sides", "Sign errors with negative brackets"],
+        "examiner_tips": ["Show each step clearly", "Check by substituting back into original equation"],
+        "summary": ["Solve by isolating the variable", "Simultaneous: elimination or substitution", "Always check your answer"],
+    },
+    ("igcse", "mathematics", "number", "percentages"): {
+        "introduction": "Percentages express a number as a fraction of 100. Used for discounts, interest rates, tax, and data analysis.",
+        "sections": [
+            {"title": "Finding a Percentage", "content": "To find x% of an amount: multiply by x/100. Or use multiplier: 15% = 0.15."},
+            {"title": "Percentage Change", "content": "Increase: multiplier = (1 + %/100). Decrease: multiplier = (1 - %/100).\n\nReverse: divide by multiplier to find original."},
+        ],
+        "definitions": [
+            {"term": "Percentage", "definition": "A number expressed as a fraction of 100."},
+            {"term": "Multiplier", "definition": "Decimal for percentage changes. E.g. 15% increase = 1.15."},
+        ],
+        "formulas": [
+            {"name": "Percentage of Amount", "formula": "Amount x (% / 100)", "description": "Find a percentage of a number"},
+            {"name": "Percentage Change", "formula": "(Difference / Original) x 100%", "description": "Calculate % increase or decrease"},
+        ],
+        "worked_examples": [
+            {"question": "A jacket costs $85 after 15% discount. Find original price.", "solution": "Multiplier = 1 - 0.15 = 0.85\nOriginal = $85 / 0.85 = $100"},
+        ],
+        "common_mistakes": ["Using wrong base value in reverse percentage", "Adding percentage to new amount instead of using multiplier"],
+        "examiner_tips": ["Use multiplier method — faster and less error-prone", "For reverse %, always divide by multiplier"],
+        "summary": ["Percentages = fractions of 100", "Increase 25% = multiply by 1.25", "Reverse: divide by multiplier", "Change = (diff/original) x 100"],
+    },
 }
 
 ALL_CURRICULUM = {"igcse": IGCSE, "as-level": AS_LEVEL, "a-level": A_LEVEL}
