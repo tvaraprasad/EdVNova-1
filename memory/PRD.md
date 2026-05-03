@@ -9,6 +9,7 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 - Database: MongoDB
 - Auth: JWT with httpOnly cookies
 - Payment: Razorpay (MOCKED)
+- Email: Resend (MOCKED — ready for API key plug-in)
 
 ## What's Been Implemented
 
@@ -20,7 +21,7 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 - Real testimonials, CRO optimizations
 
 ### Phase 2: Content Management System (Complete - Feb 4, 2026)
-- Admin panel with 7 tabs: Overview, Courses, Resources, Products, Users, Orders, Contacts
+- Admin panel with 8 tabs: Overview, Topics, Courses, Resources, Products, Users, Orders, Contacts
 - Course hierarchy: Course -> Modules -> Lessons (video URL/upload, PDF, worksheet, preview flag)
 - File upload system (/api/uploads/file) for PDFs, videos, worksheets
 - Resource management with category filters and free/locked toggle
@@ -33,7 +34,7 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 **World-class academic learning platform for Cambridge students:**
 - 3 Boards: Cambridge IGCSE, AS Level, A Level
 - 4 Subjects: Mathematics, Physics, Chemistry, Biology
-- 340+ Topics seeded across all boards/subjects
+- 340 Topics seeded across all boards/subjects (10 published with full content, 330 drafts)
 - SEO-friendly URLs: /igcse/chemistry/atomic-structure/isotopes
 
 **Pages Built:**
@@ -47,31 +48,48 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 **Topic Page Features:**
 - Clean hero with breadcrumb, study time, difficulty badge
 - Sticky Table of Contents sidebar with active section highlighting
-- Blue Definitions Box
-- Purple Formulas Box (with mono font)
-- Green Worked Examples Box
-- Amber Common Mistakes Box
-- Accent Examiner Tips Box
-- Gray Summary Box with checkmarks
-- Related Topics pills
-- Previous/Next topic navigation
+- Blue Definitions Box, Purple Formulas Box, Green Worked Examples Box
+- Amber Common Mistakes Box, Accent Examiner Tips Box, Gray Summary Box
+- Related Topics pills, Previous/Next topic navigation
 - Bookmark (save) and Mark Complete buttons (auth required)
 
-**Showcase Topics with Full Content:**
-- IGCSE Chemistry > Atomic Structure > Isotopes
-- IGCSE Physics > Motion > Acceleration
+### Phase 4: Admin Topic Editor & Email (Complete - May 3, 2026)
+**Admin Topic Editor:**
+- Full topic management UI under Admin > Topics tab
+- Stats dashboard: Total (340), Published (10), Draft (330)
+- Search, filter by Board/Subject/Status, pagination (30 per page)
+- Quick publish/unpublish toggle from list view
+- Full structured editor with collapsible sections:
+  - Topic Meta (Title, SEO Title, Meta Description, Study Time, Difficulty)
+  - Main Content (Introduction + dynamic content sections)
+  - Definitions (term/definition pairs)
+  - Formulas (name/formula/description)
+  - Worked Examples (question/solution pairs)
+  - Examiner Tips (one per line)
+  - Common Mistakes (one per line)
+  - Summary (one per line)
+- Save Draft / Save & Publish workflow
+- Designed for speed: admin can publish hundreds of topics quickly
 
-**Student Features:**
-- Bookmark topics (toggle, auth required)
-- Mark topics as complete (progress tracking)
-- Search across all topics with board/subject filters
+**Email Integration (Mock Mode):**
+- Resend email service architecture fully wired
+- Contact form (POST /api/contact) → sends email to info@edvnova.com
+- Order creation (POST /api/orders/create) → sends order notification email
+- Mock mode: When RESEND_API_KEY is empty, emails are logged server-side
+- Production ready: Set RESEND_API_KEY and SENDER_EMAIL in .env to enable real emails
+- Professional HTML email templates for contact forms and order notifications
 
-**Backend Architecture:**
-- /app/backend/curriculum_data.py - All seed data
-- /app/backend/curriculum_api.py - Browse, search, admin, student routes
-- Auto-seeded on startup (idempotent)
-- Text indexes for search
-- Compound indexes for fast lookups
+**10 Published Showcase Topics:**
+1. IGCSE Chemistry > Atomic Structure > Isotopes
+2. IGCSE Physics > Motion > Acceleration
+3. IGCSE Biology > Movement In and Out of Cells > Osmosis
+4. IGCSE Biology > Plant Nutrition > Photosynthesis
+5. IGCSE Chemistry > Bonding > Ionic Bonding
+6. IGCSE Chemistry > Stoichiometry > Mole Concept
+7. IGCSE Physics > Forces > Newton Laws
+8. IGCSE Physics > Electricity > Resistance
+9. IGCSE Mathematics > Algebra > Equations
+10. IGCSE Mathematics > Number > Percentages
 
 ## Database Collections
 - users, courses, enrollments, workshops, workshop_registrations
@@ -84,32 +102,32 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 - Auth: /api/auth/login, /register, /logout, /me, /refresh
 - Courses: /api/courses, /api/admin/courses
 - Content: /api/modules/*, /api/lessons/*, /api/uploads/file, /api/content/course/:id
-- Curriculum: /api/curriculum/boards/*, /api/curriculum/search, /api/curriculum/user/bookmark, /api/curriculum/user/progress
-- Admin: /api/curriculum/admin/topics/:id
+- Curriculum Browse: /api/curriculum/boards/*, /api/curriculum/search
+- Curriculum Student: /api/curriculum/user/bookmark, /api/curriculum/user/progress
+- Curriculum Admin: /api/curriculum/admin/topics (list), /api/curriculum/admin/topics/:id (get/update), /api/curriculum/admin/topics/:id/publish, /api/curriculum/admin/topics-stats
+- Contact: /api/contact (with email notification)
+- Orders: /api/orders/create (with email notification)
 
 ## Prioritized Backlog
 
-### P0 (Next Sprint)
-- [ ] Admin Topic Editor UI (add/edit topic content from admin panel)
-- [ ] Integrate email sending to info@edvnova.com (Resend/SendGrid)
-- [ ] Add more published topic content
-
 ### P1 (High Priority)
+- [ ] Improve resources browsing UX (search, filters, topic categories)
+- [ ] Razorpay payment integration (currently mocked)
+
+### P2 (Medium Priority)
+- [ ] Google Analytics / Meta Pixel for conversion tracking
 - [ ] Dark mode for reading
 - [ ] Mobile-optimized reading mode
 - [ ] Practice questions system (MCQ)
 - [ ] Past papers section
-- [ ] Razorpay payment integration
+- [ ] Break down server.py (~1000 lines) into modular route files
 
-### P2 (Medium Priority)
+### P3 (Low Priority)
 - [ ] Revision notes printing/PDF export
-- [ ] Google Analytics / Meta Pixel
 - [ ] Schema markup for SEO
 - [ ] Sitemap generation
 - [ ] Student progress analytics dashboard
 - [ ] Topical questions by chapter
-
-### P3 (Low Priority)
 - [ ] Continue-where-left-off feature
 - [ ] Difficulty-based topic filtering
 - [ ] Social sharing for topics
