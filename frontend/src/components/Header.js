@@ -24,6 +24,7 @@ export default function Header() {
     };
 
     const navLinks = [
+        { name: 'Boards', href: '/boards' },
         { name: 'Programs', href: '/programs' },
         { name: 'Profile Building', href: '/profile-building' },
         { name: 'Workshops', href: '/workshops' },

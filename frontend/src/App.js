@@ -24,6 +24,13 @@ import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import ProfileBuilding from "./pages/ProfileBuilding";
 import CareerGuidance from "./pages/CareerGuidance";
+import CourseContent from "./pages/CourseContent";
+import BoardsList from "./pages/curriculum/BoardsList";
+import SubjectsList from "./pages/curriculum/SubjectsList";
+import ChaptersList from "./pages/curriculum/ChaptersList";
+import TopicsList from "./pages/curriculum/TopicsList";
+import TopicPage from "./pages/curriculum/TopicPage";
+import SearchPage from "./pages/curriculum/SearchPage";
 
 function App() {
     return (
@@ -48,6 +55,14 @@ function App() {
                                 <Route path="/profile-building" element={<ProfileBuilding />} />
                                 <Route path="/career-guidance" element={<CareerGuidance />} />
                                 <Route
+                                    path="/course/:courseId"
+                                    element={
+                                        <ProtectedRoute>
+                                            <CourseContent />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
                                     path="/dashboard"
                                     element={
                                         <ProtectedRoute>
@@ -63,6 +78,13 @@ function App() {
                                         </ProtectedRoute>
                                     }
                                 />
+                                {/* Curriculum Routes */}
+                                <Route path="/boards" element={<BoardsList />} />
+                                <Route path="/search" element={<SearchPage />} />
+                                <Route path="/:board" element={<SubjectsList />} />
+                                <Route path="/:board/:subject" element={<ChaptersList />} />
+                                <Route path="/:board/:subject/:chapter" element={<TopicsList />} />
+                                <Route path="/:board/:subject/:chapter/:topic" element={<TopicPage />} />
                             </Routes>
                         </main>
                         <Footer />

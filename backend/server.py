@@ -5,6 +5,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
@@ -682,7 +683,25 @@ api_router.include_router(admin_router)
 async def root():
     return {"message": "EdVNova Learning API", "version": "1.0.0"}
 
+# Content management routes (modules, lessons, uploads, etc.)
+from content_api import create_content_routes
+content_router = create_content_routes(db, get_current_user, get_admin_user)
+api_router.include_router(content_router)
+
+# Curriculum routes (boards, subjects, chapters, topics)
+from curriculum_api import create_curriculum_routes
+curriculum_router, seed_curriculum = create_curriculum_routes(db, get_current_user, get_admin_user)
+api_router.include_router(curriculum_router)
+
 app.include_router(api_router)
+
+# Serve uploaded files
+import pathlib
+upload_dir = pathlib.Path("/app/uploads")
+upload_dir.mkdir(exist_ok=True)
+for sub in ["pdfs", "videos", "worksheets", "products", "resources"]:
+    (upload_dir / sub).mkdir(exist_ok=True)
+app.mount("/api/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
 # CORS
 app.add_middleware(
@@ -914,6 +933,10 @@ async def startup():
 - POST /api/auth/refresh
 """)
     logger.info("Test credentials written")
+
+    # Seed curriculum data
+    await seed_curriculum()
+    logger.info("Curriculum data seeded")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
