@@ -1,116 +1,116 @@
 # EdVNova Learning Platform - PRD
 
 ## Original Problem Statement
-Build EdVNova Learning - Advanced IGCSE Coaching Platform (Pune, India). Full-stack production-ready platform to maximize student sign-ups, course enrollments, and consultation bookings. Platform must feel premium, academic, trustworthy, and global.
-
-## User Personas
-1. **Students (Ages 13-16)**: IGCSE students seeking quality coaching
-2. **Parents**: Decision makers looking for reliable education for children
-3. **Administrators**: Staff managing courses, workshops, resources, and orders
-
-## Core Requirements (Static)
-- Premium Apple/Stripe style design
-- Color scheme: Primary #0B1F3A, Accent #2563EB, Background #F8FAFC
-- Font: Inter (headings + body, no decorative fonts)
-- JWT authentication with role-based access
-- Course management (4 subjects: Math, Physics, Chemistry, Biology)
-- Workshop registration system
-- Resource library with premium content (locked for guests)
-- E-commerce store with cart
-- Student and Admin dashboards
-- Contact form with WhatsApp redirect
-- WhatsApp floating button on all pages
+Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. Full-stack platform for Cambridge IGCSE, AS Level, and A Level students. Maximize sign-ups, course enrollments, consultation bookings. Premium Apple/Stripe style design.
 
 ## Tech Stack
 - Frontend: React 19 + TailwindCSS + Shadcn UI
 - Backend: FastAPI (Python)
 - Database: MongoDB
 - Auth: JWT with httpOnly cookies
-- Payment: Razorpay (MOCKED for now)
+- Payment: Razorpay (MOCKED)
 
 ## What's Been Implemented
 
-### Frontend Pages
-- Homepage with hero, stats bar, Why Different, Our Vision, Programs, Teaching Approach, Profile Building, Testimonials, Locations, Final CTA
-- About page with vision, philosophy, stats
-- Programs listing page
-- Program detail page with enrollment
-- Workshops listing with registration
-- Resources library (locked content for non-authenticated)
-- Store with products and category filters
-- Cart with checkout (mock payment + WhatsApp redirect + full address)
-- Contact page with form (WhatsApp redirect)
-- Login/Register pages
-- Student Dashboard
-- Admin Panel with tabs (Overview, Users, Orders, Contacts)
-- Profile Building page
-- Career Guidance page
+### Phase 1: Core Platform (Complete)
+- JWT Authentication (login, register, logout, refresh)
+- All pages: Home, About, Programs, Workshops, Resources, Store, Cart, Contact, Dashboard, Admin
+- WhatsApp floating button, form redirects to WA
+- 15-part UI/UX refinement (institutional tone, Inter font, no gradients)
+- Real testimonials, CRO optimizations
 
-### Backend APIs
-- Complete auth system (register, login, logout, me, refresh)
-- Courses CRUD and enrollment
-- Workshops CRUD and registration
-- Resources management (premium content access control)
-- Products CRUD
-- Orders with mock payment
-- Contact form submissions
-- Admin stats and management endpoints
+### Phase 2: Content Management System (Complete - Feb 4, 2026)
+- Admin panel with 7 tabs: Overview, Courses, Resources, Products, Users, Orders, Contacts
+- Course hierarchy: Course -> Modules -> Lessons (video URL/upload, PDF, worksheet, preview flag)
+- File upload system (/api/uploads/file) for PDFs, videos, worksheets
+- Resource management with category filters and free/locked toggle
+- Product management with file uploads
+- Student dashboard with tabs: Overview, My Courses, My Resources, Downloads, Orders
+- Course content viewer at /course/:courseId with module sidebar + lesson player
+- Access control: free preview vs enrolled content
 
-### Database
-- Users collection with role-based access
-- Courses with sample data (4 subjects)
-- Workshops with sample data (2 workshops)
-- Resources with sample data (3 resources)
-- Products with sample data (3 products)
-- Orders, Enrollments, Workshop registrations, Contacts
+### Phase 3: Curriculum System (Complete - May 3, 2026)
+**World-class academic learning platform for Cambridge students:**
+- 3 Boards: Cambridge IGCSE, AS Level, A Level
+- 4 Subjects: Mathematics, Physics, Chemistry, Biology
+- 340+ Topics seeded across all boards/subjects
+- SEO-friendly URLs: /igcse/chemistry/atomic-structure/isotopes
 
-### Design & UI (Completed Feb 4, 2026)
-15-Part UI/UX Refinement Applied:
-1. Removed personal branding ("IISER Pune Graduate")
-2. Hero typography fixed (text-6xl, Inter bold, tracking-tight)
-3. Hero copy refined (headline + subheadline + supporting line)
-4. "Our Vision" section added to homepage
-5. Inter font enforced globally (no decorative fonts)
-6. Visual polish (py-20/py-24 spacing, rounded-xl cards, shadow-sm hover:shadow-lg)
-7. Profile Building visible in nav and homepage
-8. Real testimonials displayed (Ishika, Venkat, Pallavi)
-9. CTA year updated to "2026-2028 batch"
-10. Strong final CTA ("Limited Seats. Serious Students Only.")
-11. Contact form redirects to WhatsApp after submission
-12. Store checkout includes full address (mandatory) + WhatsApp redirect
-13. WhatsApp floating button on all pages
-14. Navbar clean with CTA button; Footer with correct contact info
-15. Premium minimal design feel throughout
+**Pages Built:**
+- /boards - Board selection (3 gradient cards)
+- /:board - Subject selection (4 colored subject cards)
+- /:board/:subject - Chapter listing (numbered, with published counts)
+- /:board/:subject/:chapter - Topic listing (with difficulty, study time, status)
+- /:board/:subject/:chapter/:topic - Premium topic page
+- /search - Search with board/subject filters
 
-### CRO & Conversion Optimization
-- "Limited Seats. Serious Students Only." messaging
-- Multiple CTAs across sections
-- Stats bar: 67+ Chapters, 50+ Students, 95%+ Success Rate, A*/A Grade
-- Real testimonials from edvnova.com
-- WhatsApp quick-contact on every page
+**Topic Page Features:**
+- Clean hero with breadcrumb, study time, difficulty badge
+- Sticky Table of Contents sidebar with active section highlighting
+- Blue Definitions Box
+- Purple Formulas Box (with mono font)
+- Green Worked Examples Box
+- Amber Common Mistakes Box
+- Accent Examiner Tips Box
+- Gray Summary Box with checkmarks
+- Related Topics pills
+- Previous/Next topic navigation
+- Bookmark (save) and Mark Complete buttons (auth required)
+
+**Showcase Topics with Full Content:**
+- IGCSE Chemistry > Atomic Structure > Isotopes
+- IGCSE Physics > Motion > Acceleration
+
+**Student Features:**
+- Bookmark topics (toggle, auth required)
+- Mark topics as complete (progress tracking)
+- Search across all topics with board/subject filters
+
+**Backend Architecture:**
+- /app/backend/curriculum_data.py - All seed data
+- /app/backend/curriculum_api.py - Browse, search, admin, student routes
+- Auto-seeded on startup (idempotent)
+- Text indexes for search
+- Compound indexes for fast lookups
+
+## Database Collections
+- users, courses, enrollments, workshops, workshop_registrations
+- resources, products, orders, contacts
+- modules, lessons, downloads
+- curriculum_boards, curriculum_subjects, curriculum_chapters, curriculum_topics
+- bookmarks, topic_progress
+
+## Key API Endpoints
+- Auth: /api/auth/login, /register, /logout, /me, /refresh
+- Courses: /api/courses, /api/admin/courses
+- Content: /api/modules/*, /api/lessons/*, /api/uploads/file, /api/content/course/:id
+- Curriculum: /api/curriculum/boards/*, /api/curriculum/search, /api/curriculum/user/bookmark, /api/curriculum/user/progress
+- Admin: /api/curriculum/admin/topics/:id
 
 ## Prioritized Backlog
 
-### P0 (Critical - Next Sprint)
-- [ ] Integrate email sending to info@edvnova.com on form/order submit (Resend/SendGrid)
-- [ ] Integrate Razorpay for actual payments
+### P0 (Next Sprint)
+- [ ] Admin Topic Editor UI (add/edit topic content from admin panel)
+- [ ] Integrate email sending to info@edvnova.com (Resend/SendGrid)
+- [ ] Add more published topic content
 
 ### P1 (High Priority)
-- [ ] Add course content/lessons pages
-- [ ] Add progress tracking for enrolled courses
-- [ ] Implement file upload for resources
-- [ ] Add password reset flow
+- [ ] Dark mode for reading
+- [ ] Mobile-optimized reading mode
+- [ ] Practice questions system (MCQ)
+- [ ] Past papers section
+- [ ] Razorpay payment integration
 
 ### P2 (Medium Priority)
-- [ ] Google Analytics / Meta Pixel for conversion tracking
-- [ ] Add video content support
-- [ ] Implement search functionality
-- [ ] Add user profile editing
-- [ ] Implement batch/class scheduling
+- [ ] Revision notes printing/PDF export
+- [ ] Google Analytics / Meta Pixel
+- [ ] Schema markup for SEO
+- [ ] Sitemap generation
+- [ ] Student progress analytics dashboard
+- [ ] Topical questions by chapter
 
 ### P3 (Low Priority)
-- [ ] Analytics dashboard for admin
-- [ ] Notifications system
-- [ ] Testimonials management via admin
-- [ ] Social media integration
-- [ ] Blog/News section
+- [ ] Continue-where-left-off feature
+- [ ] Difficulty-based topic filtering
+- [ ] Social sharing for topics
+- [ ] Scale to CBSE, ICSE, JEE, NEET, SAT, AP boards
