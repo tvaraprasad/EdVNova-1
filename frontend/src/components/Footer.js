@@ -12,13 +12,14 @@ export default function Footer() {
             { name: 'Biology', href: '/programs/biology' },
         ],
         resources: [
-            { name: 'Workshops', href: '/workshops' },
+            { name: 'Revision Notes', href: '/boards' },
             { name: 'Resources', href: '/resources' },
             { name: 'Store', href: '/store' },
-            { name: 'Profile Building', href: '/profile-building' },
+            { name: 'Workshops', href: '/workshops' },
         ],
         company: [
             { name: 'About Us', href: '/about' },
+            { name: 'Profile Building', href: '/profile-building' },
             { name: 'Career Guidance', href: '/career-guidance' },
             { name: 'Contact', href: '/contact' },
         ],
@@ -35,7 +36,7 @@ export default function Footer() {
                                 Stay updated with EdVNova
                             </h3>
                             <p className="text-white/60 text-lg">
-                                Get notified about new workshops, resources, and exam tips.
+                                Get notified about new notes, courses, workshops, and exam tips.
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -64,7 +65,7 @@ export default function Footer() {
                             </span>
                         </Link>
                         <p className="text-white/60 mb-8 max-w-sm leading-relaxed text-lg">
-                            Advanced IGCSE coaching in Pune, India. Building academic excellence through conceptual learning and personalized mentorship.
+                            Premium learning support for Cambridge IGCSE, AS & A Level students. Expert coaching, structured notes, and academic guidance.
                         </p>
                         <div className="space-y-4">
                             <a 
@@ -91,7 +92,7 @@ export default function Footer() {
                                 <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
                                     <MapPin className="w-5 h-5" />
                                 </div>
-                                <span>Pune, Maharashtra, India</span>
+                                <span>Pune, India &middot; Online Worldwide</span>
                             </div>
                         </div>
                     </div>

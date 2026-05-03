@@ -1,58 +1,7 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Users, Trophy, GraduationCap, CheckCircle, Star, Lock, Target, Brain, Award, MapPin, Phone, Zap } from 'lucide-react';
+import { ArrowRight, BookOpen, Users, Trophy, GraduationCap, CheckCircle, Star, Brain, Award, Target, Phone, Sparkles, FileText, Play, Compass, BookMarked, FlaskConical, Atom, Leaf, Calculator } from 'lucide-react';
 
 export default function Home() {
-    const programs = [
-        {
-            title: 'Mathematics',
-            description: 'Master algebra, geometry, and calculus with conceptual clarity and structured problem solving.',
-            icon: '∑',
-            color: 'bg-blue-50 text-blue-600',
-        },
-        {
-            title: 'Physics',
-            description: 'Understand mechanics, waves, and electricity through visualization and real-world applications.',
-            icon: '⚡',
-            color: 'bg-amber-50 text-amber-600',
-        },
-        {
-            title: 'Chemistry',
-            description: 'Explore chemical reactions and molecular structures with clarity and depth.',
-            icon: '⚗',
-            color: 'bg-emerald-50 text-emerald-600',
-        },
-        {
-            title: 'Biology',
-            description: 'Study life sciences from cells to ecosystems with visual learning techniques.',
-            icon: '🧬',
-            color: 'bg-rose-50 text-rose-600',
-        },
-    ];
-
-    const whyDifferent = [
-        {
-            title: 'Deep Conceptual Understanding',
-            description: 'We focus on building true understanding over memorization. Every concept is taught with clarity and depth.',
-            icon: Brain,
-        },
-        {
-            title: 'Independent Problem Solving',
-            description: 'Students learn to think and solve problems on their own, building confidence for exams and beyond.',
-            icon: Target,
-        },
-        {
-            title: 'A* Level Preparation',
-            description: 'Our teaching methodology is designed specifically for top grades. 95%+ of students achieve A*/A.',
-            icon: Trophy,
-        },
-        {
-            title: 'Long-Term Academic Foundation',
-            description: 'We build foundations that last — preparing students for A-Levels, IB, and university success.',
-            icon: GraduationCap,
-        },
-    ];
-
-    // Real testimonials from EdVNova website
     const testimonials = [
         {
             quote: "I had a great learning experience with Vara sir! He has a deep understanding of Physics, Chemistry, Math, and Biology, and explains every concept with clarity and patience. His guidance really helped me build strong fundamentals and boosted my confidence for exams.",
@@ -77,163 +26,252 @@ export default function Home() {
         },
     ];
 
-    const stats = [
-        { number: '67+', label: 'Curriculum Chapters' },
-        { number: '50+', label: 'Students Mentored' },
-        { number: '95%+', label: 'Success Rate' },
-        { number: 'A*/A', label: 'Average Grade' },
-    ];
-
     return (
         <div className="pt-16 md:pt-20" data-testid="home-page">
-            {/* Hero Section */}
-            <section className="hero-gradient relative py-24 md:py-32 lg:py-40" data-testid="hero-section">
-                <div className="container-custom">
-                    <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-                        <div className="max-w-xl">
-                            <p className="text-sm font-medium text-accent tracking-wide uppercase mb-6">
-                                Advanced IGCSE Coaching
-                            </p>
-                            <h1 className="text-5xl sm:text-6xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.08] mb-6">
-                                The Most Advanced IGCSE Coaching in Pune
-                            </h1>
-                            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed mb-3">
-                                We help students master concepts, think scientifically, and achieve A* results in Mathematics and Sciences.
-                            </p>
-                            <p className="text-sm text-gray-500 mb-10">
-                                Built for students who are serious about understanding, not memorizing.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                                <Link
-                                    to="/contact"
-                                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-all duration-200"
-                                    data-testid="hero-cta-button"
-                                >
-                                    Book Academic Consultation
-                                    <ArrowRight className="w-5 h-5" />
-                                </Link>
-                                <Link
-                                    to="/programs"
-                                    className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-gray-300 text-primary font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200"
-                                    data-testid="hero-programs-button"
-                                >
-                                    Explore Programs
-                                </Link>
-                            </div>
-                            <p className="text-sm text-gray-500">
-                                Limited seats available for 2026–2028 batch
-                            </p>
+
+            {/* ═══ HERO ═══ */}
+            <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden" data-testid="hero-section">
+                {/* Subtle background pattern */}
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-white" />
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-50/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+
+                <div className="container-custom relative">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full text-sm font-medium text-blue-700 mb-8" data-testid="hero-badge">
+                            <Sparkles className="w-4 h-4" />
+                            Premium Learning for Cambridge Students
                         </div>
-                        <div className="relative">
-                            <div className="relative rounded-2xl overflow-hidden shadow-xl">
-                                <img
-                                    src="https://images.unsplash.com/photo-1514369118554-e20d93546b30?w=800&q=80"
-                                    alt="Student studying"
-                                    className="w-full object-cover aspect-[4/3]"
-                                />
-                            </div>
-                            <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-xl shadow-lg border border-gray-100">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-                                        <Trophy className="w-6 h-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold text-primary">95%+</p>
-                                        <p className="text-gray-500 text-sm">Success Rate</p>
-                                    </div>
-                                </div>
-                            </div>
+
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.1] mb-6" data-testid="hero-headline">
+                            The Premium Learning Platform for{' '}
+                            <span className="text-accent">IGCSE, AS & A Level</span>{' '}
+                            Students
+                        </h1>
+
+                        <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
+                            Master Mathematics and Science through expert coaching, structured notes, premium courses, and academic guidance.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                            <Link
+                                to="/boards"
+                                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-all duration-200 shadow-lg shadow-primary/20"
+                                data-testid="hero-cta-learn"
+                            >
+                                Start Learning
+                                <ArrowRight className="w-5 h-5" />
+                            </Link>
+                            <Link
+                                to="/contact"
+                                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-gray-200 text-primary font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+                                data-testid="hero-cta-consult"
+                            >
+                                Book Consultation
+                            </Link>
                         </div>
+
+                        <p className="text-sm text-gray-400">
+                            Trusted by students across India, UAE, UK, and Singapore
+                        </p>
                     </div>
                 </div>
             </section>
 
-            {/* Stats Bar */}
-            <section className="py-10 bg-primary">
+            {/* ═══ TRUST STRIP ═══ */}
+            <section className="py-6 bg-primary" data-testid="trust-strip">
                 <div className="container-custom">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                        {stats.map((stat, index) => (
-                            <div key={index}>
-                                <p className="text-3xl font-bold text-white mb-1">{stat.number}</p>
-                                <p className="text-white/60 text-sm">{stat.label}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8 text-center">
+                        {[
+                            { num: '340+', label: 'Revision Topics' },
+                            { num: '3', label: 'Cambridge Boards' },
+                            { num: '4', label: 'Core Subjects' },
+                            { num: '95%+', label: 'Success Rate' },
+                            { num: 'A*/A', label: 'Average Grade' },
+                        ].map((s, i) => (
+                            <div key={i} className="py-3">
+                                <p className="text-2xl md:text-3xl font-bold text-white">{s.num}</p>
+                                <p className="text-white/50 text-xs sm:text-sm mt-1">{s.label}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Why EdVNova is Different */}
-            <section className="py-24 md:py-32 bg-gray-50" data-testid="why-different-section">
+            {/* ═══ CHOOSE YOUR PATH ═══ */}
+            <section className="py-20 md:py-28 bg-white" data-testid="choose-path-section">
                 <div className="container-custom">
-                    <div className="max-w-2xl mx-auto text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-6">
+                    <div className="text-center mb-14">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-4">
+                            Choose Your Path
+                        </h2>
+                        <p className="text-gray-600 text-lg max-w-xl mx-auto">
+                            Whether you need live coaching, revision notes, or self-paced courses — we've got you covered.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+                        {/* Card 1: Coaching */}
+                        <Link
+                            to="/programs"
+                            className="group relative p-8 lg:p-10 bg-white rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300"
+                            data-testid="path-coaching"
+                        >
+                            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors">
+                                <Users className="w-7 h-7 text-blue-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-primary mb-3">Need Coaching?</h3>
+                            <p className="text-gray-500 leading-relaxed mb-6">
+                                Live classes, mentoring, exam strategy, and personalized learning plans from expert tutors.
+                            </p>
+                            <span className="inline-flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
+                                Explore Programs <ArrowRight className="w-4 h-4" />
+                            </span>
+                        </Link>
+
+                        {/* Card 2: Notes & Resources */}
+                        <Link
+                            to="/resources"
+                            className="group relative p-8 lg:p-10 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300"
+                            data-testid="path-resources"
+                        >
+                            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-100 transition-colors">
+                                <FileText className="w-7 h-7 text-emerald-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-primary mb-3">Need Notes & Worksheets?</h3>
+                            <p className="text-gray-500 leading-relaxed mb-6">
+                                Topic-wise revision notes, formula sheets, worksheets, and practice resources for every chapter.
+                            </p>
+                            <span className="inline-flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
+                                Explore Resources <ArrowRight className="w-4 h-4" />
+                            </span>
+                        </Link>
+
+                        {/* Card 3: Self-Paced */}
+                        <Link
+                            to="/programs"
+                            className="group relative p-8 lg:p-10 bg-white rounded-2xl border border-gray-100 hover:border-violet-200 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300"
+                            data-testid="path-courses"
+                        >
+                            <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-violet-100 transition-colors">
+                                <Play className="w-7 h-7 text-violet-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-primary mb-3">Prefer Self-Paced Learning?</h3>
+                            <p className="text-gray-500 leading-relaxed mb-6">
+                                Recorded premium courses with previews, structured curriculum, and learn-at-your-own-pace flexibility.
+                            </p>
+                            <span className="inline-flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
+                                Browse Courses <ArrowRight className="w-4 h-4" />
+                            </span>
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* ═══ BOARD SELECTION ═══ */}
+            <section className="py-20 md:py-28 bg-slate-50" data-testid="board-section">
+                <div className="container-custom">
+                    <div className="text-center mb-14">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-4">
+                            Choose Your Curriculum
+                        </h2>
+                        <p className="text-gray-600 text-lg max-w-xl mx-auto">
+                            Structured learning for IGCSE, AS & A Level students. Select your board to explore subjects, notes, and resources.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                        {[
+                            { name: 'Cambridge IGCSE', slug: 'igcse', desc: 'Ages 14–16. The world\'s most popular international qualification.', color: 'from-blue-600 to-blue-700' },
+                            { name: 'AS Level', slug: 'as-level', desc: 'Ages 16–17. Advanced Subsidiary — the first half of A Level.', color: 'from-indigo-600 to-indigo-700' },
+                            { name: 'A Level', slug: 'a-level', desc: 'Ages 17–18. The gold standard pre-university qualification.', color: 'from-violet-600 to-violet-700' },
+                        ].map(board => (
+                            <Link
+                                key={board.slug}
+                                to={`/${board.slug}`}
+                                className="group relative overflow-hidden rounded-2xl"
+                                data-testid={`board-card-${board.slug}`}
+                            >
+                                <div className={`bg-gradient-to-br ${board.color} p-8 lg:p-10 text-white min-h-[220px] flex flex-col justify-between`}>
+                                    <div>
+                                        <h3 className="text-2xl font-bold mb-3">{board.name}</h3>
+                                        <p className="text-white/70 text-sm leading-relaxed">{board.desc}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-white/80 text-sm font-medium mt-6 group-hover:text-white group-hover:gap-3 transition-all">
+                                        Explore Subjects <ArrowRight className="w-4 h-4" />
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ═══ WHY EDVNOVA ═══ */}
+            <section className="py-20 md:py-28 bg-white" data-testid="why-different-section">
+                <div className="container-custom">
+                    <div className="max-w-2xl mx-auto text-center mb-14">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-4">
                             Why EdVNova is Different
                         </h2>
                         <p className="text-gray-600 text-lg leading-relaxed">
-                            We don't just prepare students for exams. We build deep scientific understanding that lasts a lifetime.
+                            We don't just prepare students for exams. We build deep understanding that lasts a lifetime.
                         </p>
                     </div>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {whyDifferent.map((feature, index) => (
-                            <div key={index} className="bg-white p-8 rounded-xl border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-                                <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center mb-6">
-                                    <feature.icon className="w-6 h-6 text-primary" />
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                        {[
+                            { icon: Brain, title: 'Concept-First Learning', desc: 'Every concept taught with clarity and depth. True understanding over memorization.' },
+                            { icon: Target, title: 'Structured Systems', desc: 'No random studying. Organized curriculum, clear progression, measurable outcomes.' },
+                            { icon: Trophy, title: 'A* Level Performance', desc: 'Teaching methodology designed specifically for top grades. 95%+ achieve A*/A.' },
+                            { icon: BookMarked, title: 'Premium Resources', desc: 'Topic-wise revision notes, formulas, worked examples, and examiner tips.' },
+                            { icon: Compass, title: 'Personalized Guidance', desc: 'Individual attention, progress tracking, and academic strategy for serious students.' },
+                            { icon: GraduationCap, title: 'Long-Term Foundation', desc: 'Preparing students not just for exams but for university and career success.' },
+                        ].map((f, i) => (
+                            <div key={i} className="p-7 rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300">
+                                <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center mb-5">
+                                    <f.icon className="w-6 h-6 text-primary" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-primary mb-3">{feature.title}</h3>
-                                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                                <h3 className="text-lg font-bold text-primary mb-2">{f.title}</h3>
+                                <p className="text-gray-500 leading-relaxed text-[15px]">{f.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Our Vision */}
-            <section className="py-24 md:py-32 bg-white" data-testid="vision-section">
+            {/* ═══ SUBJECTS PREVIEW ═══ */}
+            <section className="py-20 md:py-28 bg-slate-50" data-testid="subjects-section">
                 <div className="container-custom">
-                    <div className="max-w-3xl mx-auto text-center">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-8">
-                            Our Vision
+                    <div className="text-center mb-14">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-4">
+                            Subjects We Cover
                         </h2>
-                        <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                            EdVNova is built with a simple goal — to transform the way students learn Mathematics and Science.
-                        </p>
-                        <p className="text-gray-600 text-lg leading-relaxed">
-                            We aim to make high-quality, concept-driven education accessible to students across the world, helping them think clearly, solve problems independently, and build a strong academic foundation for the future.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Programs Section */}
-            <section className="py-24 md:py-32 bg-gray-50" data-testid="programs-section">
-                <div className="container-custom">
-                    <div className="max-w-2xl mx-auto text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-6">
-                            Comprehensive IGCSE Courses
-                        </h2>
-                        <p className="text-gray-600 text-lg leading-relaxed">
-                            10-month structured programs with 67+ chapters, regular assessments, and comprehensive study materials.
+                        <p className="text-gray-600 text-lg">
+                            Comprehensive support across all core Cambridge subjects.
                         </p>
                     </div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {programs.map((program) => (
+                        {[
+                            { title: 'Mathematics', icon: Calculator, color: 'bg-blue-50 text-blue-600 border-blue-100', accent: 'text-blue-600', desc: 'Algebra, geometry, calculus, statistics, and more.' },
+                            { title: 'Physics', icon: Atom, color: 'bg-violet-50 text-violet-600 border-violet-100', accent: 'text-violet-600', desc: 'Mechanics, waves, electricity, and nuclear physics.' },
+                            { title: 'Chemistry', icon: FlaskConical, color: 'bg-emerald-50 text-emerald-600 border-emerald-100', accent: 'text-emerald-600', desc: 'Atomic structure, bonding, organic, and beyond.' },
+                            { title: 'Biology', icon: Leaf, color: 'bg-teal-50 text-teal-600 border-teal-100', accent: 'text-teal-600', desc: 'Cell biology, physiology, genetics, and ecology.' },
+                        ].map(subj => (
                             <Link
-                                key={program.title}
-                                to={`/programs/${program.title.toLowerCase()}`}
-                                className="group bg-white p-8 rounded-xl border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300"
-                                data-testid={`program-card-${program.title.toLowerCase()}`}
+                                key={subj.title}
+                                to={`/programs/${subj.title.toLowerCase()}`}
+                                className="group bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300"
+                                data-testid={`subject-card-${subj.title.toLowerCase()}`}
                             >
-                                <div className={`w-14 h-14 ${program.color} rounded-xl flex items-center justify-center text-2xl mb-6`}>
-                                    {program.icon}
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${subj.color}`}>
+                                    <subj.icon className="w-7 h-7" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-primary mb-3 group-hover:text-accent transition-colors">
-                                    {program.title}
+                                <h3 className={`text-xl font-bold text-primary mb-2 group-hover:${subj.accent} transition-colors`}>
+                                    {subj.title}
                                 </h3>
-                                <p className="text-gray-600 mb-4 leading-relaxed">
-                                    {program.description}
-                                </p>
-                                <span className="text-accent font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                                    Learn more <ArrowRight className="w-4 h-4" />
+                                <p className="text-gray-500 text-sm leading-relaxed mb-4">{subj.desc}</p>
+                                <span className="text-accent font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                                    View Programs <ArrowRight className="w-4 h-4" />
                                 </span>
                             </Link>
                         ))}
@@ -241,126 +279,37 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Teaching Approach */}
-            <section className="py-24 md:py-32 bg-white">
+            {/* ═══ TESTIMONIALS ═══ */}
+            <section className="py-20 md:py-28 bg-white" data-testid="testimonials-section">
                 <div className="container-custom">
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-6">
-                                Our Teaching Approach
-                            </h2>
-                            <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                                Every concept is taught with clarity, followed by structured problem solving and exam-focused practice. Students learn not just how to solve questions, but how to think.
-                            </p>
-                            <div className="space-y-4">
-                                {[
-                                    'Concept-first explanations with real-world examples',
-                                    'Structured problem-solving methodology',
-                                    'Regular assessments and progress tracking',
-                                    'Past paper practice with detailed solutions'
-                                ].map((item, i) => (
-                                    <div key={i} className="flex items-start gap-3">
-                                        <CheckCircle className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
-                                        <span className="text-gray-700">{item}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <img
-                                src="https://images.unsplash.com/photo-1675179190669-ef6bc809d8d7?w=800&q=80"
-                                alt="Teaching methodology"
-                                className="rounded-2xl shadow-lg w-full object-cover aspect-[4/3]"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Profile Building Section */}
-            <section className="py-24 md:py-32 bg-primary text-white" data-testid="profile-building-section">
-                <div className="container-custom">
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div>
-                            <p className="text-sm font-semibold text-accent tracking-wide uppercase mb-4">
-                                Beyond Academics
-                            </p>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-6">
-                                Profile Building for Future Success
-                            </h2>
-                            <p className="text-white/80 text-lg leading-relaxed mb-8">
-                                We help students go beyond academics by building strong profiles through research projects, competitions, and structured academic activities — preparing them for top universities worldwide.
-                            </p>
-                            <div className="space-y-4 mb-8">
-                                {[
-                                    'Research project mentorship and guidance',
-                                    'Academic competition preparation',
-                                    'Leadership and extracurricular planning',
-                                    'University application support'
-                                ].map((item, i) => (
-                                    <div key={i} className="flex items-start gap-3">
-                                        <CheckCircle className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
-                                        <span className="text-white/90">{item}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <Link
-                                to="/profile-building"
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-primary font-semibold rounded-xl hover:bg-gray-100 transition-all duration-200"
-                            >
-                                Learn More
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
-                        </div>
-                        <div className="relative">
-                            <img
-                                src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80"
-                                alt="University success"
-                                className="rounded-2xl w-full object-cover aspect-[4/3]"
-                            />
-                            <div className="absolute -bottom-6 -right-6 bg-white p-5 rounded-xl shadow-lg">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
-                                        <Award className="w-6 h-6 text-accent" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500">Preparing for</p>
-                                        <p className="font-semibold text-primary">Top Universities</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Testimonials Section */}
-            <section className="py-24 md:py-32 bg-white" data-testid="testimonials-section">
-                <div className="container-custom">
-                    <div className="max-w-2xl mx-auto text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-6">
+                    <div className="max-w-2xl mx-auto text-center mb-14">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight mb-4">
                             What Parents & Students Say
                         </h2>
                         <p className="text-gray-600 text-lg">
                             Real feedback from our students and their families.
                         </p>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {testimonials.map((testimonial, index) => (
-                            <div key={index} className="bg-gray-50 p-8 rounded-xl" data-testid={`testimonial-card-${index}`}>
-                                <div className="flex gap-1 mb-6">
-                                    {[...Array(testimonial.rating)].map((_, i) => (
-                                        <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
+                    <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+                        {testimonials.map((t, index) => (
+                            <div
+                                key={index}
+                                className="p-8 bg-slate-50 rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300"
+                                data-testid={`testimonial-card-${index}`}
+                            >
+                                <div className="flex gap-1 mb-5">
+                                    {[...Array(t.rating)].map((_, i) => (
+                                        <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                                     ))}
                                 </div>
-                                <p className="text-gray-600 mb-8 leading-relaxed">"{testimonial.quote}"</p>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-11 h-11 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
-                                        {testimonial.initial}
+                                <p className="text-gray-600 leading-relaxed mb-6 text-[15px]">"{t.quote}"</p>
+                                <div className="flex items-center gap-3 pt-5 border-t border-gray-200">
+                                    <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                        {t.initial}
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-primary">{testimonial.name}</p>
-                                        <p className="text-sm text-gray-500">{testimonial.role}</p>
+                                        <p className="font-bold text-primary text-sm">{t.name}</p>
+                                        <p className="text-xs text-gray-400">{t.role}</p>
                                     </div>
                                 </div>
                             </div>
@@ -369,63 +318,35 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Locations Section */}
-            <section className="py-20 bg-gray-50">
-                <div className="container-custom">
-                    <div className="text-center mb-12">
-                        <h2 className="text-2xl sm:text-3xl font-bold text-primary tracking-tight mb-4">
-                            Locations Across Pune
-                        </h2>
-                        <p className="text-gray-600">
-                            Choose from convenient locations or join online.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        {['Baner', 'Kothrud', 'Amanora', 'Hinjawadi', 'Online'].map((location, i) => (
-                            <div key={i} className="flex items-center gap-2 px-5 py-3 bg-white rounded-full border border-gray-200">
-                                <MapPin className="w-4 h-4 text-accent" />
-                                <span className="font-medium text-primary">{location}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Final CTA Section */}
-            <section className="py-24 md:py-32 bg-white" data-testid="cta-section">
+            {/* ═══ FINAL CTA ═══ */}
+            <section className="py-24 md:py-32 bg-primary" data-testid="cta-section">
                 <div className="container-custom">
                     <div className="max-w-3xl mx-auto text-center">
-                        <div className="inline-flex items-center px-4 py-2 bg-red-50 border border-red-100 rounded-full text-sm font-medium text-red-600 mb-8">
-                            <Zap className="w-4 h-4 mr-2" />
-                            Limited Seats Available
-                        </div>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-primary tracking-tight mb-6">
-                            Limited Seats.<br />Serious Students Only.
+                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
+                            Start Your Cambridge Learning Journey Today
                         </h2>
-                        <p className="text-gray-600 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">
-                            We work with a focused group of students to ensure quality learning and individual attention. Book a consultation to see if EdVNova is right for you.
+                        <p className="text-white/60 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">
+                            Join students who are building clarity, confidence, and results with EdVNova. Book a free consultation or explore our resources.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link
                                 to="/contact"
-                                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-all duration-200"
+                                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-primary font-semibold rounded-xl hover:bg-gray-100 transition-all duration-200"
                                 data-testid="cta-consultation-button"
                             >
                                 Book Consultation
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
-                            <a
-                                href="https://wa.me/919652546434"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-gray-300 text-primary font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200"
+                            <Link
+                                to="/boards"
+                                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-200"
+                                data-testid="cta-explore-button"
                             >
-                                <Phone className="w-5 h-5" />
-                                WhatsApp Us
-                            </a>
+                                Explore Resources
+                            </Link>
                         </div>
-                        <p className="text-gray-500 text-sm mt-6">
-                            Or call us at <a href="tel:+919652546434" className="text-primary font-medium">+91 9652546434</a>
+                        <p className="text-white/40 text-sm mt-8">
+                            Or reach us on <a href="https://wa.me/919652546434" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white underline underline-offset-2">WhatsApp</a> or call <a href="tel:+919652546434" className="text-white/60 hover:text-white underline underline-offset-2">+91 9652546434</a>
                         </p>
                     </div>
                 </div>

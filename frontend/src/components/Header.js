@@ -26,9 +26,8 @@ export default function Header() {
     const navLinks = [
         { name: 'Boards', href: '/boards' },
         { name: 'Programs', href: '/programs' },
-        { name: 'Profile Building', href: '/profile-building' },
-        { name: 'Workshops', href: '/workshops' },
         { name: 'Resources', href: '/resources' },
+        { name: 'Workshops', href: '/workshops' },
         { name: 'About', href: '/about' },
         { name: 'Contact', href: '/contact' },
     ];
