@@ -337,7 +337,7 @@ export default function Home() {
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
                             <Link
-                                to="/boards"
+                                to="/resources"
                                 className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-200"
                                 data-testid="cta-explore-button"
                             >

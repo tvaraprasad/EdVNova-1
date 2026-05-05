@@ -23,12 +23,7 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 ### Phase 2: Content Management System (Complete)
 - Admin panel with 8 tabs: Overview, Topics, Courses, Resources, Products, Users, Orders, Contacts
 - Course hierarchy: Course -> Modules -> Lessons (video URL/upload, PDF, worksheet, preview flag)
-- File upload system (/api/uploads/file) for PDFs, videos, worksheets
-- Resource management with category filters and free/locked toggle
-- Product management with file uploads
-- Student dashboard with tabs: Overview, My Courses, My Resources, Downloads, Orders
-- Course content viewer at /course/:courseId with module sidebar + lesson player
-- Access control: free preview vs enrolled content
+- Student dashboard, course content viewer, access control
 
 ### Phase 3: Curriculum System (Complete)
 - 3 Boards: Cambridge IGCSE, AS Level, A Level
@@ -39,34 +34,58 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 ### Phase 4: Admin Topic Editor & Email (Complete)
 - Full topic management UI with search/filter/pagination/editor
 - Email integration (mock mode, ready for Resend API key)
-- 10 published showcase topics
 
-### Phase 5: UX Transformation (Complete - May 3, 2026)
-**Homepage Overhaul:**
-- Premium hero: "The Premium Learning Platform for IGCSE, AS & A Level Students"
-- Trust Strip: 340+ Topics, 3 Boards, 4 Subjects, 95%+ Success, A*/A Grade
-- Choose Your Path: 3 cards (Coaching, Notes & Worksheets, Self-Paced Learning)
-- Board Selection: 3 gradient cards (IGCSE, AS Level, A Level)
-- Why EdVNova: 6 differentiators (concept-first, structured, A*, resources, guidance, foundation)
-- Subjects Preview: 4 subject cards with icons
-- Testimonials: 3 real testimonials with premium layout
-- Final CTA: "Start Your Cambridge Learning Journey Today"
+### Phase 5: UX Transformation (Complete)
+- Premium centered hero, Trust Strip, Choose Your Path, Board Selection, Why EdVNova, Subjects, Testimonials
+- Resources page with search bar, category cards, filters, empty states
 
-**Resources Page Upgrade:**
-- Hero with prominent search bar
-- Subject category filter cards (Mathematics, Physics, Chemistry, Biology) with counts
-- Type and access (free/premium) dropdown filters
-- Clear all filters button
-- Premium empty state with messaging
-- "Browse Topics" CTA linking to /boards
-- Premium resource cards with subject badges, premium/free tags
+### Phase 6: Navigation Architecture Restructure (Complete - May 5, 2026)
+**New Navigation Structure:**
+- Learn (dropdown): IGCSE, AS Level, A Level, Live Coaching, Courses
+- Resources (flat link to /resources)
+- Store (flat link to /store)
+- Community (dropdown): Profile Building, Career Guidance, Workshops
+- About, Contact (flat links)
+- **Book Consultation** CTA button (replaces "Get Started" for unauthenticated users)
 
-**Global Updates:**
-- Header: 6 nav links (Boards, Programs, Resources, Workshops, About, Contact)
-- Footer: Global messaging ("Based in India · Teaching Globally Online")
-- Copy consistency: Cambridge-inclusive messaging throughout
-- Removed "Locations Across Pune" section
-- Removed IGCSE-only hero messaging, replaced with inclusive Cambridge messaging
+**Key UX Decisions:**
+- "Learn" replaces "Boards" — more intuitive for first-time visitors
+- "Community" groups all beyond-academics content (Profile Building, Career Guidance, Workshops)
+- Store is a standalone nav item (academic products, not generic ecommerce)
+- No overlapping terminology — each nav item has clear, distinct purpose
+
+**Homepage Updates:**
+- Hero: "The Premium Learning Platform for Cambridge Students"
+- Choose Your Path: 3 cards (Guided Learning → /boards, Notes & Resources → /resources, Beyond Academics → /profile-building)
+- Final CTA: "Explore Resources" → /resources (label-link consistency)
+
+**Footer Updated:**
+- Three columns: Learn, Resources, Community (matching nav structure)
+
+**Mobile Menu:**
+- Accordion-style expandable sections for Learn and Community
+- Book Consultation CTA for unauthenticated users
+
+## Navigation Map
+```
+Learn (dropdown)
+├── IGCSE → /igcse
+├── AS Level → /as-level
+├── A Level → /a-level
+├── Live Coaching → /programs
+└── Courses → /programs
+
+Resources → /resources
+Store → /store
+
+Community (dropdown)
+├── Profile Building → /profile-building
+├── Career Guidance → /career-guidance
+└── Workshops → /workshops
+
+About → /about
+Contact → /contact
+```
 
 ## Database Collections
 - users, courses, enrollments, workshops, workshop_registrations
@@ -77,8 +96,6 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 
 ## Key API Endpoints
 - Auth: /api/auth/login, /register, /logout, /me, /refresh
-- Courses: /api/courses, /api/admin/courses
-- Content: /api/modules/*, /api/lessons/*, /api/uploads/file
 - Curriculum: /api/curriculum/boards/*, /api/curriculum/search, /api/curriculum/admin/topics
 - Contact: /api/contact (with email notification)
 - Orders: /api/orders/create (with email notification)
@@ -92,7 +109,6 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 ### P2 (Medium Priority)
 - [ ] Google Analytics / Meta Pixel for conversion tracking
 - [ ] Dark mode for reading
-- [ ] Mobile-optimized reading mode
 - [ ] Practice questions system (MCQ)
 - [ ] Past papers section
 - [ ] Break down server.py (~1000 lines) into modular route files
@@ -102,4 +118,4 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 - [ ] Schema markup for SEO / Sitemap generation
 - [ ] Student progress analytics dashboard
 - [ ] Social sharing for topics
-- [ ] Scale to CBSE, ICSE, JEE, NEET, SAT, AP boards
+- [ ] Scale to additional boards (CBSE, IB, etc.)
