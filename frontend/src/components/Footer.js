@@ -5,22 +5,22 @@ export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     const footerLinks = {
-        programs: [
-            { name: 'Mathematics', href: '/programs/mathematics' },
-            { name: 'Physics', href: '/programs/physics' },
-            { name: 'Chemistry', href: '/programs/chemistry' },
-            { name: 'Biology', href: '/programs/biology' },
+        learn: [
+            { name: 'IGCSE', href: '/igcse' },
+            { name: 'AS Level', href: '/as-level' },
+            { name: 'A Level', href: '/a-level' },
+            { name: 'Live Coaching', href: '/programs' },
         ],
         resources: [
             { name: 'Revision Notes', href: '/boards' },
-            { name: 'Resources', href: '/resources' },
+            { name: 'Study Materials', href: '/resources' },
             { name: 'Store', href: '/store' },
-            { name: 'Workshops', href: '/workshops' },
         ],
-        company: [
-            { name: 'About Us', href: '/about' },
+        community: [
             { name: 'Profile Building', href: '/profile-building' },
             { name: 'Career Guidance', href: '/career-guidance' },
+            { name: 'Workshops', href: '/workshops' },
+            { name: 'About Us', href: '/about' },
             { name: 'Contact', href: '/contact' },
         ],
     };
@@ -97,11 +97,11 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Programs */}
+                    {/* Learn */}
                     <div>
-                        <h4 className="font-heading text-lg font-bold mb-8 text-white">Programs</h4>
+                        <h4 className="font-heading text-lg font-bold mb-8 text-white">Learn</h4>
                         <ul className="space-y-4">
-                            {footerLinks.programs.map((link) => (
+                            {footerLinks.learn.map((link) => (
                                 <li key={link.name}>
                                     <Link 
                                         to={link.href}
@@ -133,11 +133,11 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Company */}
+                    {/* Community */}
                     <div>
-                        <h4 className="font-heading text-lg font-bold mb-8 text-white">Company</h4>
+                        <h4 className="font-heading text-lg font-bold mb-8 text-white">Community</h4>
                         <ul className="space-y-4">
-                            {footerLinks.company.map((link) => (
+                            {footerLinks.community.map((link) => (
                                 <li key={link.name}>
                                     <Link 
                                         to={link.href}

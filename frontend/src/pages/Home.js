@@ -45,12 +45,11 @@ export default function Home() {
 
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.1] mb-6" data-testid="hero-headline">
                             The Premium Learning Platform for{' '}
-                            <span className="text-accent">IGCSE, AS & A Level</span>{' '}
-                            Students
+                            <span className="text-accent">Cambridge Students</span>
                         </h1>
 
                         <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
-                            Master Mathematics and Science through expert coaching, structured notes, premium courses, and academic guidance.
+                            Master Mathematics and Science through expert coaching, structured resources, premium courses, and academic guidance.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -106,30 +105,30 @@ export default function Home() {
                             Choose Your Path
                         </h2>
                         <p className="text-gray-600 text-lg max-w-xl mx-auto">
-                            Whether you need live coaching, revision notes, or self-paced courses — we've got you covered.
+                            Whether you need guided learning, practice resources, or academic mentorship — we've got you covered.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-                        {/* Card 1: Coaching */}
+                        {/* Card 1: Guided Learning */}
                         <Link
-                            to="/programs"
+                            to="/boards"
                             className="group relative p-8 lg:p-10 bg-white rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300"
                             data-testid="path-coaching"
                         >
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors">
                                 <Users className="w-7 h-7 text-blue-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-primary mb-3">Need Coaching?</h3>
+                            <h3 className="text-xl font-bold text-primary mb-3">Need Guided Learning?</h3>
                             <p className="text-gray-500 leading-relaxed mb-6">
-                                Live classes, mentoring, exam strategy, and personalized learning plans from expert tutors.
+                                Live coaching, mentoring, and structured academic support for IGCSE, AS & A Level students.
                             </p>
                             <span className="inline-flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
-                                Explore Programs <ArrowRight className="w-4 h-4" />
+                                Explore Learning <ArrowRight className="w-4 h-4" />
                             </span>
                         </Link>
 
-                        {/* Card 2: Notes & Resources */}
+                        {/* Card 2: Notes & Practice */}
                         <Link
                             to="/resources"
                             className="group relative p-8 lg:p-10 bg-white rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300"
@@ -138,30 +137,30 @@ export default function Home() {
                             <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-100 transition-colors">
                                 <FileText className="w-7 h-7 text-emerald-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-primary mb-3">Need Notes & Worksheets?</h3>
+                            <h3 className="text-xl font-bold text-primary mb-3">Need Notes & Practice Resources?</h3>
                             <p className="text-gray-500 leading-relaxed mb-6">
-                                Topic-wise revision notes, formula sheets, worksheets, and practice resources for every chapter.
+                                Revision notes, worksheets, topic questions, formula sheets, and study guides for every chapter.
                             </p>
                             <span className="inline-flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
                                 Explore Resources <ArrowRight className="w-4 h-4" />
                             </span>
                         </Link>
 
-                        {/* Card 3: Self-Paced */}
+                        {/* Card 3: Beyond Academics */}
                         <Link
-                            to="/programs"
+                            to="/profile-building"
                             className="group relative p-8 lg:p-10 bg-white rounded-2xl border border-gray-100 hover:border-violet-200 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300"
-                            data-testid="path-courses"
+                            data-testid="path-community"
                         >
                             <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-violet-100 transition-colors">
-                                <Play className="w-7 h-7 text-violet-600" />
+                                <Compass className="w-7 h-7 text-violet-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-primary mb-3">Prefer Self-Paced Learning?</h3>
+                            <h3 className="text-xl font-bold text-primary mb-3">Looking Beyond Academics?</h3>
                             <p className="text-gray-500 leading-relaxed mb-6">
-                                Recorded premium courses with previews, structured curriculum, and learn-at-your-own-pace flexibility.
+                                Profile building, workshops, career guidance, and academic mentorship for university readiness.
                             </p>
                             <span className="inline-flex items-center gap-2 text-accent font-semibold text-sm group-hover:gap-3 transition-all">
-                                Browse Courses <ArrowRight className="w-4 h-4" />
+                                Explore Community <ArrowRight className="w-4 h-4" />
                             </span>
                         </Link>
                     </div>
