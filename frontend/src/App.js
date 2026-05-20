@@ -31,6 +31,7 @@ import ChaptersList from "./pages/curriculum/ChaptersList";
 import TopicsList from "./pages/curriculum/TopicsList";
 import TopicPage from "./pages/curriculum/TopicPage";
 import SearchPage from "./pages/curriculum/SearchPage";
+import PracticeQuestions from "./pages/PracticeQuestions";
 
 function App() {
     return (
@@ -49,6 +50,7 @@ function App() {
                                 <Route path="/programs/:subject" element={<ProgramDetail />} />
                                 <Route path="/workshops" element={<Workshops />} />
                                 <Route path="/resources" element={<Resources />} />
+                                <Route path="/practice" element={<PracticeQuestions />} />
                                 <Route path="/store" element={<Store />} />
                                 <Route path="/store/cart" element={<Cart />} />
                                 <Route path="/contact" element={<Contact />} />

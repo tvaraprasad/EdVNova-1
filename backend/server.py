@@ -707,13 +707,23 @@ from curriculum_api import create_curriculum_routes
 curriculum_router, seed_curriculum = create_curriculum_routes(db, get_current_user, get_admin_user)
 api_router.include_router(curriculum_router)
 
+# Questions routes (practice questions system)
+from questions_api import create_questions_routes
+questions_router, seed_questions = create_questions_routes(db, get_current_user, get_admin_user)
+api_router.include_router(questions_router)
+
+# AI Mentor routes
+from ai_mentor_api import create_ai_mentor_routes
+ai_mentor_router = create_ai_mentor_routes(db, get_current_user)
+api_router.include_router(ai_mentor_router)
+
 app.include_router(api_router)
 
 # Serve uploaded files
 import pathlib
 upload_dir = pathlib.Path("/app/uploads")
 upload_dir.mkdir(exist_ok=True)
-for sub in ["pdfs", "videos", "worksheets", "products", "resources"]:
+for sub in ["pdfs", "videos", "worksheets", "products", "resources", "questions"]:
     (upload_dir / sub).mkdir(exist_ok=True)
 app.mount("/api/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
@@ -951,6 +961,10 @@ async def startup():
     # Seed curriculum data
     await seed_curriculum()
     logger.info("Curriculum data seeded")
+
+    # Seed practice questions
+    await seed_questions()
+    logger.info("Practice questions seeded")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

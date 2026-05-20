@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, Calendar, FileText, Package, Bell, ArrowRight, Download, FolderOpen } from 'lucide-react';
+import { BookOpen, Calendar, FileText, Package, Bell, ArrowRight, Download, FolderOpen, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import AIMentor from '../components/AIMentor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -126,13 +127,23 @@ export default function Dashboard() {
 
                 {/* Tab Navigation */}
                 <div className="flex gap-2 mb-8 border-b border-border pb-3 flex-wrap" data-testid="dashboard-tabs">
-                    {['overview', 'courses', 'resources', 'downloads', 'orders'].map(tab => (
+                    {['overview', 'ai-mentor', 'courses', 'resources', 'downloads', 'orders'].map(tab => (
                         <button key={tab} onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${activeTab === tab ? 'bg-accent text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize flex items-center gap-1.5 ${activeTab === tab ? 'bg-accent text-white' : 'text-gray-500 hover:bg-gray-100'}`}
                             data-testid={`dash-tab-${tab}`}
-                        >{tab === 'overview' ? 'Overview' : `My ${tab.charAt(0).toUpperCase() + tab.slice(1)}`}</button>
+                        >
+                            {tab === 'ai-mentor' && <Sparkles className="w-3.5 h-3.5" />}
+                            {tab === 'overview' ? 'Overview' : tab === 'ai-mentor' ? 'AI Mentor' : `My ${tab.charAt(0).toUpperCase() + tab.slice(1)}`}
+                        </button>
                     ))}
                 </div>
+
+                {/* AI Mentor Tab */}
+                {activeTab === 'ai-mentor' && (
+                    <div data-testid="dashboard-ai-mentor">
+                        <AIMentor />
+                    </div>
+                )}
 
                 {/* Overview Tab */}
                 {activeTab === 'overview' && (

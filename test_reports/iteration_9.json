@@ -1,0 +1,44 @@
+{
+  "summary": "Tested EdVNova Practice Questions System and AI Mentor (new features). Backend: 18/18 pytest cases passed across browse/topics/admin CRUD/student bookmarks-completions/AI chat-sessions-history. Frontend: /practice page renders 15 seeded questions with subject/board/topic/difficulty/paper-type filters and expandable Answer/Mark Scheme sections; Admin Questions tab shows stats (15 total, Physics 5, Chemistry 4, Biology 3, Math 3) and Add Question button; AI Mentor tab in Student Dashboard renders chat input, suggested prompts and empty state; Resources page exposes Revision Notes / Practice Questions / Topic Notes nav; homepage / /igcse / /store / /resources all return 200. AI chat API returns real GPT-4o-mini responses (verified via pytest: status 200, non-empty response, session persistence).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "AI Mentor chat - send via Enter key",
+        "issue": "Pressing Enter in the chat input did NOT submit the message in the UI test (input remained empty, empty-state still visible after 15s). Send-button click was not verified. Backend /api/ai-mentor/chat works correctly via pytest, so the issue is likely a missing onKeyDown=Enter handler or unsubmittable form. Users may need to click the paper-plane send button explicitly.",
+        "affected_selectors": ["input[placeholder='Ask a question about any topic...']", "send button next to chat input"]
+      }
+    ],
+    "design_issues": [
+      {"screen": "Console", "issues": ["Pre-existing benign 401 errors on every page load when unauthenticated (likely /api/auth/me). Same as iteration_8 - not blocking."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_questions_and_ai.py",
+    "/app/test_reports/pytest/pytest_questions_ai.xml"
+  ],
+  "action_items": [
+    "Verify AI Mentor chat input submits on Enter key — add onKeyDown handler or wrap in <form onSubmit>. Currently only paper-plane button click likely works.",
+    "(Optional, carried over from iter_8) Suppress benign 401 console errors from auth/me probe when anonymous."
+  ],
+  "critical_code_review_comments": [
+    "ai_mentor_api.py chat(): For each new message the entire history is replayed by calling chat_instance.send_message in a for-loop (lines 92-95). This issues N extra LLM calls per request and will become extremely slow and expensive as a session grows. Refactor to pass history as system context or use LlmChat's native history support, not re-send_message per turn.",
+    "ai_mentor_api.py chat(): Bare except catches all errors and returns a friendly string with HTTP 200 — this hides real failures (network, key invalid, rate-limit). Distinguish transient vs config errors and return proper 5xx where appropriate, or at least include an error flag in the response so the UI can show retry.",
+    "questions_api.py: ObjectId(question_id) is called without try/except — passing a malformed id (e.g. random string) will raise bson.errors.InvalidId and bubble up as 500. Wrap and return 400/404.",
+    "questions_api.py /admin/upload-image: file.filename used directly to derive extension with no MIME/type validation and no size limit — admin-only but still risky; sanitize.",
+    "questions_api.py: routes /admin/* and /{question_id} share the same prefix — FastAPI matches in declaration order which is fine here, but /admin/stats etc could be shadowed if /{question_id} were declared first. Current ordering is correct; add a guard or move /{question_id} to /public/{id} to avoid future regressions.",
+    "ai_mentor_api.py: SYSTEM_PROMPT hard-coded in the module — fine for MVP but consider moving to config so non-engineers can iterate."
+  ],
+  "updated_files": ["/app/backend/tests/test_questions_and_ai.py"],
+  "success_rate": {"backend": "100% (18/18)", "frontend": "~95% (all elements & navigation verified; AI chat Enter-to-send not working)"},
+  "test_credentials": "admin@edvnova.com / Admin@123 (login works, /api/auth/login returns 200, redirects to /dashboard). Student account created on-the-fly in pytest via /api/auth/register.",
+  "seed_data_creation": "Pytest created and then deleted one TEST_ question during admin CRUD test. Created a throwaway student account (test_student_<uuid>@edvnova.com) used for bookmark/complete/AI chat. Bookmarks/completions/AI chat sessions for that student remain in DB.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Practice Questions System (questions_api.py) and AI Mentor (ai_mentor_api.py) are fully functional at the API level. 15 questions seed on startup; subjects covered: physics(5), chemistry(4), biology(3), mathematics(3). All endpoints exercised: GET /api/questions/browse (with filters), GET /api/questions/topics, GET /api/questions/admin/{stats,list}, POST/PUT/DELETE /api/questions/admin/*, POST /api/questions/{bookmark,complete}/{id}, POST /api/ai-mentor/chat (real gpt-4o-mini via EMERGENT_LLM_KEY), GET /api/ai-mentor/{sessions,history/{sid}}. Frontend: /practice public works; admin Questions tab data-testid='admin-tab-questions'; AI Mentor tab data-testid='dash-tab-ai-mentor'. The ONLY notable UI gap is AI chat input not submitting on Enter — user must click send button (not verified clickable in this test). Backend AI chat call takes ~5-10s so always allow >15s timeout when E2E testing the chat flow.",
+  "rca of the issue": "AI Mentor Enter-to-send: The chat input element accepts text but pressing Enter does not trigger submission — most likely the input is not wrapped in a <form> with onSubmit, or there is no onKeyDown handler in AIMentor.js. Reproduce: login, open Dashboard > AI Mentor tab, type a question, press Enter. Expected: message sent and assistant reply rendered within ~10s. Actual: input cleared/unchanged, empty state persists. Mitigation: add either (a) <form onSubmit={sendMessage}> around the input row, or (b) onKeyDown={e => e.key==='Enter' && !e.shiftKey && sendMessage()} on the input."
+}

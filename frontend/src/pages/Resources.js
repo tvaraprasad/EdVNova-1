@@ -102,6 +102,23 @@ export default function Resources() {
                 </div>
             </section>
 
+            {/* Resource Type Navigation */}
+            <section className="bg-white border-b border-gray-100">
+                <div className="container-custom">
+                    <div className="flex items-center gap-6 py-4">
+                        <Link to="/resources" className="text-sm font-semibold text-accent border-b-2 border-accent pb-1" data-testid="nav-revision-notes">
+                            Revision Notes & Materials
+                        </Link>
+                        <Link to="/practice" className="text-sm font-medium text-gray-500 hover:text-primary transition-colors pb-1" data-testid="nav-practice-questions">
+                            Practice Questions
+                        </Link>
+                        <Link to="/boards" className="text-sm font-medium text-gray-500 hover:text-primary transition-colors pb-1" data-testid="nav-topic-notes">
+                            Topic Notes
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
             {/* Subject Category Cards */}
             <section className="py-10 bg-white border-b border-gray-100">
                 <div className="container-custom">
