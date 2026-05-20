@@ -82,19 +82,21 @@ You are NOT a replacement for a teacher. You are a supportive learning companion
 
             system = SYSTEM_PROMPT + build_context_prompt(data.board, data.subject, data.topic)
 
+            # Build conversation context from history for the system message
+            history_context = ""
+            for msg in history[:-1]:  # exclude the message we just saved
+                role_label = "Student" if msg["role"] == "user" else "Mentor"
+                history_context += f"\n{role_label}: {msg['content']}"
+
+            if history_context:
+                system += f"\n\nConversation so far:{history_context}\n\nNow respond to the student's latest message."
+
             chat_instance = LlmChat(
                 api_key=api_key,
-                session_id=f"edvnova-{user['id']}-{session_id}",
+                session_id=f"edvnova-{user['id']}-{session_id}-{len(history)}",
                 system_message=system,
             ).with_model("openai", "gpt-4o-mini")
 
-            # Replay history for context
-            for msg in history[:-1]:  # exclude the last one we just saved
-                if msg["role"] == "user":
-                    user_msg = UserMessage(text=msg["content"])
-                    await chat_instance.send_message(user_msg)
-
-            # Send current message
             user_msg = UserMessage(text=data.message)
             response_text = await chat_instance.send_message(user_msg)
 

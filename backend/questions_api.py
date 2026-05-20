@@ -47,6 +47,11 @@ def create_questions_routes(db, get_current_user, get_admin_user):
     def doc_to_response(doc):
         return {k: v for k, v in doc.items() if k != "_id"} | {"id": str(doc["_id"])}
 
+    def validate_oid(oid_str):
+        if not ObjectId.is_valid(oid_str):
+            raise HTTPException(400, "Invalid ID format")
+        return ObjectId(oid_str)
+
     # ══════════════════════════════════════════
     # ADMIN ENDPOINTS
     # ══════════════════════════════════════════
@@ -67,7 +72,7 @@ def create_questions_routes(db, get_current_user, get_admin_user):
         await get_admin_user(request)
         update = {k: v for k, v in data.model_dump().items() if v is not None}
         update["updated_at"] = datetime.now(timezone.utc).isoformat()
-        result = await db.questions.update_one({"_id": ObjectId(question_id)}, {"$set": update})
+        result = await db.questions.update_one({"_id": validate_oid(question_id)}, {"$set": update})
         if result.matched_count == 0:
             raise HTTPException(404, "Question not found")
         return {"message": "Question updated"}
@@ -75,7 +80,7 @@ def create_questions_routes(db, get_current_user, get_admin_user):
     @router.delete("/admin/{question_id}")
     async def delete_question(question_id: str, request: Request):
         await get_admin_user(request)
-        await db.questions.delete_one({"_id": ObjectId(question_id)})
+        await db.questions.delete_one({"_id": validate_oid(question_id)})
         return {"message": "Question deleted"}
 
     @router.get("/admin/list")
@@ -146,7 +151,7 @@ def create_questions_routes(db, get_current_user, get_admin_user):
 
     @router.get("/{question_id}")
     async def get_question(question_id: str):
-        doc = await db.questions.find_one({"_id": ObjectId(question_id)})
+        doc = await db.questions.find_one({"_id": validate_oid(question_id)})
         if not doc:
             raise HTTPException(404, "Question not found")
         return doc_to_response(doc)

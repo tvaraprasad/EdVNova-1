@@ -9,83 +9,56 @@ Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. F
 - Database: MongoDB
 - Auth: JWT with httpOnly cookies
 - Payment: Razorpay (MOCKED)
-- Email: Resend (MOCKED — ready for API key plug-in)
+- Email: Resend (MOCKED)
+- AI: GPT-4o-mini via Emergent Universal Key
 
 ## What's Been Implemented
 
-### Phase 1: Core Platform (Complete)
-- JWT Authentication (login, register, logout, refresh)
-- All pages: Home, About, Programs, Workshops, Resources, Store, Cart, Contact, Dashboard, Admin
-- WhatsApp floating button, form redirects to WA
-- 15-part UI/UX refinement (institutional tone, Inter font, no gradients)
-- Real testimonials, CRO optimizations
+### Phase 1-5: Core Platform, CMS, Curriculum, Admin Topic Editor, UX Transformation (Complete)
+- Full platform with auth, admin, dashboard, store, resources, 340 topics, 10 published
 
-### Phase 2: Content Management System (Complete)
-- Admin panel with 8 tabs: Overview, Topics, Courses, Resources, Products, Users, Orders, Contacts
-- Course hierarchy: Course -> Modules -> Lessons (video URL/upload, PDF, worksheet, preview flag)
-- Student dashboard, course content viewer, access control
+### Phase 6: Navigation Architecture (Complete)
+- Learn/Community dropdowns, Book Consultation CTA, streamlined nav
 
-### Phase 3: Curriculum System (Complete)
-- 3 Boards: Cambridge IGCSE, AS Level, A Level
-- 4 Subjects: Mathematics, Physics, Chemistry, Biology
-- 340 Topics seeded (10 published with full content, 330 drafts)
-- SEO-friendly URLs, premium topic pages, bookmarks, progress tracking, search
+### Phase 7: Practice Questions System (Complete - May 20, 2026)
+**Backend (questions_api.py):**
+- Full CRUD: POST/PUT/DELETE /api/questions/admin/*
+- Browse: GET /api/questions/browse with filters (subject, board, topic, difficulty, paper_type)
+- Topics: GET /api/questions/topics (dynamic filter options)
+- Stats: GET /api/questions/admin/stats
+- Image upload: POST /api/questions/admin/upload-image
+- Student bookmarks: POST /api/questions/bookmark/{id}
+- Student completions: POST /api/questions/complete/{id}
+- 15 sample questions seeded (Physics 5, Chemistry 4, Biology 3, Math 3)
 
-### Phase 4: Admin Topic Editor & Email (Complete)
-- Full topic management UI with search/filter/pagination/editor
-- Email integration (mock mode, ready for Resend API key)
+**Frontend:**
+- /practice page with premium filter UI (subject pills, board/topic/difficulty/paper type dropdowns)
+- Question cards with difficulty/type/marks/board badges
+- Expandable Answer and Mark Scheme accordion sections
+- Bookmark and Complete toggle buttons (auth required)
+- Admin Questions tab with CRUD dialog, image upload, stats dashboard
+- Resources page navigation tabs (Revision Notes / Practice Questions / Topic Notes)
 
-### Phase 5: UX Transformation (Complete)
-- Premium centered hero, Trust Strip, Choose Your Path, Board Selection, Why EdVNova, Subjects, Testimonials
-- Resources page with search bar, category cards, filters, empty states
+### Phase 8: AI Academic Mentor (Complete - May 20, 2026)
+**Backend (ai_mentor_api.py):**
+- POST /api/ai-mentor/chat — sends message with board/subject/topic context
+- GET /api/ai-mentor/sessions — list conversation sessions
+- GET /api/ai-mentor/history/{session_id} — get messages in a session
+- DELETE /api/ai-mentor/session/{session_id} — delete a session
+- DELETE /api/ai-mentor/clear-all — clear all chat history
+- Uses GPT-4o-mini via Emergent Universal Key
+- Educational system prompt focused on Cambridge IGCSE/AS/A Level
+- Conversation history included in context (not replayed as separate calls)
 
-### Phase 6: Navigation Architecture Restructure (Complete - May 5, 2026)
-**New Navigation Structure:**
-- Learn (dropdown): IGCSE, AS Level, A Level, Live Coaching, Courses
-- Resources (flat link to /resources)
-- Store (flat link to /store)
-- Community (dropdown): Profile Building, Career Guidance, Workshops
-- About, Contact (flat links)
-- **Book Consultation** CTA button (replaces "Get Started" for unauthenticated users)
-
-**Key UX Decisions:**
-- "Learn" replaces "Boards" — more intuitive for first-time visitors
-- "Community" groups all beyond-academics content (Profile Building, Career Guidance, Workshops)
-- Store is a standalone nav item (academic products, not generic ecommerce)
-- No overlapping terminology — each nav item has clear, distinct purpose
-
-**Homepage Updates:**
-- Hero: "The Premium Learning Platform for Cambridge Students"
-- Choose Your Path: 3 cards (Guided Learning → /boards, Notes & Resources → /resources, Beyond Academics → /profile-building)
-- Final CTA: "Explore Resources" → /resources (label-link consistency)
-
-**Footer Updated:**
-- Three columns: Learn, Resources, Community (matching nav structure)
-
-**Mobile Menu:**
-- Accordion-style expandable sections for Learn and Community
-- Book Consultation CTA for unauthenticated users
-
-## Navigation Map
-```
-Learn (dropdown)
-├── IGCSE → /igcse
-├── AS Level → /as-level
-├── A Level → /a-level
-├── Live Coaching → /programs
-└── Courses → /programs
-
-Resources → /resources
-Store → /store
-
-Community (dropdown)
-├── Profile Building → /profile-building
-├── Career Guidance → /career-guidance
-└── Workshops → /workshops
-
-About → /about
-Contact → /contact
-```
+**Frontend (AIMentor.js in Student Dashboard):**
+- Premium chat UI with sidebar for session management
+- New Chat button, session list with previews
+- Board/Subject/Topic context selectors in header
+- Markdown rendering (react-markdown) for formatted responses
+- Typing indicator animation
+- Suggested starter prompts
+- Save/load/delete chat sessions
+- Disclaimer: "AI Mentor is a learning assistant. Always verify with your teacher."
 
 ## Database Collections
 - users, courses, enrollments, workshops, workshop_registrations
@@ -93,29 +66,34 @@ Contact → /contact
 - modules, lessons, downloads
 - curriculum_boards, curriculum_subjects, curriculum_chapters, curriculum_topics
 - bookmarks, topic_progress
+- **questions** (practice question bank)
+- **question_bookmarks** (student saved questions)
+- **question_completions** (student completed questions)
+- **ai_chats** (AI mentor conversation messages)
 
 ## Key API Endpoints
 - Auth: /api/auth/login, /register, /logout, /me, /refresh
-- Curriculum: /api/curriculum/boards/*, /api/curriculum/search, /api/curriculum/admin/topics
-- Contact: /api/contact (with email notification)
-- Orders: /api/orders/create (with email notification)
+- Curriculum: /api/curriculum/boards/*, /api/curriculum/admin/topics
+- Questions: /api/questions/browse, /api/questions/admin/*, /api/questions/bookmark/*, /api/questions/complete/*
+- AI Mentor: /api/ai-mentor/chat, /api/ai-mentor/sessions, /api/ai-mentor/history/*
+- Contact: /api/contact
+- Orders: /api/orders/create
 
 ## Prioritized Backlog
 
 ### P1 (High Priority)
-- [ ] Razorpay payment integration (currently mocked)
-- [ ] More published topic content (currently 10/340 published)
+- [ ] Publish more topic content (10/340 published)
+- [ ] Add more practice questions via admin panel
+- [ ] Razorpay payment integration
 
 ### P2 (Medium Priority)
-- [ ] Google Analytics / Meta Pixel for conversion tracking
+- [ ] Google Analytics / Meta Pixel
+- [ ] RAG grounding for AI Mentor (use EdVNova topic content)
+- [ ] Practice questions - session/quiz mode with scoring
 - [ ] Dark mode for reading
-- [ ] Practice questions system (MCQ)
-- [ ] Past papers section
-- [ ] Break down server.py (~1000 lines) into modular route files
 
 ### P3 (Low Priority)
-- [ ] Revision notes printing/PDF export
-- [ ] Schema markup for SEO / Sitemap generation
+- [ ] PDF export for revision notes
+- [ ] Schema markup for SEO / Sitemap
 - [ ] Student progress analytics dashboard
-- [ ] Social sharing for topics
-- [ ] Scale to additional boards (CBSE, IB, etc.)
+- [ ] Break down server.py into modular route files
