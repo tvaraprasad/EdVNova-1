@@ -1,0 +1,42 @@
+{
+  "summary": "Tested 3 new admin tools (Chapter Notes Editor, Worksheet Manager, Bulk Question Import) end-to-end. Backend: 20/20 pytest cases pass including bulk-publish, worksheet upload/list/browse/delete, bulk-import (with empty-questions skip), and regression on 7 existing pages + /api/curriculum/boards. Frontend: Admin panel exposes 11 tabs incl. Chapter Notes (data-testid=admin-tab-chapter-notes) and Worksheets (admin-tab-worksheets). Selecting Board=IGCSE+Subject=Physics in Chapter Notes loads exactly 9 chapters (motion, forces, energy, thermal-physics, waves, light, electricity, magnetism, atomic-physics). Selecting Electricity shows 5 topic rows (Current, Voltage, Resistance, Circuits, Electrical Safety) with Resistance marked 'published' (green check, hard, 25 min, 'Has content') and the others 'draft'. Clicking Resistance expands inline editor with Introduction, Content Sections, Definitions, Formulas, Worked Examples, Examiner Tips, Common Mistakes, Summary fields. 'Bulk Publish All With Content' button is rendered. Worksheets tab opens Upload modal with file picker, title, subject, board, chapter, topic, description, free toggle. Questions tab has Bulk Import button (data-testid=bulk-import-btn) opening a textarea dialog. Fixed 1 critical routing bug.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Console (all pages)", "issues": ["Pre-existing benign 401 on /api/auth/me when unauthenticated (carried from iter 8-9, non-blocking)", "React hydration warning: <span> child of <option> caused by Emergent build-time x-* instrumentation attributes inside <option> (cosmetic console noise only, not a real DOM violation in production builds)"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter10_admin_tools.py",
+    "/app/test_reports/pytest/pytest_iter10.xml"
+  ],
+  "action_items": [
+    "(Already fixed by testing agent) PUT /api/curriculum/admin/topics/bulk-publish was returning 500 because the route was declared AFTER the parameterized PUT /admin/topics/{topic_id} and FastAPI matched 'bulk-publish' as topic_id -> bson.errors.InvalidId. Fix applied: moved bulk-publish route BEFORE the parameterized one (and added ObjectId.is_valid guard). Please verify on next deployment.",
+    "(Optional, carried from iter 9) AI Mentor chat input still not verified to submit on Enter key — add onKeyDown / wrap in <form onSubmit> in AIMentor.js.",
+    "(Optional, carried) Suppress benign 401 console errors from auth/me probe when anonymous."
+  ],
+  "critical_code_review_comments": [
+    "ROUTING BUG FIXED: /app/backend/curriculum_api.py declared PUT /admin/topics/{topic_id} before PUT /admin/topics/bulk-publish. FastAPI matches in declaration order so 'bulk-publish' was treated as a topic_id and ObjectId() threw InvalidId -> 500. Always declare static path segments BEFORE catch-all parameter routes. Apply same audit to other routers (questions_api.py /admin/* vs /{question_id} ordering is currently safe but fragile).",
+    "worksheets_api.py upload_worksheet: file.filename used to derive extension without MIME validation or size cap. Admin-only but should still sanitize filename and reject non-PDF types or set a max body size.",
+    "worksheets_api.py track_download: bare `except:` swallows all errors when checking auth for premium worksheets. Use `except HTTPException` or be explicit; otherwise unrelated errors (e.g., db) get masked as 401.",
+    "questions_api.py bulk_import_questions: silently skips items with empty question_text but returns success. Consider returning {imported, skipped, errors} so admin can see which rows were dropped during paste.",
+    "curriculum_api.py bulk_publish_topics: iterates topic_ids sequentially with await per item. For large lists use update_many({_id: {$in: [...]}}).",
+    "ChapterNotesEditor.js: long inline form with many textareas — verify autosave/dirty-check exists so admins don't lose edits when switching topics; not validated in this run."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter10_admin_tools.py",
+    "/app/backend/curriculum_api.py"
+  ],
+  "success_rate": {"backend": "100% (20/20 after fix)", "frontend": "100% on observed flows (Chapter Notes browse/expand, Worksheets modal, Questions bulk-import button present)"},
+  "test_credentials": "admin@edvnova.com / Admin@123 (login -> /admin works, cookies set, /api/auth/me 200).",
+  "seed_data_creation": "Pytest created and self-deleted: 1 worksheet (TEST_Worksheet_Iter10), 2 bulk-imported questions (TEST_Q1/TEST_Q2). Bulk-publish test target was reverted to original draft status. No residual TEST_ data remains.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 3 new admin tools (Chapter Notes Editor, Worksheet Manager, Bulk Question Import) are functional. Endpoints verified: GET /api/curriculum/admin/chapters, GET /api/curriculum/admin/chapter-topics, PUT /api/curriculum/admin/topics/bulk-publish (FIXED routing order), POST /api/worksheets/admin/upload (multipart), GET /api/worksheets/admin/{list,stats}, DELETE /api/worksheets/admin/{id}, GET /api/worksheets/browse, POST /api/questions/admin/bulk-import. Admin panel data-testids: admin-tab-chapter-notes, admin-tab-worksheets, admin-tab-questions, bulk-import-btn, bulk-import-textarea, bulk-import-submit. Run pytest with REACT_APP_BACKEND_URL env var (it is NOT exported in shell by default). All seed data is idempotent on startup.",
+  "rca of the issue": "Bulk-publish 500 RCA: Route declaration order in /app/backend/curriculum_api.py — @router.put('/admin/topics/{topic_id}') was declared at line ~246 while @router.put('/admin/topics/bulk-publish') was at line ~307. FastAPI matches routes in registration order, so PUT /admin/topics/bulk-publish was caught by the parameterized handler with topic_id='bulk-publish', causing ObjectId('bulk-publish') -> bson.errors.InvalidId -> 500. Mitigation applied: moved the bulk-publish handler ABOVE the {topic_id} handler and added ObjectId.is_valid() guard inside the loop so individual malformed IDs are skipped rather than crashing the batch. Verified via pytest test_bulk_publish_topics now passes."
+}

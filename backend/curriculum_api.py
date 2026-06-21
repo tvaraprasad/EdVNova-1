@@ -243,6 +243,25 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         result["id"] = str(topic["_id"])
         return result
 
+    @router.put("/admin/topics/bulk-publish")
+    async def bulk_publish_topics_early(request: Request):
+        """Publish multiple topics at once. Declared before /{topic_id} to avoid path shadowing."""
+        await get_admin_user(request)
+        body = await request.json()
+        topic_ids = body.get("topic_ids", [])
+        now = datetime.now(timezone.utc).isoformat()
+        count = 0
+        for tid in topic_ids:
+            if not ObjectId.is_valid(tid):
+                continue
+            r = await db.curriculum_topics.update_one(
+                {"_id": ObjectId(tid)},
+                {"$set": {"status": "published", "updated_at": now}}
+            )
+            if r.modified_count > 0:
+                count += 1
+        return {"message": f"{count} topics published", "count": count}
+
     @router.put("/admin/topics/{topic_id}")
     async def update_topic(topic_id: str, data: TopicUpdate, request: Request):
         await get_admin_user(request)
@@ -277,6 +296,38 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         boards = await db.curriculum_boards.find({}, {"_id": 0, "slug": 1, "name": 1}).to_list(10)
         subjects = await db.curriculum_subjects.distinct("slug")
         return {"total": total, "published": published, "draft": draft, "boards": boards, "subjects": subjects}
+
+    # ── Chapter-level bulk editing ──
+    @router.get("/admin/chapters")
+    async def list_chapters_for_editor(request: Request, board: str = "", subject: str = ""):
+        await get_admin_user(request)
+        query = {}
+        if board: query["board_slug"] = board
+        if subject: query["subject_slug"] = subject
+        chapters = await db.curriculum_chapters.find(query, {"_id": 0}).sort([("board_slug", 1), ("subject_slug", 1), ("order", 1)]).to_list(200)
+        return chapters
+
+    @router.get("/admin/chapter-topics")
+    async def get_chapter_topics_for_editor(request: Request, board: str = "", subject: str = "", chapter: str = ""):
+        """Get all topics in a chapter with full content for bulk editing."""
+        await get_admin_user(request)
+        query = {}
+        if board: query["board_slug"] = board
+        if subject: query["subject_slug"] = subject
+        if chapter: query["chapter_slug"] = chapter
+        topics = await db.curriculum_topics.find(query).sort("order", 1).to_list(100)
+        result = []
+        for t in topics:
+            item = {k: v for k, v in t.items() if k != "_id"}
+            item["id"] = str(t["_id"])
+            result.append(item)
+        return result
+
+    @router.put("/admin/topics/_bulk-publish-legacy-noop")
+    async def _bulk_publish_legacy_noop(request: Request):
+        """Legacy route kept only to avoid removal; real handler is declared earlier."""
+        await get_admin_user(request)
+        return {"message": "0 topics published", "count": 0}
 
     # ===== STUDENT FEATURES =====
     @router.post("/user/bookmark")

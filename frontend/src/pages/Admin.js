@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool, HelpCircle } from 'lucide-react';
+import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool, HelpCircle, FileUp, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import CourseManager from '../components/admin/CourseManager';
 import ResourceManager from '../components/admin/ResourceManager';
 import ProductManager from '../components/admin/ProductManager';
 import TopicEditor from '../components/admin/TopicEditor';
 import QuestionManager from '../components/admin/QuestionManager';
+import ChapterNotesEditor from '../components/admin/ChapterNotesEditor';
+import WorksheetManager from '../components/admin/WorksheetManager';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -44,7 +46,9 @@ export default function Admin() {
 
     const tabs = [
         { id: 'overview', name: 'Overview', icon: BookOpen },
+        { id: 'chapter-notes', name: 'Chapter Notes', icon: Layers },
         { id: 'topics', name: 'Topics', icon: PenTool },
+        { id: 'worksheets', name: 'Worksheets', icon: FileUp },
         { id: 'questions', name: 'Questions', icon: HelpCircle },
         { id: 'courses', name: 'Courses', icon: GraduationCap },
         { id: 'resources', name: 'Resources', icon: FileText },
@@ -191,10 +195,24 @@ export default function Admin() {
                     </div>
                 )}
 
+                {/* Chapter Notes Tab */}
+                {activeTab === 'chapter-notes' && (
+                    <div data-testid="admin-chapter-notes">
+                        <ChapterNotesEditor />
+                    </div>
+                )}
+
                 {/* Topics Tab */}
                 {activeTab === 'topics' && (
                     <div data-testid="admin-topics">
                         <TopicEditor />
+                    </div>
+                )}
+
+                {/* Worksheets Tab */}
+                {activeTab === 'worksheets' && (
+                    <div data-testid="admin-worksheets">
+                        <WorksheetManager />
                     </div>
                 )}
 

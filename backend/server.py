@@ -712,6 +712,11 @@ from questions_api import create_questions_routes
 questions_router, seed_questions = create_questions_routes(db, get_current_user, get_admin_user)
 api_router.include_router(questions_router)
 
+# Worksheets routes
+from worksheets_api import create_worksheets_routes
+worksheets_router = create_worksheets_routes(db, get_current_user, get_admin_user)
+api_router.include_router(worksheets_router)
+
 # AI Mentor routes
 from ai_mentor_api import create_ai_mentor_routes
 ai_mentor_router = create_ai_mentor_routes(db, get_current_user)

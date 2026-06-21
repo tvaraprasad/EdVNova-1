@@ -123,6 +123,42 @@ def create_questions_routes(db, get_current_user, get_admin_user):
             f.write(content)
         return {"url": f"/api/uploads/questions/{filename}"}
 
+    @router.post("/admin/bulk-import")
+    async def bulk_import_questions(request: Request):
+        """Import multiple questions at once. Expects {questions: [...]}"""
+        await get_admin_user(request)
+        body = await request.json()
+        items = body.get("questions", [])
+        if not items:
+            raise HTTPException(400, "No questions provided")
+        now = datetime.now(timezone.utc).isoformat()
+        docs = []
+        for item in items:
+            doc = {
+                "subject": item.get("subject", "physics"),
+                "board": item.get("board", "igcse"),
+                "topic": item.get("topic", ""),
+                "chapter": item.get("chapter", ""),
+                "difficulty": item.get("difficulty", "medium"),
+                "paper_type": item.get("paper_type", "structured"),
+                "question_text": item.get("question_text", ""),
+                "question_image_url": item.get("question_image_url", ""),
+                "marks": item.get("marks", 0),
+                "answer": item.get("answer", ""),
+                "mark_scheme": item.get("mark_scheme", ""),
+                "tags": item.get("tags", []),
+                "year": item.get("year", ""),
+                "paper_number": item.get("paper_number", ""),
+                "is_active": True,
+                "created_at": now,
+                "updated_at": now,
+            }
+            if doc["question_text"].strip():
+                docs.append(doc)
+        if docs:
+            await db.questions.insert_many(docs)
+        return {"message": f"{len(docs)} questions imported", "count": len(docs)}
+
     # ══════════════════════════════════════════
     # PUBLIC / STUDENT ENDPOINTS
     # ══════════════════════════════════════════

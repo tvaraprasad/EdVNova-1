@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, Search, ChevronDown, Upload, Image } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, ChevronDown, Upload, Image, FileUp } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
@@ -8,6 +8,31 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const BULK_TEMPLATE = `Subject: physics
+Board: igcse
+Topic: Electricity
+Difficulty: medium
+Paper Type: structured
+Marks: 3
+
+---QUESTION---
+State Ohm's law and explain the relationship between voltage, current and resistance.
+---ANSWER---
+Ohm's law states that current is proportional to voltage at constant temperature. V = IR.
+---MARK SCHEME---
+1 mark: Current proportional to p.d. [1]
+1 mark: At constant temperature [1]  
+1 mark: V = IR [1]
+---END---
+
+---QUESTION---
+Calculate the current when voltage is 12V and resistance is 4 ohms.
+---ANSWER---
+I = V/R = 12/4 = 3A
+---MARK SCHEME---
+I = V/R [1]; 3A [1]
+---END---`;
 
 export default function QuestionManager() {
     const [questions, setQuestions] = useState([]);
@@ -42,7 +67,7 @@ export default function QuestionManager() {
         try {
             const res = await axios.get(`${API_URL}/api/questions/admin/stats`, { withCredentials: true });
             setStats(res.data);
-        } catch {}
+        } catch (e) { console.error(e); }
     }, []);
 
     useEffect(() => { fetchStats(); }, [fetchStats]);
@@ -79,6 +104,58 @@ export default function QuestionManager() {
             fetchQuestions();
             fetchStats();
         } catch { toast.error('Failed to delete'); }
+    };
+
+    // ── Bulk Import ──
+    const [showBulk, setShowBulk] = useState(false);
+    const [bulkText, setBulkText] = useState(BULK_TEMPLATE);
+    const [bulkImporting, setBulkImporting] = useState(false);
+
+    const parseBulkText = (text) => {
+        const lines = text.split('\n');
+        let subject = 'physics', board = 'igcse', topic = '', difficulty = 'medium', paperType = 'structured', marks = 0;
+        // Parse header
+        for (const line of lines) {
+            if (line.startsWith('Subject:')) subject = line.split(':')[1].trim().toLowerCase();
+            else if (line.startsWith('Board:')) board = line.split(':')[1].trim().toLowerCase();
+            else if (line.startsWith('Topic:')) topic = line.split(':').slice(1).join(':').trim();
+            else if (line.startsWith('Difficulty:')) difficulty = line.split(':')[1].trim().toLowerCase();
+            else if (line.startsWith('Paper Type:')) paperType = line.split(':')[1].trim().toLowerCase();
+            else if (line.startsWith('Marks:')) marks = parseInt(line.split(':')[1].trim()) || 0;
+        }
+        // Parse questions
+        const blocks = text.split('---QUESTION---').slice(1);
+        const questions = [];
+        for (const block of blocks) {
+            const parts = block.split('---END---')[0];
+            const qMatch = parts.split('---ANSWER---');
+            const questionText = (qMatch[0] || '').trim();
+            let answer = '', markScheme = '';
+            if (qMatch[1]) {
+                const aParts = qMatch[1].split('---MARK SCHEME---');
+                answer = (aParts[0] || '').trim();
+                markScheme = (aParts[1] || '').trim();
+            }
+            if (questionText) {
+                questions.push({ subject, board, topic, difficulty, paper_type: paperType, marks, question_text: questionText, answer, mark_scheme: markScheme, tags: [] });
+            }
+        }
+        return questions;
+    };
+
+    const handleBulkImport = async () => {
+        const questions = parseBulkText(bulkText);
+        if (!questions.length) { toast.error('No questions found. Check format.'); return; }
+        setBulkImporting(true);
+        try {
+            const res = await axios.post(`${API_URL}/api/questions/admin/bulk-import`, { questions }, { withCredentials: true });
+            toast.success(res.data.message);
+            setShowBulk(false);
+            setBulkText(BULK_TEMPLATE);
+            fetchQuestions();
+            fetchStats();
+        } catch (err) { toast.error(err.response?.data?.detail || 'Import failed'); }
+        finally { setBulkImporting(false); }
     };
 
     const handleImageUpload = async (e) => {
@@ -129,6 +206,9 @@ export default function QuestionManager() {
                 </select>
                 <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover" data-testid="add-question-btn">
                     <Plus className="w-4 h-4" /> Add Question
+                </button>
+                <button onClick={() => setShowBulk(true)} className="flex items-center gap-2 px-4 py-2 border border-accent text-accent rounded-lg text-sm font-medium hover:bg-accent/5" data-testid="bulk-import-btn">
+                    <FileUp className="w-4 h-4" /> Bulk Import
                 </button>
             </div>
 
@@ -226,6 +306,35 @@ export default function QuestionManager() {
                         <div className="flex justify-end gap-3 pt-3 border-t">
                             <button onClick={() => setShowForm(false)} className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
                             <button onClick={handleSave} className="px-6 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-hover" data-testid="save-question-btn">{editItem ? 'Update' : 'Create'}</button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Bulk Import Dialog */}
+            <Dialog open={showBulk} onOpenChange={setShowBulk}>
+                <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+                    <DialogHeader><DialogTitle>Bulk Import Questions</DialogTitle></DialogHeader>
+                    <div className="space-y-4 pt-3">
+                        <p className="text-sm text-gray-600">
+                            Paste multiple questions using the format below. Set shared metadata (Subject, Board, Topic) at the top, then separate each question with <code className="bg-gray-100 px-1 rounded">---QUESTION---</code> and <code className="bg-gray-100 px-1 rounded">---END---</code> markers.
+                        </p>
+                        <Textarea
+                            value={bulkText}
+                            onChange={e => setBulkText(e.target.value)}
+                            rows={20}
+                            className="font-mono text-xs leading-relaxed"
+                            placeholder="Paste questions here..."
+                            data-testid="bulk-import-textarea"
+                        />
+                        <div className="flex items-center justify-between pt-3 border-t">
+                            <p className="text-sm text-gray-400">{parseBulkText(bulkText).length} questions detected</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setShowBulk(false)} className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
+                                <button onClick={handleBulkImport} disabled={bulkImporting} className="px-6 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-hover disabled:opacity-50" data-testid="bulk-import-submit">
+                                    {bulkImporting ? 'Importing...' : `Import ${parseBulkText(bulkText).length} Questions`}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </DialogContent>
