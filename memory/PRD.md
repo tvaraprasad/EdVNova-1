@@ -1,99 +1,92 @@
 # EdVNova Learning Platform - PRD
 
 ## Original Problem Statement
-Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform. Full-stack platform for Cambridge IGCSE, AS Level, and A Level students. Maximize sign-ups, course enrollments, consultation bookings. Premium Apple/Stripe style design.
+Build EdVNova Learning - Advanced IGCSE Coaching & Academic Learning Platform for Cambridge IGCSE, AS Level, and A Level students. Premium Apple/Stripe design.
 
 ## Tech Stack
-- Frontend: React 19 + TailwindCSS + Shadcn UI
-- Backend: FastAPI (Python)
-- Database: MongoDB
-- Auth: JWT with httpOnly cookies
-- Payment: Razorpay (MOCKED)
-- Email: Resend (MOCKED)
-- AI: GPT-4o-mini via Emergent Universal Key
+React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | Razorpay (MOCKED) | Resend (MOCKED) | GPT-4o-mini via Emergent Key
 
-## What's Been Implemented
+## Implemented Features
 
-### Phase 1-5: Core Platform, CMS, Curriculum, Admin Topic Editor, UX Transformation (Complete)
-- Full platform with auth, admin, dashboard, store, resources, 340 topics, 10 published
+### Core Platform
+- JWT Auth, Admin/Student Dashboards, Store, Resources, Contact, WhatsApp
+- Premium homepage with Learn/Community dropdown nav, Board Selection, Trust Strip, Testimonials
 
-### Phase 6: Navigation Architecture (Complete)
-- Learn/Community dropdowns, Book Consultation CTA, streamlined nav
+### Curriculum System (340 topics)
+- 3 Boards (IGCSE, AS, A Level) × 4 Subjects × chapters × topics
+- Premium topic pages with TOC, definitions, formulas, examples, examiner tips
+- 10 published showcase topics, 330 drafts ready for content
 
-### Phase 7: Practice Questions System (Complete - May 20, 2026)
-**Backend (questions_api.py):**
-- Full CRUD: POST/PUT/DELETE /api/questions/admin/*
-- Browse: GET /api/questions/browse with filters (subject, board, topic, difficulty, paper_type)
-- Topics: GET /api/questions/topics (dynamic filter options)
-- Stats: GET /api/questions/admin/stats
-- Image upload: POST /api/questions/admin/upload-image
-- Student bookmarks: POST /api/questions/bookmark/{id}
-- Student completions: POST /api/questions/complete/{id}
-- 15 sample questions seeded (Physics 5, Chemistry 4, Biology 3, Math 3)
+### Practice Questions System
+- 17 seeded exam-style questions (Physics, Chemistry, Biology, Math)
+- Browse with filters (subject, board, topic, difficulty, paper type)
+- Question cards with expandable Answer + Mark Scheme
+- Student bookmark + completion tracking
+- Admin CRUD + image upload
 
-**Frontend:**
-- /practice page with premium filter UI (subject pills, board/topic/difficulty/paper type dropdowns)
-- Question cards with difficulty/type/marks/board badges
-- Expandable Answer and Mark Scheme accordion sections
-- Bookmark and Complete toggle buttons (auth required)
-- Admin Questions tab with CRUD dialog, image upload, stats dashboard
-- Resources page navigation tabs (Revision Notes / Practice Questions / Topic Notes)
+### AI Academic Mentor
+- GPT-4o-mini powered chat in Student Dashboard
+- Board/Subject/Topic context selectors
+- Markdown rendering, session management, typing animation
 
-### Phase 8: AI Academic Mentor (Complete - May 20, 2026)
-**Backend (ai_mentor_api.py):**
-- POST /api/ai-mentor/chat — sends message with board/subject/topic context
-- GET /api/ai-mentor/sessions — list conversation sessions
-- GET /api/ai-mentor/history/{session_id} — get messages in a session
-- DELETE /api/ai-mentor/session/{session_id} — delete a session
-- DELETE /api/ai-mentor/clear-all — clear all chat history
-- Uses GPT-4o-mini via Emergent Universal Key
-- Educational system prompt focused on Cambridge IGCSE/AS/A Level
-- Conversation history included in context (not replayed as separate calls)
+### Content Management Workflow (Latest - Jun 21, 2026)
+**Chapter Notes Editor (Admin > Chapter Notes):**
+- Select Board → Subject → Chapter to see all topics at once
+- Inline expandable editor per topic (Introduction, Sections, Definitions, Formulas, Worked Examples, Examiner Tips, Common Mistakes, Summary)
+- Save Draft / Save & Publish per topic
+- Bulk Publish All With Content button
+- Fast workflow for publishing hundreds of notes
 
-**Frontend (AIMentor.js in Student Dashboard):**
-- Premium chat UI with sidebar for session management
-- New Chat button, session list with previews
-- Board/Subject/Topic context selectors in header
-- Markdown rendering (react-markdown) for formatted responses
-- Typing indicator animation
-- Suggested starter prompts
-- Save/load/delete chat sessions
-- Disclaimer: "AI Mentor is a learning assistant. Always verify with your teacher."
+**Worksheet Upload Manager (Admin > Worksheets):**
+- Upload PDF worksheets tagged by subject/board/chapter/topic
+- Free/premium toggle per worksheet
+- Download tracking, search/filter, file size display
+- Student browse + download at /api/worksheets/browse
 
-## Database Collections
-- users, courses, enrollments, workshops, workshop_registrations
-- resources, products, orders, contacts
-- modules, lessons, downloads
-- curriculum_boards, curriculum_subjects, curriculum_chapters, curriculum_topics
-- bookmarks, topic_progress
-- **questions** (practice question bank)
-- **question_bookmarks** (student saved questions)
-- **question_completions** (student completed questions)
-- **ai_chats** (AI mentor conversation messages)
+**Bulk Question Import (Admin > Questions):**
+- Paste multiple questions in structured text format
+- Auto-parse subject, board, topic, difficulty, paper type
+- Import all at once with one click
+- Template provided in the dialog
 
-## Key API Endpoints
-- Auth: /api/auth/login, /register, /logout, /me, /refresh
-- Curriculum: /api/curriculum/boards/*, /api/curriculum/admin/topics
-- Questions: /api/questions/browse, /api/questions/admin/*, /api/questions/bookmark/*, /api/questions/complete/*
-- AI Mentor: /api/ai-mentor/chat, /api/ai-mentor/sessions, /api/ai-mentor/history/*
-- Contact: /api/contact
-- Orders: /api/orders/create
+### Admin Panel (11 tabs)
+Overview, Chapter Notes, Topics, Worksheets, Questions, Courses, Resources, Products, Users, Orders, Contacts
+
+## How to Upload Content
+
+### Notes (Chapter by Chapter):
+1. Go to Admin > **Chapter Notes**
+2. Select Board (IGCSE) → Subject (e.g., Physics) → Chapter (e.g., Electricity)
+3. Click on a topic to expand the inline editor
+4. Fill in: Introduction, Content Sections, Definitions, Formulas, Worked Examples, Tips, Summary
+5. Click **Save & Publish** or use **Bulk Publish All With Content**
+
+### Worksheets (PDF Upload):
+1. Go to Admin > **Worksheets**
+2. Click **Upload Worksheet**
+3. Select PDF file, fill in title, subject, board, chapter, topic
+4. Toggle Free/Premium
+5. Click Upload
+
+### Practice Questions (Individual or Bulk):
+- **Individual:** Admin > Questions > Add Question → fill form
+- **Bulk:** Admin > Questions > Bulk Import → paste text in format → Import
 
 ## Prioritized Backlog
 
-### P1 (High Priority)
+### P1
 - [ ] Publish more topic content (10/340 published)
-- [ ] Add more practice questions via admin panel
+- [ ] Upload worksheets for key chapters
+- [ ] Add more practice questions
 - [ ] Razorpay payment integration
 
-### P2 (Medium Priority)
+### P2
 - [ ] Google Analytics / Meta Pixel
-- [ ] RAG grounding for AI Mentor (use EdVNova topic content)
-- [ ] Practice questions - session/quiz mode with scoring
-- [ ] Dark mode for reading
+- [ ] RAG grounding for AI Mentor
+- [ ] Quiz/scoring mode for practice
+- [ ] Student-facing worksheets browse page
 
-### P3 (Low Priority)
-- [ ] PDF export for revision notes
-- [ ] Schema markup for SEO / Sitemap
-- [ ] Student progress analytics dashboard
-- [ ] Break down server.py into modular route files
+### P3
+- [ ] PDF export, dark mode, SEO sitemap
+- [ ] Student progress analytics
+- [ ] Break down server.py into modular routes
