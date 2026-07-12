@@ -717,6 +717,13 @@ from worksheets_api import create_worksheets_routes
 worksheets_router = create_worksheets_routes(db, get_current_user, get_admin_user)
 api_router.include_router(worksheets_router)
 
+# Videos routes
+from videos_api import create_videos_routes, create_media_routes
+videos_router = create_videos_routes(db, get_current_user, get_admin_user)
+api_router.include_router(videos_router)
+media_router = create_media_routes(db, get_admin_user)
+api_router.include_router(media_router)
+
 # AI Mentor routes
 from ai_mentor_api import create_ai_mentor_routes
 ai_mentor_router = create_ai_mentor_routes(db, get_current_user)
@@ -728,7 +735,7 @@ app.include_router(api_router)
 import pathlib
 upload_dir = pathlib.Path("/app/uploads")
 upload_dir.mkdir(exist_ok=True)
-for sub in ["pdfs", "videos", "worksheets", "products", "resources", "questions"]:
+for sub in ["pdfs", "videos", "worksheets", "products", "resources", "questions", "media"]:
     (upload_dir / sub).mkdir(exist_ok=True)
 app.mount("/api/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 

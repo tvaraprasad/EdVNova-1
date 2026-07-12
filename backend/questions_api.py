@@ -25,6 +25,7 @@ def create_questions_routes(db, get_current_user, get_admin_user):
         tags: Optional[List[str]] = []
         year: Optional[str] = ""
         paper_number: Optional[str] = ""
+        question_id: Optional[str] = ""
 
     class QuestionUpdate(BaseModel):
         subject: Optional[str] = None
@@ -42,6 +43,7 @@ def create_questions_routes(db, get_current_user, get_admin_user):
         year: Optional[str] = None
         paper_number: Optional[str] = None
         is_active: Optional[bool] = None
+        question_id: Optional[str] = None
 
     # ── Helper ──
     def doc_to_response(doc):
@@ -52,6 +54,15 @@ def create_questions_routes(db, get_current_user, get_admin_user):
             raise HTTPException(400, "Invalid ID format")
         return ObjectId(oid_str)
 
+    # ── Question ID Generator ──
+    SUBJECT_CODES = {"physics": "P", "chemistry": "C", "biology": "B", "mathematics": "M"}
+
+    async def generate_question_id(subject, topic):
+        code = SUBJECT_CODES.get(subject, "X")
+        topic_code = "".join(w[0] for w in (topic or "GEN").split()[:2]).upper()
+        count = await db.questions.count_documents({"subject": subject}) + 1
+        return f"{code}-{topic_code}-{count:03d}"
+
     # ══════════════════════════════════════════
     # ADMIN ENDPOINTS
     # ══════════════════════════════════════════
@@ -61,11 +72,13 @@ def create_questions_routes(db, get_current_user, get_admin_user):
         await get_admin_user(request)
         now = datetime.now(timezone.utc).isoformat()
         doc = data.model_dump()
+        if not doc.get("question_id"):
+            doc["question_id"] = await generate_question_id(doc["subject"], doc.get("topic", ""))
         doc["is_active"] = True
         doc["created_at"] = now
         doc["updated_at"] = now
         result = await db.questions.insert_one(doc)
-        return {"id": str(result.inserted_id), "message": "Question created"}
+        return {"id": str(result.inserted_id), "question_id": doc["question_id"], "message": "Question created"}
 
     @router.put("/admin/{question_id}")
     async def update_question(question_id: str, data: QuestionUpdate, request: Request):
@@ -133,11 +146,13 @@ def create_questions_routes(db, get_current_user, get_admin_user):
             raise HTTPException(400, "No questions provided")
         now = datetime.now(timezone.utc).isoformat()
         docs = []
-        for item in items:
+        for idx, item in enumerate(items):
+            subj = item.get("subject", "physics")
+            topic_val = item.get("topic", "")
             doc = {
-                "subject": item.get("subject", "physics"),
+                "subject": subj,
                 "board": item.get("board", "igcse"),
-                "topic": item.get("topic", ""),
+                "topic": topic_val,
                 "chapter": item.get("chapter", ""),
                 "difficulty": item.get("difficulty", "medium"),
                 "paper_type": item.get("paper_type", "structured"),
@@ -149,11 +164,14 @@ def create_questions_routes(db, get_current_user, get_admin_user):
                 "tags": item.get("tags", []),
                 "year": item.get("year", ""),
                 "paper_number": item.get("paper_number", ""),
+                "question_id": item.get("question_id", ""),
                 "is_active": True,
                 "created_at": now,
                 "updated_at": now,
             }
             if doc["question_text"].strip():
+                if not doc["question_id"]:
+                    doc["question_id"] = await generate_question_id(subj, topic_val)
                 docs.append(doc)
         if docs:
             await db.questions.insert_many(docs)
@@ -258,13 +276,17 @@ def create_questions_routes(db, get_current_user, get_admin_user):
             {"subject":"physics","board":"igcse","topic":"Energy","chapter":"Energy Stores & Transfers","difficulty":"easy","paper_type":"mcq","question_text":"A ball is thrown vertically upwards. Which energy transfer takes place as the ball rises?\n\nA) Kinetic energy → gravitational potential energy\nB) Gravitational potential energy → kinetic energy\nC) Chemical energy → kinetic energy\nD) Thermal energy → kinetic energy","marks":1,"answer":"A) Kinetic energy → gravitational potential energy","mark_scheme":"A [1]","tags":["energy-transfer","kinetic","gravitational"],"year":"2023","paper_number":"Paper 1"},
             {"subject":"chemistry","board":"igcse","topic":"Acids Bases Salts","chapter":"Neutralisation","difficulty":"medium","paper_type":"structured","question_text":"Hydrochloric acid reacts with sodium hydroxide solution.\n\n(a) Write a balanced chemical equation for this reaction. [2]\n(b) Name the type of reaction. [1]\n(c) Describe one method to confirm that the solution has been neutralised. [1]","marks":4,"answer":"(a) HCl + NaOH → NaCl + H₂O\n\n(b) Neutralisation\n\n(c) Add universal indicator — it turns green at pH 7 when neutralised. OR Use a pH meter and check for pH 7.","mark_scheme":"(a) Correct formulae [1]; balanced [1]\n(b) Neutralisation [1]\n(c) Indicator turns green / pH 7 [1]","tags":["neutralisation","acid-base","equation"],"year":"2022","paper_number":"Paper 2"},
         ]
-        for s in samples:
+        for idx, s in enumerate(samples):
             s["is_active"] = True
             s["question_image_url"] = ""
+            code = SUBJECT_CODES.get(s["subject"], "X")
+            topic_code = "".join(w[0] for w in (s.get("topic", "GEN")).split()[:2]).upper()
+            s["question_id"] = f"{code}-{topic_code}-{idx+1:03d}"
             s["created_at"] = now
             s["updated_at"] = now
         await db.questions.insert_many(samples)
         await db.questions.create_index([("subject", 1), ("board", 1), ("topic", 1)])
         await db.questions.create_index([("question_text", "text")])
+        await db.questions.create_index([("question_id", 1)])
 
     return router, seed_questions

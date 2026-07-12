@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool, HelpCircle, FileUp, Layers } from 'lucide-react';
+import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool, HelpCircle, FileUp, Layers, Play, Image } from 'lucide-react';
 import { toast } from 'sonner';
 import CourseManager from '../components/admin/CourseManager';
 import ResourceManager from '../components/admin/ResourceManager';
@@ -9,6 +9,8 @@ import TopicEditor from '../components/admin/TopicEditor';
 import QuestionManager from '../components/admin/QuestionManager';
 import ChapterNotesEditor from '../components/admin/ChapterNotesEditor';
 import WorksheetManager from '../components/admin/WorksheetManager';
+import VideoManager from '../components/admin/VideoManager';
+import MediaLibrary from '../components/admin/MediaLibrary';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -50,6 +52,8 @@ export default function Admin() {
         { id: 'topics', name: 'Topics', icon: PenTool },
         { id: 'worksheets', name: 'Worksheets', icon: FileUp },
         { id: 'questions', name: 'Questions', icon: HelpCircle },
+        { id: 'videos', name: 'Videos', icon: Play },
+        { id: 'media', name: 'Media Library', icon: Image },
         { id: 'courses', name: 'Courses', icon: GraduationCap },
         { id: 'resources', name: 'Resources', icon: FileText },
         { id: 'products', name: 'Products', icon: Package },
@@ -220,6 +224,20 @@ export default function Admin() {
                 {activeTab === 'questions' && (
                     <div data-testid="admin-questions">
                         <QuestionManager />
+                    </div>
+                )}
+
+                {/* Videos Tab */}
+                {activeTab === 'videos' && (
+                    <div data-testid="admin-videos">
+                        <VideoManager />
+                    </div>
+                )}
+
+                {/* Media Library Tab */}
+                {activeTab === 'media' && (
+                    <div data-testid="admin-media">
+                        <MediaLibrary />
                     </div>
                 )}
 

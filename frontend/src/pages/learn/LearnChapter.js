@@ -186,6 +186,7 @@ function WorkbookPanel({ questions, board, subject, chapter, isAuth }) {
                             <div className="flex items-start justify-between gap-3 mb-3">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className="text-xs font-bold text-gray-400">Q{idx + 1}</span>
+                                    {q.question_id && <span className="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{q.question_id}</span>}
                                     <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full ${diffColors[q.difficulty] || 'bg-gray-100'}`}>{q.difficulty}</span>
                                     {q.marks > 0 && <span className="text-[10px] text-gray-400">[{q.marks} marks]</span>}
                                 </div>
@@ -229,13 +230,68 @@ function WorkbookPanel({ questions, board, subject, chapter, isAuth }) {
 }
 
 // ── Videos Panel ──
-function VideosPanel() {
+function VideosPanel({ videos }) {
+    if (!videos || videos.length === 0) {
+        return (
+            <div className="text-center py-16">
+                <Play className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <h3 className="font-bold text-primary mb-1">Video Explanations Coming Soon</h3>
+                <p className="text-sm text-gray-400 max-w-md mx-auto">Video walkthroughs for every question and concept are being recorded.</p>
+                <span className="inline-block mt-4 px-3 py-1 text-xs font-medium bg-amber-50 text-amber-700 rounded-full">Coming Soon</span>
+            </div>
+        );
+    }
+
+    const extractYtId = (url) => {
+        if (!url) return null;
+        const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+        return m ? m[1] : null;
+    };
+
+    const statusBadge = (status) => {
+        const styles = { available: 'bg-green-50 text-green-700', coming_soon: 'bg-amber-50 text-amber-700', premium: 'bg-violet-50 text-violet-700', locked: 'bg-gray-100 text-gray-600', draft: 'bg-slate-100 text-slate-600' };
+        return styles[status] || 'bg-gray-100 text-gray-600';
+    };
+
     return (
-        <div className="text-center py-16">
-            <Play className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-            <h3 className="font-bold text-primary mb-1">Video Explanations Coming Soon</h3>
-            <p className="text-sm text-gray-400 max-w-md mx-auto">Video walkthroughs for every question and concept are being recorded.</p>
-            <span className="inline-block mt-4 px-3 py-1 text-xs font-medium bg-amber-50 text-amber-700 rounded-full">Coming Soon</span>
+        <div className="space-y-4">
+            {videos.map(v => {
+                const ytId = extractYtId(v.youtube_url);
+                return (
+                    <div key={v.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden" data-testid={`video-${v.id}`}>
+                        {ytId && v.status === 'available' ? (
+                            <div className="aspect-video">
+                                <iframe src={`https://www.youtube.com/embed/${ytId}`} title={v.title} className="w-full h-full" allowFullScreen />
+                            </div>
+                        ) : ytId ? (
+                            <div className="relative">
+                                <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt={v.title} className="w-full aspect-video object-cover opacity-60" />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${statusBadge(v.status)}`}>
+                                        {v.status?.replace('_', ' ').toUpperCase()}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : null}
+                        <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <h4 className="font-semibold text-primary text-sm">{v.title}</h4>
+                                    {v.description && <p className="text-xs text-gray-500 mt-1">{v.description}</p>}
+                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                                        {v.question_id && <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">{v.question_id}</span>}
+                                        {v.duration && <span>{v.duration}</span>}
+                                        {v.difficulty && <span className="capitalize">{v.difficulty}</span>}
+                                    </div>
+                                </div>
+                                <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full flex-shrink-0 ${statusBadge(v.status)}`}>
+                                    {v.status?.replace('_', ' ')}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -283,6 +339,7 @@ export default function LearnChapter() {
     const [topics, setTopics] = useState([]);
     const [questions, setQuestions] = useState([]);
     const [worksheets, setWorksheets] = useState([]);
+    const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
 
@@ -290,13 +347,13 @@ export default function LearnChapter() {
         setLoading(true);
         const fetchAll = async () => {
             try {
-                const [chRes, qRes, wRes] = await Promise.all([
+                const [chRes, qRes, wRes, vRes] = await Promise.all([
                     axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}/${chapter}`),
                     axios.get(`${API_URL}/api/questions/browse?board=${board}&subject=${subject}&topic=${chapter}&limit=50`).catch(() => ({ data: { questions: [] } })),
                     axios.get(`${API_URL}/api/worksheets/browse?board=${board}&subject=${subject}&chapter=${chapter}`).catch(() => ({ data: { worksheets: [] } })),
+                    axios.get(`${API_URL}/api/videos/chapter/${board}/${subject}/${chapter}`).catch(() => ({ data: [] })),
                 ]);
                 setChapterData(chRes.data);
-                // Fetch all topics with content
                 const topicPromises = (chRes.data.topics || []).map(t =>
                     axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}/${chapter}/${t.slug}`).catch(() => null)
                 );
@@ -304,6 +361,7 @@ export default function LearnChapter() {
                 setTopics(topicResults.filter(Boolean).map(r => r.data));
                 setQuestions(qRes.data.questions || []);
                 setWorksheets(wRes.data.worksheets || []);
+                setVideos(Array.isArray(vRes.data) ? vRes.data : []);
             } catch (e) { console.error(e); }
             finally { setLoading(false); }
         };
@@ -338,6 +396,7 @@ export default function LearnChapter() {
                         <span>{topics.length} concepts</span>
                         <span>{publishedCount} published</span>
                         <span>{questions.length} questions</span>
+                        {videos.length > 0 && <span>{videos.length} videos</span>}
                         {worksheets.length > 0 && <span>{worksheets.length} downloads</span>}
                     </div>
                 </div>
@@ -431,7 +490,7 @@ export default function LearnChapter() {
                     {activeTab === 'videos' && (
                         <div data-testid="tab-content-videos">
                             <h2 className="text-xl font-bold text-primary mb-6">Video Explanations</h2>
-                            <VideosPanel />
+                            <VideosPanel videos={videos} />
                         </div>
                     )}
 
