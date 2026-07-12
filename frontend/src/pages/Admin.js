@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool, HelpCircle, FileUp, Layers, Play, Image } from 'lucide-react';
+import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool, HelpCircle, FileUp, Layers, Play, Image, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 import CourseManager from '../components/admin/CourseManager';
 import ResourceManager from '../components/admin/ResourceManager';
@@ -11,6 +11,7 @@ import ChapterNotesEditor from '../components/admin/ChapterNotesEditor';
 import WorksheetManager from '../components/admin/WorksheetManager';
 import VideoManager from '../components/admin/VideoManager';
 import MediaLibrary from '../components/admin/MediaLibrary';
+import WebsiteContentEditor from '../components/admin/WebsiteContentEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -48,6 +49,7 @@ export default function Admin() {
 
     const tabs = [
         { id: 'overview', name: 'Overview', icon: BookOpen },
+        { id: 'website', name: 'Website Content', icon: Globe },
         { id: 'chapter-notes', name: 'Chapter Notes', icon: Layers },
         { id: 'topics', name: 'Topics', icon: PenTool },
         { id: 'worksheets', name: 'Worksheets', icon: FileUp },
@@ -196,6 +198,13 @@ export default function Admin() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Website Content Tab */}
+                {activeTab === 'website' && (
+                    <div data-testid="admin-website">
+                        <WebsiteContentEditor />
                     </div>
                 )}
 

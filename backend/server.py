@@ -724,6 +724,16 @@ api_router.include_router(videos_router)
 media_router = create_media_routes(db, get_admin_user)
 api_router.include_router(media_router)
 
+# CMS routes
+from cms_api import create_cms_routes
+cms_router, seed_cms_content = create_cms_routes(db, get_admin_user)
+api_router.include_router(cms_router)
+
+# Attachments routes
+from attachments_api import create_attachments_routes
+attachments_router = create_attachments_routes(db, get_admin_user)
+api_router.include_router(attachments_router)
+
 # AI Mentor routes
 from ai_mentor_api import create_ai_mentor_routes
 ai_mentor_router = create_ai_mentor_routes(db, get_current_user)
@@ -735,7 +745,7 @@ app.include_router(api_router)
 import pathlib
 upload_dir = pathlib.Path("/app/uploads")
 upload_dir.mkdir(exist_ok=True)
-for sub in ["pdfs", "videos", "worksheets", "products", "resources", "questions", "media"]:
+for sub in ["pdfs", "videos", "worksheets", "products", "resources", "questions", "media", "attachments"]:
     (upload_dir / sub).mkdir(exist_ok=True)
 app.mount("/api/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
@@ -977,6 +987,10 @@ async def startup():
     # Seed practice questions
     await seed_questions()
     logger.info("Practice questions seeded")
+
+    # Seed CMS content
+    await seed_cms_content()
+    logger.info("CMS content seeded")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

@@ -5,6 +5,7 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { toast } from 'sonner';
+import TopicAttachments from './TopicAttachments';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -151,6 +152,9 @@ function TopicInlineEditor({ topic, onSave, onPublishToggle }) {
                             <Textarea value={(summary || []).join('\n')} onChange={e => setSummary(e.target.value.split('\n').filter(Boolean))} rows={4} className="mt-1 text-xs" placeholder="One point per line" />
                         </div>
                     </div>
+
+                    {/* Attachments */}
+                    <TopicAttachments topicId={topic.id} topicTitle={topic.title} />
 
                     {/* Save Actions */}
                     <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">

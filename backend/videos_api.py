@@ -185,6 +185,7 @@ def create_media_routes(db, get_admin_user):
             "file_size": len(content),
             "content_type": file.content_type or "",
             "extension": ext.lower(),
+            "tags": [],
             "created_at": now,
         }
         result = await db.media_files.insert_one(doc)
@@ -193,14 +194,23 @@ def create_media_routes(db, get_admin_user):
     @router.get("/list")
     async def list_media(
         request: Request, folder: str = "", q: str = "",
-        page: int = 1, limit: int = 30
+        file_type: str = "", page: int = 1, limit: int = 30
     ):
         await get_admin_user(request)
         query = {}
         if folder:
             query["folder"] = folder
         if q:
-            query["original_name"] = {"$regex": q, "$options": "i"}
+            query["$or"] = [
+                {"original_name": {"$regex": q, "$options": "i"}},
+                {"tags": {"$regex": q, "$options": "i"}},
+            ]
+        if file_type == "images":
+            query["extension"] = {"$in": ["png", "jpg", "jpeg", "webp", "gif", "svg"]}
+        elif file_type == "documents":
+            query["extension"] = {"$in": ["pdf", "doc", "docx", "ppt", "pptx", "xls", "xlsx"]}
+        elif file_type == "videos":
+            query["extension"] = {"$in": ["mp4", "mov", "avi", "webm"]}
         total = await db.media_files.count_documents(query)
         skip = (page - 1) * limit
         docs = await db.media_files.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
@@ -228,5 +238,57 @@ def create_media_routes(db, get_admin_user):
             filepath.unlink()
         await db.media_files.delete_one({"_id": ObjectId(file_id)})
         return {"message": "File deleted"}
+
+    @router.get("/stats")
+    async def media_stats(request: Request):
+        await get_admin_user(request)
+        total = await db.media_files.count_documents({})
+        pipeline = [{"$group": {"_id": None, "total_size": {"$sum": "$file_size"}}}]
+        agg = await db.media_files.aggregate(pipeline).to_list(1)
+        total_size = agg[0]["total_size"] if agg else 0
+        type_counts = {}
+        for ext_group, exts in [("images", ["png","jpg","jpeg","webp","gif","svg"]), ("documents", ["pdf","doc","docx","ppt","pptx"]), ("videos", ["mp4","mov","avi","webm"])]:
+            type_counts[ext_group] = await db.media_files.count_documents({"extension": {"$in": exts}})
+        type_counts["other"] = total - sum(type_counts.values())
+        return {"total_files": total, "total_size_bytes": total_size, "by_type": type_counts}
+
+    @router.put("/{file_id}/tags")
+    async def update_tags(file_id: str, request: Request):
+        await get_admin_user(request)
+        if not ObjectId.is_valid(file_id):
+            raise HTTPException(400, "Invalid ID")
+        body = await request.json()
+        tags = body.get("tags", [])
+        await db.media_files.update_one({"_id": ObjectId(file_id)}, {"$set": {"tags": tags}})
+        return {"message": "Tags updated"}
+
+    @router.put("/{file_id}/replace")
+    async def replace_file(file_id: str, request: Request, file: UploadFile = File(...)):
+        await get_admin_user(request)
+        if not ObjectId.is_valid(file_id):
+            raise HTTPException(400, "Invalid ID")
+        doc = await db.media_files.find_one({"_id": ObjectId(file_id)})
+        if not doc:
+            raise HTTPException(404, "File not found")
+        old_path = pathlib.Path(f"/app/uploads/media/{doc['folder']}/{doc['filename']}")
+        if old_path.exists():
+            old_path.unlink()
+        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
+        new_filename = f"{uuid.uuid4().hex[:12]}.{ext}"
+        upload_dir = pathlib.Path(f"/app/uploads/media/{doc['folder']}")
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        content = await file.read()
+        with open(upload_dir / new_filename, "wb") as f:
+            f.write(content)
+        new_url = f"/api/uploads/media/{doc['folder']}/{new_filename}"
+        await db.media_files.update_one({"_id": ObjectId(file_id)}, {"$set": {
+            "filename": new_filename,
+            "original_name": file.filename,
+            "file_url": new_url,
+            "file_size": len(content),
+            "extension": ext.lower(),
+            "content_type": file.content_type or "",
+        }})
+        return {"file_url": new_url, "message": "File replaced"}
 
     return router
