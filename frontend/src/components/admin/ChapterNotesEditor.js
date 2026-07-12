@@ -16,13 +16,15 @@ function textToBlocks(text) {
     if (Array.isArray(text)) return text; // Already blocks format
     return [{ type: 'text', value: text }];
 }
-function blocksToText(blocks) {
+function blocksToStorable(blocks) {
     if (!Array.isArray(blocks)) return blocks || '';
-    // If all blocks are text, join them. Otherwise return blocks array.
-    if (blocks.every(b => b.type === 'text')) {
-        return blocks.map(b => b.value).join('\n\n');
+    if (blocks.length === 0) return '';
+    // If ANY block has images, store as blocks array (preserves inline images)
+    if (blocks.some(b => b.type === 'image')) {
+        return blocks;
     }
-    return blocks; // Return as-is for rich content
+    // If all text blocks, store as plain string for backward compat
+    return blocks.map(b => b.value || '').join('\n\n');
 }
 
 function TopicInlineEditor({ topic, onSave, onPublishToggle }) {
@@ -48,11 +50,11 @@ function TopicInlineEditor({ topic, onSave, onPublishToggle }) {
     const handleSave = async (publish = false) => {
         setSaving(true);
         const content = {
-            introduction: blocksToText(introBlocks),
-            sections: sections.map(s => ({ title: s.title, content: blocksToText(s.contentBlocks) })),
-            definitions: definitions.map(d => ({ term: d.term, definition: blocksToText(d.defBlocks) })),
+            introduction: blocksToStorable(introBlocks),
+            sections: sections.map(s => ({ title: s.title, content: blocksToStorable(s.contentBlocks) })),
+            definitions: definitions.map(d => ({ term: d.term, definition: blocksToStorable(d.defBlocks) })),
             formulas,
-            worked_examples: workedExamples.map(w => ({ question: blocksToText(w.questionBlocks), solution: blocksToText(w.solutionBlocks) })),
+            worked_examples: workedExamples.map(w => ({ question: blocksToStorable(w.questionBlocks), solution: blocksToStorable(w.solutionBlocks) })),
             common_mistakes: commonMistakes,
             examiner_tips: examinerTips,
             summary,
