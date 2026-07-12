@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, FileText, GraduationCap, PenTool, HelpCircle, FileUp, Layers, Play, Image, Globe } from 'lucide-react';
+import { Users, BookOpen, Calendar, Package, ShoppingBag, MessageSquare, GraduationCap, PenTool, HelpCircle, FileUp, Layers, Play, Image, Globe, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import CourseManager from '../components/admin/CourseManager';
-import ResourceManager from '../components/admin/ResourceManager';
 import ProductManager from '../components/admin/ProductManager';
 import TopicEditor from '../components/admin/TopicEditor';
 import QuestionManager from '../components/admin/QuestionManager';
@@ -57,7 +56,6 @@ export default function Admin() {
         { id: 'videos', name: 'Videos', icon: Play },
         { id: 'media', name: 'Media Library', icon: Image },
         { id: 'courses', name: 'Courses', icon: GraduationCap },
-        { id: 'resources', name: 'Resources', icon: FileText },
         { id: 'products', name: 'Products', icon: Package },
         { id: 'users', name: 'Users', icon: Users },
         { id: 'orders', name: 'Orders', icon: ShoppingBag },
@@ -254,13 +252,6 @@ export default function Admin() {
                 {activeTab === 'courses' && (
                     <div data-testid="admin-courses">
                         <CourseManager />
-                    </div>
-                )}
-
-                {/* Resources Tab */}
-                {activeTab === 'resources' && (
-                    <div data-testid="admin-resources-mgr">
-                        <ResourceManager />
                     </div>
                 )}
 

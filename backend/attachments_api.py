@@ -19,6 +19,7 @@ def create_attachments_routes(db, get_admin_user):
         title: str = Form(""),
         description: str = Form(""),
         is_visible: bool = Form(True),
+        access_level: str = Form("public"),
     ):
         await get_admin_user(request)
         upload_dir = pathlib.Path("/app/uploads/attachments")
@@ -43,6 +44,7 @@ def create_attachments_routes(db, get_admin_user):
             "extension": ext.lower(),
             "content_type": file.content_type or "",
             "is_visible": is_visible,
+            "access_level": access_level,
             "order": count,
             "created_at": now,
             "updated_at": now,
@@ -83,6 +85,7 @@ def create_attachments_routes(db, get_admin_user):
             "extension": "",
             "content_type": "",
             "is_visible": body.get("is_visible", True),
+            "access_level": body.get("access_level", "public"),
             "order": count,
             "created_at": now,
             "updated_at": now,
@@ -110,7 +113,7 @@ def create_attachments_routes(db, get_admin_user):
         if not ObjectId.is_valid(attachment_id):
             raise HTTPException(400, "Invalid ID")
         body = await request.json()
-        allowed = {"title", "description", "is_visible", "order", "attachment_type", "embed_url"}
+        allowed = {"title", "description", "is_visible", "order", "attachment_type", "embed_url", "access_level"}
         update = {k: v for k, v in body.items() if k in allowed}
         update["updated_at"] = datetime.now(timezone.utc).isoformat()
         result = await db.topic_attachments.update_one(

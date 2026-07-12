@@ -16,7 +16,6 @@ import About from "./pages/About";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
 import Workshops from "./pages/Workshops";
-import Resources from "./pages/Resources";
 import Store from "./pages/Store";
 import Cart from "./pages/Cart";
 import Contact from "./pages/Contact";
@@ -50,7 +49,6 @@ function App() {
                                 <Route path="/programs" element={<Programs />} />
                                 <Route path="/programs/:subject" element={<ProgramDetail />} />
                                 <Route path="/workshops" element={<Workshops />} />
-                                <Route path="/resources" element={<Resources />} />
                                 <Route path="/practice" element={<PracticeQuestions />} />
                                 <Route path="/store" element={<Store />} />
                                 <Route path="/store/cart" element={<Cart />} />

@@ -34,8 +34,8 @@ export default function TopicAttachments({ topicId, topicTitle }) {
     const [showUpload, setShowUpload] = useState(false);
     const [showEmbed, setShowEmbed] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [uploadForm, setUploadForm] = useState({ title: '', description: '', attachment_type: 'pdf' });
-    const [embedForm, setEmbedForm] = useState({ title: '', embed_url: '', attachment_type: 'youtube', description: '' });
+    const [uploadForm, setUploadForm] = useState({ title: '', description: '', attachment_type: 'pdf', access_level: 'public' });
+    const [embedForm, setEmbedForm] = useState({ title: '', embed_url: '', attachment_type: 'youtube', description: '', access_level: 'public' });
 
     const fetchAttachments = useCallback(async () => {
         setLoading(true);
@@ -58,11 +58,12 @@ export default function TopicAttachments({ topicId, topicTitle }) {
         fd.append('title', uploadForm.title || file.name);
         fd.append('description', uploadForm.description);
         fd.append('attachment_type', uploadForm.attachment_type);
+        fd.append('access_level', uploadForm.access_level);
         try {
             await axios.post(`${API_URL}/api/attachments/upload`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
             toast.success('File uploaded');
             setShowUpload(false);
-            setUploadForm({ title: '', description: '', attachment_type: 'pdf' });
+            setUploadForm({ title: '', description: '', attachment_type: 'pdf', access_level: 'public' });
             fetchAttachments();
         } catch (err) { toast.error('Upload failed'); }
         finally { setUploading(false); }
@@ -74,7 +75,7 @@ export default function TopicAttachments({ topicId, topicTitle }) {
             await axios.post(`${API_URL}/api/attachments/embed`, { topic_id: topicId, ...embedForm }, { withCredentials: true });
             toast.success('Embed added');
             setShowEmbed(false);
-            setEmbedForm({ title: '', embed_url: '', attachment_type: 'youtube', description: '' });
+            setEmbedForm({ title: '', embed_url: '', attachment_type: 'youtube', description: '', access_level: 'public' });
             fetchAttachments();
         } catch (err) { toast.error('Failed'); }
     };
@@ -123,7 +124,12 @@ export default function TopicAttachments({ topicId, topicTitle }) {
                                 <Icon className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-medium text-primary truncate">{att.title || att.original_name}</p>
-                                    <p className="text-[10px] text-gray-400">{att.attachment_type} {att.file_size ? `· ${formatSize(att.file_size)}` : ''}</p>
+                                    <p className="text-[10px] text-gray-400">
+                                        {att.attachment_type} {att.file_size ? `· ${formatSize(att.file_size)}` : ''}
+                                        {att.access_level && att.access_level !== 'public' && (
+                                            <span className="ml-1 px-1 py-0.5 bg-amber-50 text-amber-700 rounded text-[9px] font-bold uppercase">{att.access_level}</span>
+                                        )}
+                                    </p>
                                 </div>
                                 <button onClick={() => toggleVisibility(att)} className="p-1 text-gray-400 hover:text-gray-600" title={att.is_visible ? 'Hide' : 'Show'}>
                                     {att.is_visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -146,6 +152,16 @@ export default function TopicAttachments({ topicId, topicTitle }) {
                         <div><Label className="text-xs">Type</Label>
                             <select value={uploadForm.attachment_type} onChange={e => setUploadForm(p => ({...p, attachment_type: e.target.value}))} className="mt-1 w-full h-10 px-3 border rounded-md text-sm">
                                 {TYPE_OPTIONS.filter(t => t.value !== 'youtube' && t.value !== 'link').map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                            </select>
+                        </div>
+                        <div><Label className="text-xs">Access Level</Label>
+                            <select value={uploadForm.access_level} onChange={e => setUploadForm(p => ({...p, access_level: e.target.value}))} className="mt-1 w-full h-10 px-3 border rounded-md text-sm">
+                                <option value="public">Public</option>
+                                <option value="registered">Registered Users</option>
+                                <option value="premium">Premium Members</option>
+                                <option value="school">School License</option>
+                                <option value="private">Private</option>
+                                <option value="draft">Draft</option>
                             </select>
                         </div>
                         <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl text-center">
@@ -174,6 +190,15 @@ export default function TopicAttachments({ topicId, topicTitle }) {
                         </div>
                         <div><Label className="text-xs">URL</Label><Input value={embedForm.embed_url} onChange={e => setEmbedForm(p => ({...p, embed_url: e.target.value}))} className="mt-1" placeholder="https://..." /></div>
                         <div><Label className="text-xs">Title</Label><Input value={embedForm.title} onChange={e => setEmbedForm(p => ({...p, title: e.target.value}))} className="mt-1" /></div>
+                        <div><Label className="text-xs">Access Level</Label>
+                            <select value={embedForm.access_level} onChange={e => setEmbedForm(p => ({...p, access_level: e.target.value}))} className="mt-1 w-full h-10 px-3 border rounded-md text-sm">
+                                <option value="public">Public</option>
+                                <option value="registered">Registered Users</option>
+                                <option value="premium">Premium Members</option>
+                                <option value="school">School License</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
                         <div className="flex justify-end gap-3 pt-2">
                             <button onClick={() => setShowEmbed(false)} className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 text-sm">Cancel</button>
                             <button onClick={handleAddEmbed} className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover">Add</button>

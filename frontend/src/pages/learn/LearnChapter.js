@@ -297,8 +297,13 @@ function VideosPanel({ videos }) {
 }
 
 // ── Downloads Panel ──
-function DownloadsPanel({ worksheets }) {
-    if (worksheets.length === 0) {
+function DownloadsPanel({ worksheets, attachments }) {
+    const allDownloads = [
+        ...worksheets.map(w => ({ ...w, _type: 'worksheet' })),
+        ...attachments.filter(a => a.file_url && ['pdf', 'ppt', 'worksheet', 'document', 'notes'].includes(a.attachment_type)).map(a => ({ ...a, _type: 'attachment' })),
+    ];
+
+    if (allDownloads.length === 0) {
         return (
             <div className="text-center py-16">
                 <Download className="w-10 h-10 text-gray-200 mx-auto mb-3" />
@@ -307,23 +312,35 @@ function DownloadsPanel({ worksheets }) {
             </div>
         );
     }
+
+    const accessBadge = (level) => {
+        if (!level || level === 'public') return null;
+        const styles = { registered: 'bg-blue-50 text-blue-700', premium: 'bg-violet-50 text-violet-700', school: 'bg-indigo-50 text-indigo-700' };
+        return <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${styles[level] || 'bg-gray-100 text-gray-600'}`}>{level}</span>;
+    };
+
     return (
         <div className="space-y-3">
-            {worksheets.map(w => (
-                <div key={w.id} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:shadow-sm transition-shadow">
+            {allDownloads.map((item, idx) => (
+                <div key={item.id || idx} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:shadow-sm transition-shadow">
                     <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
                         <FileText className="w-5 h-5 text-red-500" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-medium text-primary text-sm truncate">{w.title}</p>
-                        <p className="text-xs text-gray-400">{w.description || 'PDF worksheet'}</p>
+                        <p className="font-medium text-primary text-sm truncate">{item.title || item.original_name}</p>
+                        <p className="text-xs text-gray-400">
+                            {item._type === 'attachment' ? item.attachment_type : 'Worksheet'}
+                            {item.topic_title && ` · ${item.topic_title}`}
+                            {item.description && ` · ${item.description}`}
+                        </p>
                     </div>
-                    {w.is_free ? (
-                        <a href={`${API_URL}${w.file_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:bg-accent-hover">
+                    {accessBadge(item.access_level)}
+                    {(item.is_free !== false && (!item.access_level || item.access_level === 'public')) ? (
+                        <a href={`${API_URL}${item.file_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:bg-accent-hover">
                             <Download className="w-3 h-3" /> Download
                         </a>
                     ) : (
-                        <span className="flex items-center gap-1 text-xs text-gray-400"><Lock className="w-3 h-3" /> Premium</span>
+                        <span className="flex items-center gap-1 text-xs text-gray-400"><Lock className="w-3 h-3" /> {item.access_level || 'Premium'}</span>
                     )}
                 </div>
             ))}
@@ -340,6 +357,7 @@ export default function LearnChapter() {
     const [questions, setQuestions] = useState([]);
     const [worksheets, setWorksheets] = useState([]);
     const [videos, setVideos] = useState([]);
+    const [attachments, setAttachments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
 
@@ -358,10 +376,21 @@ export default function LearnChapter() {
                     axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}/${chapter}/${t.slug}`).catch(() => null)
                 );
                 const topicResults = await Promise.all(topicPromises);
-                setTopics(topicResults.filter(Boolean).map(r => r.data));
+                const resolvedTopics = topicResults.filter(Boolean).map(r => r.data);
+                setTopics(resolvedTopics);
                 setQuestions(qRes.data.questions || []);
                 setWorksheets(wRes.data.worksheets || []);
                 setVideos(Array.isArray(vRes.data) ? vRes.data : []);
+
+                // Fetch attachments for all topics in this chapter
+                const attachPromises = resolvedTopics.map(t =>
+                    axios.get(`${API_URL}/api/attachments/topic/${t.id || ''}/visible`).catch(() => ({ data: [] }))
+                );
+                const attachResults = await Promise.all(attachPromises);
+                const allAttachments = attachResults.flatMap((r, idx) =>
+                    (r.data || []).map(a => ({ ...a, topic_title: resolvedTopics[idx]?.title || '' }))
+                );
+                setAttachments(allAttachments);
             } catch (e) { console.error(e); }
             finally { setLoading(false); }
         };
@@ -497,7 +526,7 @@ export default function LearnChapter() {
                     {activeTab === 'downloads' && (
                         <div data-testid="tab-content-downloads">
                             <h2 className="text-xl font-bold text-primary mb-6">Downloads</h2>
-                            <DownloadsPanel worksheets={worksheets} />
+                            <DownloadsPanel worksheets={worksheets} attachments={attachments} />
                         </div>
                     )}
                 </div>

@@ -180,6 +180,57 @@ def create_cms_routes(db, get_admin_user):
                 "newsletter_subheading": "Get notified about new notes, courses, workshops, and exam tips.",
                 "copyright": "EdVNova Learning. All rights reserved.",
             }},
+            # ── STORE ──
+            {"page": "store", "section": "hero", "content": {
+                "heading": "EdVNova Store",
+                "subheading": "Premium books and digital learning resources.",
+                "description": "Browse our collection of workbooks, revision packs, coursebooks, and digital study materials designed for Cambridge students.",
+                "is_visible": True,
+            }},
+            # ── COMMUNITY ──
+            {"page": "community", "section": "hero", "content": {
+                "heading": "Community",
+                "subheading": "Learn together. Grow together.",
+                "description": "Connect with students and educators around the world. Participate in challenges, study groups, and mentorship programs.",
+                "is_visible": True,
+            }},
+            # ── CAREER GUIDANCE ──
+            {"page": "career-guidance", "section": "hero", "content": {
+                "heading": "Career Guidance",
+                "subheading": "Plan your future with clarity and confidence.",
+                "description": "Expert guidance to help you choose the right university, course, and career path after Cambridge.",
+                "is_visible": True,
+            }},
+            # ── PROFILE BUILDING ──
+            {"page": "profile-building", "section": "hero", "content": {
+                "heading": "Profile Building",
+                "subheading": "Stand out in university applications.",
+                "description": "Build a compelling academic profile through extracurriculars, projects, and leadership experiences.",
+                "is_visible": True,
+            }},
+            # ── LEARN ──
+            {"page": "learn", "section": "hero", "content": {
+                "heading": "Learn",
+                "subheading": "Master every topic through structured lessons, videos and practice.",
+                "description": "Select your examination board to access structured revision notes, worked examples, and exam tips.",
+                "is_visible": True,
+            }},
+            # ── GLOBAL SETTINGS ──
+            {"page": "global", "section": "seo", "content": {
+                "site_title": "EdVNova - Premium Learning Platform for Cambridge Students",
+                "site_description": "Master IGCSE, AS & A Level Mathematics and Science through expert coaching, structured resources, and premium courses.",
+                "og_image": "",
+                "keywords": "IGCSE, AS Level, A Level, Cambridge, tutoring, coaching, mathematics, physics, chemistry, biology",
+            }},
+            {"page": "global", "section": "navigation", "content": {
+                "learn_label": "Learn",
+                "store_label": "Store",
+                "community_label": "Community",
+                "about_label": "About",
+                "contact_label": "Contact",
+                "cta_text": "Book Consultation",
+                "cta_link": "/contact",
+            }},
         ]
         for s in sections:
             s["created_at"] = now
@@ -187,5 +238,29 @@ def create_cms_routes(db, get_admin_user):
         await db.site_content.insert_many(sections)
         await db.site_content.create_index([("page", 1), ("section", 1)], unique=True)
         logger.info(f"CMS seeded with {len(sections)} sections")
+
+        # Add new sections to existing installs (idempotent upsert)
+        new_sections = [
+            {"page": "store", "section": "hero"},
+            {"page": "community", "section": "hero"},
+            {"page": "career-guidance", "section": "hero"},
+            {"page": "profile-building", "section": "hero"},
+            {"page": "learn", "section": "hero"},
+            {"page": "global", "section": "seo"},
+            {"page": "global", "section": "navigation"},
+        ]
+        for ns in new_sections:
+            existing = await db.site_content.find_one({"page": ns["page"], "section": ns["section"]})
+            if not existing:
+                # Find from the sections list above
+                seed_section = next((s for s in sections if s["page"] == ns["page"] and s["section"] == ns["section"]), None)
+                if seed_section:
+                    seed_section["created_at"] = now
+                    seed_section["updated_at"] = now
+                    try:
+                        await db.site_content.insert_one(seed_section)
+                        logger.info(f"CMS: Added new section {ns['page']}/{ns['section']}")
+                    except Exception:
+                        pass
 
     return router, seed_cms_content

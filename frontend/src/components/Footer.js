@@ -11,9 +11,9 @@ export default function Footer() {
             { name: 'A Level', href: '/learn/a-level' },
             { name: 'Live Coaching', href: '/programs' },
         ],
-        resources: [
-            { name: 'Practice Questions', href: '/practice' },
+        store: [
             { name: 'Store', href: '/store' },
+            { name: 'Practice Questions', href: '/practice' },
         ],
         community: [
             { name: 'Profile Building', href: '/profile-building' },
@@ -114,11 +114,11 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Resources */}
+                    {/* Store */}
                     <div>
-                        <h4 className="font-heading text-lg font-bold mb-8 text-white">Resources</h4>
+                        <h4 className="font-heading text-lg font-bold mb-8 text-white">Store</h4>
                         <ul className="space-y-4">
-                            {footerLinks.resources.map((link) => (
+                            {footerLinks.store.map((link) => (
                                 <li key={link.name}>
                                     <Link 
                                         to={link.href}

@@ -1,90 +1,79 @@
-# EdVNova Learning Platform - PRD
+# EdVNova Learning Platform - PRD v2.0
 
-## Original Problem Statement
-Build EdVNova Learning - Premium educational publishing and learning platform for Cambridge IGCSE, AS Level, and A Level students. 10+ year scalable ecosystem. CMS-driven — never require code changes after deployment.
+## Vision
+EdVNova is a global educational publishing platform. CMS-driven — never requires code changes after deployment. Designed for 10+ years of growth.
 
 ## Tech Stack
 React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini (Emergent Key)
 
 ## Navigation
 Home | **Learn** | Store | Community | About | Contact
+(Resources removed — all content lives inside Learn hierarchy)
 
-## Admin Panel (14 tabs)
-Overview | **Website Content** | Chapter Notes | Topics | Worksheets | Questions | Videos | Media Library | Courses | Resources | Products | Users | Orders | Contacts
+## Content Hierarchy
+Curriculum → Subject → Chapter → Topic → Subtopic → Learning Resources
 
-## CMS Architecture
+## Admin Panel (13 tabs)
+Overview | Website Content | Chapter Notes | Topics | Worksheets | Questions | Videos | Media Library | Courses | Products | Users | Orders | Contacts
 
-### Website Content CMS
-Every public page section is editable from Admin > Website Content:
-- **Home** (7 sections): Hero, Trust Strip, Choose Your Path, Boards, Why Different, Testimonials, Final CTA
-- **About** (3 sections): Hero, Mission, Vision
-- **Contact** (2 sections): Hero, Info (email, phone, WhatsApp, hours)
-- **Global** (1 section): Footer (brand description, newsletter text, copyright)
+## Access Control System
+7 levels: **public** | registered | premium | school | private | draft | scheduled
+Applied to: attachments, worksheets, videos, topics, downloads
 
-Content stored in `site_content` collection. Frontend reads from `/api/cms/page/{page}` with hardcoded fallbacks.
+## Membership Tiers
+6 tiers: **free** | starter | premium | school | teacher | lifetime
+Architecture ready for Razorpay/Stripe — no redesign needed.
 
-### Topic Attachments System
-Every topic supports unlimited file attachments:
-- Upload: PDF, PPT/PPTX, DOC/DOCX, ZIP, images, videos
-- Embed: YouTube, Vimeo, external links
-- Per-attachment: title, description, type, visibility toggle, ordering
-- All uploads auto-mirrored to Media Library
-- Managed via Chapter Notes Editor (attachments section per topic)
+## CMS Coverage (9 pages, 20+ sections)
+- **Home** (7): Hero, Trust Strip, Choose Your Path, Boards, Why Different, Testimonials, Final CTA
+- **About** (3): Hero, Mission, Vision
+- **Contact** (2): Hero, Info
+- **Store** (1): Hero
+- **Community** (1): Hero
+- **Career Guidance** (1): Hero
+- **Profile Building** (1): Hero
+- **Learn** (1): Hero
+- **Global** (3): Footer, SEO, Navigation
 
-### Media Library
-Global file management:
-- Upload to organized folders
-- Tags per file, file type filters (images/documents/videos)
-- Search, preview, copy URL, delete
-- Storage usage dashboard (total files, total size, by type)
-- Replace file (same metadata, new content)
+## Auto-Content Surfacing
+When admin uploads content to Board → Subject → Chapter → Topic:
+- Notes auto-appear in chapter Concept Notes tab
+- Attachments auto-appear in Downloads tab
+- Videos auto-appear in Videos tab
+- Worksheets auto-appear in Downloads tab
+- No manual linking required
 
-## Learning Architecture
-```
-/learn → Board Selection
-/learn/:board → Subject Selection  
-/learn/:board/:subject → Chapter List
-/learn/:board/:subject/:chapter → Unified Chapter Hub
-  ├── Overview (stats, topic list)
-  ├── Concept Notes (expandable inline)
-  ├── Workbook (questions with answers/mark schemes)
-  ├── Videos (YouTube embeds with status badges)
-  └── Downloads (PDF worksheets)
-```
+## Key Systems
+- **Chapter Hub** (`/learn/:board/:subject/:chapter`): 5 tabs (Overview, Notes, Workbook, Videos, Downloads)
+- **Topic Attachments**: Unlimited files per topic (PDF, PPT, DOC, images, videos, YouTube, ZIP) with access control
+- **Video Management**: YouTube embeds, 5 status badges, per-chapter display
+- **Question IDs**: Permanent (P-EL-001), auto-generated, searchable
+- **Media Library**: Folders, tags, type filters, storage stats, replace
+- **AI Academic Mentor**: GPT-4o-mini chat with curriculum context
+- **Practice Questions**: 17+ with filters, bookmarks, completions
+- **Bulk Import**: Questions, topic notes
 
-## Content Management
-- Chapter Notes Editor (bulk edit topics per chapter + attachments)
-- Topic Editor (individual topic editing)
-- Worksheet Upload Manager
-- Question Manager with Bulk Import + auto Question IDs (P-EL-001)
-- Video Manager with YouTube embeds + status badges
-- Media Library with tags/filters/storage stats
+## Backlog
 
-## Other Systems
-- Practice Questions (17+ with permanent IDs, filters, bookmarks)
-- AI Academic Mentor (GPT-4o-mini, session management)
-- Store, Programs, Contact, WhatsApp
-- JWT Auth, Student Dashboard
-
-## Prioritized Backlog
-
-### P0 (Next)
-- [ ] Publish topic content (10/340 published)
+### P0
+- [ ] Publish topic content (10/340)
 - [ ] Upload real YouTube videos
-- [ ] Upload worksheets for key chapters
+- [ ] Upload worksheets
 
 ### P1
-- [ ] Analytics dashboard (views, completions, popular content)
-- [ ] Search (by Question ID, concept, topic, difficulty)
+- [ ] Analytics dashboard
+- [ ] Search (Question ID, concept, topic)
 - [ ] QR codes per chapter
+- [ ] Student progress tracking
 
 ### P2
-- [ ] Razorpay payments
-- [ ] Quiz mode with scoring  
-- [ ] Student progress per chapter
-- [ ] Role permissions (Teacher, Editor, Moderator, Student)
+- [ ] Razorpay/Stripe payment integration
+- [ ] Quiz mode with scoring
+- [ ] Role permissions (Teacher, Editor, Moderator)
+- [ ] Break server.py into modular routes
 
 ### P3
-- [ ] Dark mode, PDF export, SEO sitemap
 - [ ] RAG grounding for AI Mentor
+- [ ] Dark mode, PDF export, SEO sitemap
 - [ ] Scale to IB, CBSE boards
+- [ ] Mobile app architecture

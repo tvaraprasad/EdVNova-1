@@ -734,6 +734,11 @@ from attachments_api import create_attachments_routes
 attachments_router = create_attachments_routes(db, get_admin_user)
 api_router.include_router(attachments_router)
 
+# Membership routes
+from membership_api import create_membership_routes
+membership_router = create_membership_routes(db, get_current_user, get_admin_user)
+api_router.include_router(membership_router)
+
 # AI Mentor routes
 from ai_mentor_api import create_ai_mentor_routes
 ai_mentor_router = create_ai_mentor_routes(db, get_current_user)

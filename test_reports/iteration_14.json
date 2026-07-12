@@ -1,0 +1,60 @@
+{
+  "summary": "Iteration 14 v2.0 CMS architecture upgrade — verified backend + frontend. Backend pytest suite /app/backend/tests/test_iter14_membership_cms.py: 24/26 PASS. Two real bugs found: (1) GET /api/membership/my-tier always returns 'free' because server.get_current_user() strips membership_tier from user dict — membership_api.get_my_tier reads user.get('membership_tier','free') on that stripped dict; DB is updated correctly (verified via /api/membership/admin/stats which reports premium:1 after PUT), but /my-tier reflects 'free'. (2) POST /api/attachments/upload silently discards the access_level Form parameter and hardcodes 'public' (attachments_api.py line 47). Embed endpoint (/api/attachments/embed) and PUT /api/attachments/{id} DO persist access_level correctly. Frontend Playwright verified: admin login works, /admin panel renders exactly 13 tabs [overview, website, chapter-notes, topics, worksheets, questions, videos, media, courses, products, users, orders, contacts] with NO 'Resources' tab; Website Content editor shows all 9 CMS page tabs [about, career-guidance, community, contact, global, home, learn, profile-building, store]; homepage still loads with 'The Premium Learning Platform for Cambridge Students' hero; /learn/igcse/physics/electricity renders with Notes/Videos/Questions/Downloads tabs; footer has 'Store' column (no /resources link); /resources no longer resolves to a Resources page (falls through catch-all to 'Board not found'). Public CMS: GET /api/cms/page/store, /learn, /community, /career-guidance, /profile-building all return hero; /api/cms/section/global/seo and /navigation return correct data. Membership: /api/membership/tiers returns 6 tiers, /access-levels returns 7 levels; admin can set tier (persists in DB, verified via stats).",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "GET /api/membership/my-tier", "issue": "Always returns tier='free' even after admin sets tier='premium' for the same user. RCA: server.py get_current_user() returns a dict WITHOUT membership_tier field; membership_api.py get_my_tier() reads user.get('membership_tier','free') on that dict → always defaults to 'free'. DB IS updated correctly (admin stats confirms). Fix: In membership_api.get_my_tier, load the raw user doc from db.users by _id (or add membership_tier to get_current_user return value in server.py).", "priority": "HIGH"},
+      {"endpoint": "POST /api/attachments/upload", "issue": "access_level Form parameter is accepted but IGNORED. attachments_api.py line 47 hardcodes '\"access_level\": \"public\"'. Regardless of what the client sends (verified with access_level=premium), stored value is always 'public'. The embed endpoint AND PUT update work correctly. Fix: change line 47 to 'access_level: access_level' (use the param). Frontend TopicAttachments.js DOES send it correctly.", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Non-existent routes (/resources, /nonexistent, etc.)", "issues": ["App.js catch-all '/:board' → SubjectsList renders 'Board not found' for any unknown top-level path. /resources now shows 'Board not found' rather than a proper 404 page. Cosmetic — not blocking."]},
+      {"screen": "Console (all pages, pre-existing)", "issues": ["Benign 404s on /api/auth/me for anonymous visitors — carried from prior iterations."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter14_membership_cms.py",
+    "/app/test_reports/pytest/pytest_iter14.xml"
+  ],
+  "action_items": [
+    "FIX BUG (HIGH): membership_api.py get_my_tier — user dict from get_current_user does not carry membership_tier. Either (a) fetch user doc directly: `user_doc = await db.users.find_one({\\\"_id\\\": ObjectId(user['id'])}); tier_slug = user_doc.get('membership_tier','free')` OR (b) modify server.get_current_user to include membership_tier in returned dict.",
+    "FIX BUG (HIGH): attachments_api.py:47 change `\\\"access_level\\\": \\\"public\\\"` to `\\\"access_level\\\": access_level` so the Form parameter is actually persisted on /upload.",
+    "(carried) Optional: whitelist embed_url origins (YouTube/Vimeo) — still open from iter 13.",
+    "(carried) Optional: sanitize upload extensions/folder names — still open from iter 12/13."
+  ],
+  "critical_code_review_comments": [
+    "cms_api.seed_cms_content: early-return at `count > 0` means the second (idempotent) new_sections block never runs on existing installs. It works right now because previous iterations had already seeded the new pages; but if someone drops db.site_content or seeds a partial subset, the idempotent branch will not fire. Recommendation: move the idempotent upsert block OUTSIDE the `if count > 0: return` guard so it always tries to add any missing new sections.",
+    "attachments_api.upload_attachment declares `access_level: str = Form('public')` but the doc payload hardcodes `\\\"access_level\\\": \\\"public\\\"` — the incoming param is unreachable (dead code). This is a copy-paste bug.",
+    "membership_api.get_my_tier depends on a field (`membership_tier`) that is not exposed by the shared get_current_user contract. Data-model / contract mismatch: either publish membership_tier from get_current_user or query the DB inside get_my_tier.",
+    "server.get_current_user returns a hand-picked subset of fields (id/email/name/role/created_at). Any downstream API that needs newer user fields (membership_tier, access_level, avatar, etc.) will silently see them as missing. Consider returning the full sanitised user doc (minus password_hash).",
+    "membership_api.set_user_tier response is bare `{message}`; consider returning the updated tier document so the caller can refresh state without a follow-up GET.",
+    "footerLinks in Footer.js hardcodes '/practice' and '/workshops' under Store column although those pages exist. Layout is fine; label 'Store' now correctly replaces 'Resources'.",
+    "App.js still has broad catch-all `/:board` → SubjectsList mounted for ANY unknown top-level path (e.g. /resources returns 'Board not found'). A dedicated NotFound component would be cleaner and prevent surprising board-lookup calls."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter14_membership_cms.py (new)"
+  ],
+  "success_rate": {"backend": "92% (24/26 pytest)", "frontend": "100% (admin tabs, CMS pages, home, learn, footer all verified)"},
+  "test_credentials": "admin@edvnova.com / Admin@123 — verified working",
+  "seed_data_creation": "Test creates & cleans up: 1 embed attachment + 1 uploaded 'TEST_iter14.txt' on topic_id 'TEST_iter14_topic_membership' (all deleted in teardown). Admin's membership_tier temporarily set to 'premium' during test then reverted to 'free'.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 14 (v2.0 CMS architecture) — 2 real backend bugs remain: (1) /api/membership/my-tier always reports 'free' due to user-dict field-missing (server.get_current_user strips membership_tier), (2) /api/attachments/upload ignores access_level form param (hardcoded 'public' at attachments_api.py:47). Both need fixes. Regression test file: /app/backend/tests/test_iter14_membership_cms.py — the 2 known-failing tests document the exact expected fix. All 9 CMS pages seeded correctly. Admin panel has 13 tabs (no Resources). Membership tiers=6, access levels=7. Admin can set/read tiers via DB (verified via /admin/stats) — only /my-tier read path is broken.",
+  "rca_of_the_issue": {
+    "bug1_membership_my_tier": {
+      "symptom": "PUT /api/membership/admin/user/{id}/tier followed by GET /api/membership/my-tier — response always shows 'free'. But GET /api/membership/admin/stats correctly shows the updated tier count (e.g. by_tier.premium=1).",
+      "reproduction": "1) POST /api/auth/login as admin. 2) me = GET /api/auth/me. 3) PUT /api/membership/admin/user/{me.id}/tier body={tier:'premium'} → 200 OK. 4) GET /api/membership/my-tier → tier.slug='free' (BUG). GET /api/membership/admin/stats → by_tier.premium=1 (DB is correct).",
+      "root_cause": "server.py get_current_user() line 71-77 returns a dict with only {id,email,name,role,created_at}. It does NOT include membership_tier. membership_api.py:60 `tier_slug = user.get('membership_tier','free')` therefore ALWAYS falls back to default 'free'.",
+      "fix": "In membership_api.py get_my_tier, query the DB: `user_doc = await db.users.find_one({'_id': ObjectId(user['id'])}); tier_slug = user_doc.get('membership_tier','free')`. Alternative (broader): add `membership_tier` to the fields returned by server.get_current_user() so all callers see it."
+    },
+    "bug2_upload_access_level_hardcoded": {
+      "symptom": "POST /api/attachments/upload multipart with access_level=premium form field; server returns 200; but GET /api/attachments/topic/{id} shows access_level='public' for that record.",
+      "reproduction": "curl -F 'file=@x.txt' -F 'topic_id=T1' -F 'access_level=premium' -F 'attachment_type=document' /api/attachments/upload → 200. GET /api/attachments/topic/T1 → last item has access_level='public'.",
+      "root_cause": "attachments_api.py line 22 declares Form param access_level correctly. Line 47 constructs the doc with `\"access_level\": \"public\"` hardcoded — the Form param is never read.",
+      "fix": "Change line 47 from `\"access_level\": \"public\",` to `\"access_level\": access_level,`. One-line fix. Add a whitelist check against ACCESS_LEVELS from membership_api for defense in depth."
+    }
+  }
+}
