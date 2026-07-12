@@ -19,6 +19,8 @@ export default function SubjectsList() {
     const { board } = useParams();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const isLearnRoute = window.location.pathname.startsWith('/learn');
+    const prefix = isLearnRoute ? '/learn' : '';
 
     useEffect(() => {
         axios.get(`${API_URL}/api/curriculum/boards/${board}`).then(res => { setData(res.data); setLoading(false); }).catch(() => setLoading(false));
@@ -32,7 +34,7 @@ export default function SubjectsList() {
             <section className="py-16 md:py-20 bg-white border-b">
                 <div className="container-custom">
                     <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6" data-testid="breadcrumb">
-                        <Link to="/boards" className="hover:text-primary">Boards</Link>
+                        <Link to={`${prefix || '/boards'}`} className="hover:text-primary">{isLearnRoute ? 'Learn' : 'Boards'}</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
                         <span className="text-primary font-medium">{data.name}</span>
                     </nav>
@@ -48,7 +50,7 @@ export default function SubjectsList() {
                             const Icon = SUBJECT_ICONS[subj.slug] || Calculator;
                             const colors = SUBJECT_COLORS[subj.slug] || SUBJECT_COLORS.mathematics;
                             return (
-                                <Link key={subj.slug} to={`/${board}/${subj.slug}`} className="group" data-testid={`subject-card-${subj.slug}`}>
+                                <Link key={subj.slug} to={`${prefix}/${board}/${subj.slug}`} className="group" data-testid={`subject-card-${subj.slug}`}>
                                     <div className={`rounded-2xl border ${colors.border} p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-white`}>
                                         <div className="flex items-start gap-5">
                                             <div className={`w-14 h-14 ${colors.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>

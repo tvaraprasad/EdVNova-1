@@ -54,7 +54,7 @@ export default function Home() {
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                             <Link
-                                to="/boards"
+                                to="/learn"
                                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-all duration-200 shadow-lg shadow-primary/20"
                                 data-testid="hero-cta-learn"
                             >
@@ -112,7 +112,7 @@ export default function Home() {
                     <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
                         {/* Card 1: Guided Learning */}
                         <Link
-                            to="/boards"
+                            to="/learn"
                             className="group relative p-8 lg:p-10 bg-white rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300"
                             data-testid="path-coaching"
                         >
@@ -187,7 +187,7 @@ export default function Home() {
                         ].map(board => (
                             <Link
                                 key={board.slug}
-                                to={`/${board.slug}`}
+                                to={`/learn/${board.slug}`}
                                 className="group relative overflow-hidden rounded-2xl"
                                 data-testid={`board-card-${board.slug}`}
                             >
@@ -337,11 +337,11 @@ export default function Home() {
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
                             <Link
-                                to="/resources"
+                                to="/learn"
                                 className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-200"
                                 data-testid="cta-explore-button"
                             >
-                                Explore Resources
+                                Start Learning
                             </Link>
                         </div>
                         <p className="text-white/40 text-sm mt-8">

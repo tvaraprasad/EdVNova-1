@@ -32,6 +32,7 @@ import TopicsList from "./pages/curriculum/TopicsList";
 import TopicPage from "./pages/curriculum/TopicPage";
 import SearchPage from "./pages/curriculum/SearchPage";
 import PracticeQuestions from "./pages/PracticeQuestions";
+import LearnChapter from "./pages/learn/LearnChapter";
 
 function App() {
     return (
@@ -80,7 +81,12 @@ function App() {
                                         </ProtectedRoute>
                                     }
                                 />
-                                {/* Curriculum Routes */}
+                                {/* Learn Routes (new /learn/* paths) */}
+                                <Route path="/learn" element={<BoardsList />} />
+                                <Route path="/learn/:board" element={<SubjectsList />} />
+                                <Route path="/learn/:board/:subject" element={<ChaptersList />} />
+                                <Route path="/learn/:board/:subject/:chapter" element={<LearnChapter />} />
+                                {/* Curriculum Routes (legacy, kept working) */}
                                 <Route path="/boards" element={<BoardsList />} />
                                 <Route path="/search" element={<SearchPage />} />
                                 <Route path="/:board" element={<SubjectsList />} />

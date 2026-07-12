@@ -9,6 +9,8 @@ export default function ChaptersList() {
     const { board, subject } = useParams();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const isLearnRoute = window.location.pathname.startsWith('/learn');
+    const prefix = isLearnRoute ? '/learn' : '';
 
     useEffect(() => {
         axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}`).then(res => { setData(res.data); setLoading(false); }).catch(() => setLoading(false));
@@ -22,9 +24,9 @@ export default function ChaptersList() {
             <section className="py-16 md:py-20 bg-white border-b">
                 <div className="container-custom">
                     <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap" data-testid="breadcrumb">
-                        <Link to="/boards" className="hover:text-primary">Boards</Link>
+                        <Link to={`${prefix || '/boards'}`} className="hover:text-primary">{isLearnRoute ? 'Learn' : 'Boards'}</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
-                        <Link to={`/${board}`} className="hover:text-primary">{data.board_name}</Link>
+                        <Link to={`${prefix}/${board}`} className="hover:text-primary">{data.board_name}</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
                         <span className="text-primary font-medium">{data.name}</span>
                     </nav>
@@ -40,7 +42,7 @@ export default function ChaptersList() {
                 <div className="container-custom max-w-4xl">
                     <div className="space-y-4">
                         {data.chapters?.map((ch, idx) => (
-                            <Link key={ch.slug} to={`/${board}/${subject}/${ch.slug}`} className="group block" data-testid={`chapter-card-${ch.slug}`}>
+                            <Link key={ch.slug} to={`${prefix}/${board}/${subject}/${ch.slug}`} className="group block" data-testid={`chapter-card-${ch.slug}`}>
                                 <div className="flex items-center gap-5 p-6 bg-white rounded-xl border border-gray-100 transition-all duration-200 hover:shadow-md hover:border-gray-200">
                                     <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 transition-colors">
                                         <span className="text-lg font-bold text-gray-400 group-hover:text-accent transition-colors">{idx + 1}</span>

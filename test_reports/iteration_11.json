@@ -1,0 +1,35 @@
+{
+  "summary": "v1.1 Navigation restructure verification (frontend-only). Ran 51 assertions covering: nav has no Resources link, Learn/Store/Community/About/Contact nav items present, Learn hover dropdown lists IGCSE/AS Level/A Level/Live Coaching with correct /learn/* hrefs, Book Consultation CTA visible, Homepage 'Start Learning' -> /learn, homepage board cards link to /learn/{igcse,as-level,a-level}, footer Learn section links to same, /learn loads BoardsList with 'Learn' heading, /learn/igcse -> subjects page with 'Learn > IGCSE' breadcrumb, /learn/igcse/physics -> chapters page, /learn/igcse/physics/electricity loads unified LearnChapter with 5 tabs (Overview, Concept Notes, Workbook, Videos, Downloads). Overview shows 5 concepts / 2 notes available / 2 practice questions / 0 downloads exactly as expected. Notes tab expands Resistance topic with 1305+ chars of content. Workbook tab shows 2 questions with Answer/Mark Scheme accordions. Videos tab shows 'Coming Soon'. Downloads tab renders. Legacy routes /igcse, /igcse/physics, /igcse/physics/electricity all still work. Existing pages /store, /contact, /practice, /dashboard load without errors. 51/51 PASS.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Console (all pages)", "issues": ["Pre-existing benign 401 on /api/auth/me when unauthenticated (carried from iter 8-10, non-blocking cosmetic console noise only)"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_11.json"
+  ],
+  "action_items": [
+    "(Optional, carried) Suppress benign 401 console errors from /api/auth/me probe when anonymous by treating 401 as expected in AuthContext."
+  ],
+  "critical_code_review_comments": [
+    "LearnChapter.js NotesPanel 'Full Topic Page' link at line ~112 uses `/${board}/${subject}/${chapter}/${topic.slug}` (legacy route) rather than /learn/... — intentional since only the legacy TopicsList/TopicPage supports per-topic pages, but keep in mind that if /learn/:board/:subject/:chapter/:topic is later added the link should be updated to the /learn/* variant for consistency.",
+    "LearnChapter.js fetches per-topic content in parallel with Promise.all — for chapters with many topics this fires N+1 requests. Consider adding a bulk endpoint GET /api/curriculum/boards/:board/:subject/:chapter?include=topics_content to fetch chapter + full topic content in a single call.",
+    "App.js keeps both /:board and /learn/:board catch-all routes — the /:board route is a very broad catch-all (single-segment path) that will match any unknown top-level path (e.g., /foobar) and try to render SubjectsList. This can mask 404s and cause confusing UX. Consider adding an explicit NotFound route or restricting /:board via a regex like /:board(igcse|as-level|a-level).",
+    "Header.js isActiveLearn checks '/boards' and '/practice' etc — but 'Live Coaching' inside the Learn dropdown points to /programs while isActiveLearn does not include '/programs'. Minor UX inconsistency: Learn tab won't highlight when on /programs even though it's a Learn dropdown item.",
+    "LearnChapter.js — unused imports (Clock, Eye, QrCode) in the icon import line; small dead-code cleanup opportunity."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only per request)", "frontend": "100% (51/51)"},
+  "test_credentials": "admin@edvnova.com / Admin@123 (not exercised this iteration — no auth-gated flow was in scope).",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "v1.1 nav restructure verified end-to-end on the frontend. Key data-testids: nav-learn / nav-store / nav-community / nav-about / nav-contact, dropdown-learn, book-consultation-btn, learn-chapter-page, chapter-breadcrumb, chapter-title, chapter-tabs, tab-{overview|notes|workbook|videos|downloads}, tab-content-{id}, note-{topic-slug} (e.g., note-resistance), workbook-q-{id}. Both /learn/* and legacy /:board/* routes are wired and working. LearnChapter fires 3 parallel API calls (curriculum chapter, questions browse, worksheets browse) then N per-topic content calls. Live seed data for IGCSE > Physics > Electricity: exactly 5 topics with 2 published (Resistance is one), 2 practice questions, 0 worksheets — do not modify.",
+  "rca of the issue": "No issues found in this iteration. All v1.1 nav/routing changes are functioning as specified."
+}

@@ -6,14 +6,13 @@ export default function Footer() {
 
     const footerLinks = {
         learn: [
-            { name: 'IGCSE', href: '/igcse' },
-            { name: 'AS Level', href: '/as-level' },
-            { name: 'A Level', href: '/a-level' },
+            { name: 'IGCSE', href: '/learn/igcse' },
+            { name: 'AS Level', href: '/learn/as-level' },
+            { name: 'A Level', href: '/learn/a-level' },
             { name: 'Live Coaching', href: '/programs' },
         ],
         resources: [
-            { name: 'Revision Notes', href: '/boards' },
-            { name: 'Study Materials', href: '/resources' },
+            { name: 'Practice Questions', href: '/practice' },
             { name: 'Store', href: '/store' },
         ],
         community: [

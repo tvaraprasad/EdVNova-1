@@ -79,11 +79,10 @@ export default function Header() {
     };
 
     const learnItems = [
-        { name: 'IGCSE', href: '/igcse', icon: BookOpen },
-        { name: 'AS Level', href: '/as-level', icon: GraduationCap },
-        { name: 'A Level', href: '/a-level', icon: Award },
+        { name: 'IGCSE', href: '/learn/igcse', icon: BookOpen },
+        { name: 'AS Level', href: '/learn/as-level', icon: GraduationCap },
+        { name: 'A Level', href: '/learn/a-level', icon: Award },
         { name: 'Live Coaching', href: '/programs', icon: Users },
-        { name: 'Courses', href: '/programs', icon: Play },
     ];
 
     const communityItems = [
@@ -92,7 +91,7 @@ export default function Header() {
         { name: 'Workshops', href: '/workshops', icon: Users },
     ];
 
-    const isActiveLearn = ['/boards', '/igcse', '/as-level', '/a-level', '/programs'].some(
+    const isActiveLearn = ['/learn', '/boards', '/igcse', '/as-level', '/a-level', '/programs', '/practice'].some(
         p => location.pathname === p || location.pathname.startsWith(p + '/')
     );
     const isActiveCommunity = ['/profile-building', '/career-guidance', '/workshops'].some(
@@ -114,18 +113,6 @@ export default function Header() {
                     {/* Desktop Navigation */}
                     <div className="hidden lg:flex items-center gap-0.5">
                         <NavDropdown label="Learn" items={learnItems} isActive={isActiveLearn} />
-
-                        <Link
-                            to="/resources"
-                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                                isActiveLink('/resources')
-                                    ? 'text-accent bg-accent/5'
-                                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
-                            }`}
-                            data-testid="nav-resources"
-                        >
-                            Resources
-                        </Link>
 
                         <Link
                             to="/store"
@@ -289,14 +276,6 @@ export default function Header() {
                                     </div>
                                 )}
                             </div>
-
-                            <Link
-                                to="/resources"
-                                className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                Resources
-                            </Link>
 
                             <Link
                                 to="/store"
