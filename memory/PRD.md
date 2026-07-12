@@ -9,85 +9,71 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
 ## Navigation (v1.1)
 Home | **Learn** | Store | Community | About | Contact
 
-Learn dropdown: IGCSE, AS Level, A Level, Live Coaching
+## Admin Panel (13 tabs)
+Overview | Chapter Notes | Topics | Worksheets | Questions | **Videos** | **Media Library** | Courses | Resources | Products | Users | Orders | Contacts
 
-## Core Architecture (v1.1)
+## Implemented Systems
 
 ### Learning Flow
-```
-/learn → Board Selection
-/learn/:board → Subject Selection
-/learn/:board/:subject → Chapter List
-/learn/:board/:subject/:chapter → Unified Chapter Hub
-```
+`/learn` → Board → Subject → Chapter Hub (Overview, Notes, Workbook, Videos, Downloads)
 
-### Chapter Hub (Heart of EdVNova)
-Each chapter page `/learn/:board/:subject/:chapter` contains:
-- **Overview** — Stats, topic list with status badges
-- **Concept Notes** — Expandable inline topic notes (definitions, formulas, examples, tips)
-- **Workbook** — Practice questions with answers/mark schemes, bookmark/complete tracking
-- **Videos** — Coming Soon (architecture ready for YouTube embeds + status badges)
-- **Downloads** — PDF worksheets per chapter
+### Video Management (Phase B)
+- Admin CRUD: Title, YouTube URL, status badges (Available/Coming Soon/Premium/Locked/Draft)
+- Per-chapter: Board, Subject, Chapter, Topic, Question ID, Difficulty, Duration
+- YouTube embed extraction + thumbnail previews
+- Chapter page Videos tab shows embedded videos with status badges
+- Public browse + chapter-specific video endpoints
 
-### Legacy Routes (still working)
-`/:board`, `/:board/:subject`, `/:board/:subject/:chapter`, `/:board/:subject/:chapter/:topic`
+### Question ID System (Phase B)
+- Permanent IDs: `P-EL-001` format (P=Physics, EL=topic code, 001=sequence)
+- Auto-generated on create and bulk import
+- All 17 existing questions backfilled with IDs
+- Searchable by Question ID across platform
+- Links between questions and videos via Question ID
 
-## Implemented Features
+### Media Library (Phase B)
+- Admin file upload with folder organization
+- Search, browse, delete files
+- Copy URL to clipboard for use in content
+- File preview for images, icon display for documents
+- File size tracking and folder-based navigation
 
-### Core Platform (v1.0)
-- JWT Auth, Admin Dashboard (11 tabs), Student Dashboard with AI Mentor
-- Store, Programs, Contact, WhatsApp integration
-- Premium homepage with Learn/Community dropdowns
+### Content Management
+- Chapter Notes Editor (bulk edit all topics in a chapter)
+- Topic Editor (individual topic editing)
+- Worksheet Upload Manager (PDF upload with tags)
+- Question Manager with Bulk Import
+- Video Manager with YouTube embed support
 
-### Curriculum System
-- 3 Boards × 4 Subjects × chapters × 340 topics (10 published)
-- Premium topic pages with TOC, definitions, formulas, examples, tips
-
-### Practice Questions System
-- 17+ seeded exam-style questions with filters, bookmarks, completions
-- Admin CRUD + bulk import
+### Practice Questions
+- 17+ questions with permanent IDs, filters, bookmarks, completions
 
 ### AI Academic Mentor
-- GPT-4o-mini chat in Student Dashboard with session management
+- GPT-4o-mini chat with board/subject/topic context
 
-### Content Management Workflow
-- Chapter Notes Editor (bulk editing per chapter)
-- Worksheet Upload Manager (PDF upload with tagging)
-- Bulk Question Import (paste-based)
-- Topic Editor (individual topic editing)
-
-### v1.1 Navigation Restructure (Latest)
-- Resources removed from navigation
-- All learning links now use `/learn/*` paths
-- Unified chapter hub page with 5 tabs
-- Breadcrumbs use Learn > Board > Subject > Chapter
-- Homepage, footer, all internal links updated
-- Old routes preserved for backwards compatibility
-
-## Admin Panel Tabs
-Overview, Chapter Notes, Topics, Worksheets, Questions, Courses, Resources, Products, Users, Orders, Contacts
+### Core Platform
+- JWT Auth, Admin/Student Dashboards, Store, Programs, Contact
+- 340 curriculum topics (10 published), 3 boards, 4 subjects
 
 ## Prioritized Backlog
 
 ### P0 (Next)
-- [ ] Video management system (YouTube embeds, status badges, admin CRUD)
-- [ ] Question ID system (permanent IDs like M-NL-001)
-- [ ] QR code per chapter (permanent URLs)
-- [ ] Media library (folders, search, preview, replace)
+- [ ] QR codes per chapter (permanent URLs)
+- [ ] Analytics dashboard (views, completions, popular content)
+- [ ] Search system (by Question ID, concept, topic, difficulty)
 
 ### P1
 - [ ] Publish more topic content (10/340)
-- [ ] Analytics dashboard (views, completions, popular content)
-- [ ] Search by Question ID, concept, topic, difficulty
+- [ ] Add real YouTube videos to chapters
+- [ ] Student progress per chapter (Not Started/In Progress/Completed)
+- [ ] Role permissions (Teacher, Content Editor, Moderator, Student)
 
 ### P2
-- [ ] Quiz mode with scoring
-- [ ] Student progress per chapter (Not Started / In Progress / Completed)
-- [ ] Role permissions (Teacher, Content Editor, Moderator, Student)
 - [ ] Razorpay payments
+- [ ] Quiz mode with scoring
+- [ ] RAG grounding for AI Mentor
 - [ ] Break server.py into modular routes
 
 ### P3
 - [ ] Dark mode, PDF export, SEO sitemap
-- [ ] RAG grounding for AI Mentor
 - [ ] Scale to IB, CBSE boards
