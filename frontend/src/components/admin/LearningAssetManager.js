@@ -51,6 +51,7 @@ export default function LearningAssetManager({ parentType, parentId, section }) 
     const [showUpload, setShowUpload] = useState(false);
     const [showEmbed, setShowEmbed] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [uploadForm, setUploadForm] = useState({ title: '', description: '', asset_type: 'pdf', access_level: 'public' });
     const [embedForm, setEmbedForm] = useState({ title: '', embed_url: '', asset_type: 'youtube', description: '', access_level: 'public' });
 
@@ -67,27 +68,34 @@ export default function LearningAssetManager({ parentType, parentId, section }) 
 
     useEffect(() => { fetchAssets(); }, [fetchAssets]);
 
-    const handleUpload = async (e) => {
+    const handleFileSelect = (e) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (file) setSelectedFile(file);
+        e.target.value = '';
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) { toast.error('Please select a file first'); return; }
         setUploading(true);
         const fd = new FormData();
-        fd.append('file', file);
+        fd.append('file', selectedFile);
         fd.append('parent_type', parentType);
         fd.append('parent_id', parentId);
         fd.append('section', section || 'general');
-        fd.append('title', uploadForm.title || file.name);
+        fd.append('title', uploadForm.title || selectedFile.name);
         fd.append('description', uploadForm.description);
         fd.append('asset_type', uploadForm.asset_type);
         fd.append('access_level', uploadForm.access_level);
         try {
             await axios.post(`${API_URL}/api/learning-assets/upload`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
-            toast.success('Asset uploaded');
+            toast.success('Asset uploaded successfully');
             setShowUpload(false);
+            setSelectedFile(null);
             setUploadForm({ title: '', description: '', asset_type: 'pdf', access_level: 'public' });
             fetchAssets();
-        } catch (err) { toast.error('Upload failed'); }
-        finally { setUploading(false); e.target.value = ''; }
+        } catch (err) {
+            toast.error(err.response?.data?.detail || 'Upload failed — please try again');
+        } finally { setUploading(false); }
     };
 
     const handleEmbed = async () => {
@@ -129,8 +137,8 @@ export default function LearningAssetManager({ parentType, parentId, section }) 
             <div className="flex items-center justify-between mb-2">
                 <Label className="text-xs font-semibold text-gray-500">Learning Assets ({assets.length})</Label>
                 <div className="flex gap-2">
-                    <button onClick={() => setShowEmbed(true)} className="text-[10px] text-accent hover:underline">+ Embed URL</button>
-                    <button onClick={() => setShowUpload(true)} className="text-[10px] text-accent hover:underline">+ Upload File</button>
+                    <button onClick={() => setShowEmbed(true)} className="text-[10px] text-accent hover:underline" data-testid="add-embed-btn">+ Embed URL</button>
+                    <button onClick={() => setShowUpload(true)} className="text-[10px] text-accent hover:underline" data-testid="add-upload-btn">+ Upload File</button>
                 </div>
             </div>
 
@@ -165,30 +173,47 @@ export default function LearningAssetManager({ parentType, parentId, section }) 
             )}
 
             {/* Upload Dialog */}
-            <Dialog open={showUpload} onOpenChange={setShowUpload}>
-                <DialogContent className="max-w-md">
+            <Dialog open={showUpload} onOpenChange={(open) => { if (!open) { setSelectedFile(null); } setShowUpload(open); }}>
+                <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()} onPointerDownOutside={(e) => e.preventDefault()}>
                     <DialogHeader><DialogTitle>Upload Learning Asset</DialogTitle></DialogHeader>
                     <div className="space-y-3 pt-2">
-                        <div><Label className="text-xs">Title</Label><Input value={uploadForm.title} onChange={e => setUploadForm(p => ({...p, title: e.target.value}))} className="mt-1" placeholder="Optional — defaults to filename" /></div>
+                        <div><Label className="text-xs">Title</Label><Input value={uploadForm.title} onChange={e => setUploadForm(p => ({...p, title: e.target.value}))} className="mt-1" placeholder="Optional — defaults to filename" data-testid="upload-title-input" /></div>
                         <div className="grid grid-cols-2 gap-3">
                             <div><Label className="text-xs">Type</Label>
-                                <select value={uploadForm.asset_type} onChange={e => setUploadForm(p => ({...p, asset_type: e.target.value}))} className="mt-1 w-full h-9 px-3 border rounded-md text-sm">
+                                <select value={uploadForm.asset_type} onChange={e => setUploadForm(p => ({...p, asset_type: e.target.value}))} className="mt-1 w-full h-9 px-3 border rounded-md text-sm" data-testid="upload-type-select">
                                     {ASSET_TYPES.filter(t => !['youtube', 'link'].includes(t.value)).map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                                 </select>
                             </div>
                             <div><Label className="text-xs">Access Level</Label>
-                                <select value={uploadForm.access_level} onChange={e => setUploadForm(p => ({...p, access_level: e.target.value}))} className="mt-1 w-full h-9 px-3 border rounded-md text-sm">
+                                <select value={uploadForm.access_level} onChange={e => setUploadForm(p => ({...p, access_level: e.target.value}))} className="mt-1 w-full h-9 px-3 border rounded-md text-sm" data-testid="upload-access-select">
                                     {ACCESS_LEVELS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
                                 </select>
                             </div>
                         </div>
-                        <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl text-center">
-                            <Upload className="w-6 h-6 text-gray-300 mx-auto mb-1" />
-                            <label className="cursor-pointer">
-                                <span className="text-sm text-accent font-medium hover:underline">Choose file</span>
-                                <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
-                            </label>
-                            {uploading && <p className="text-xs text-gray-400 mt-1">Uploading...</p>}
+                        <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl text-center" data-testid="upload-dropzone">
+                            {selectedFile ? (
+                                <div className="space-y-2">
+                                    <File className="w-6 h-6 text-accent mx-auto" />
+                                    <p className="text-sm font-medium text-primary truncate">{selectedFile.name}</p>
+                                    <p className="text-xs text-gray-400">{formatSize(selectedFile.size)}</p>
+                                    <button onClick={() => setSelectedFile(null)} className="text-xs text-red-400 hover:text-red-600 hover:underline">Remove</button>
+                                </div>
+                            ) : (
+                                <>
+                                    <Upload className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+                                    <label className="cursor-pointer">
+                                        <span className="text-sm text-accent font-medium hover:underline" data-testid="choose-file-btn">Choose file</span>
+                                        <input type="file" className="hidden" onChange={handleFileSelect} data-testid="upload-file-input" />
+                                    </label>
+                                    <p className="text-[10px] text-gray-400 mt-1">PDFs, images, videos, worksheets, etc.</p>
+                                </>
+                            )}
+                        </div>
+                        <div className="flex justify-end gap-3 pt-2">
+                            <button onClick={() => { setShowUpload(false); setSelectedFile(null); }} className="px-3 py-1.5 text-gray-600 border rounded-lg hover:bg-gray-50 text-sm" data-testid="upload-cancel-btn">Cancel</button>
+                            <button onClick={handleUpload} disabled={!selectedFile || uploading} className="px-4 py-1.5 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed" data-testid="upload-confirm-btn">
+                                {uploading ? 'Uploading...' : 'Upload'}
+                            </button>
                         </div>
                     </div>
                 </DialogContent>
@@ -196,7 +221,7 @@ export default function LearningAssetManager({ parentType, parentId, section }) 
 
             {/* Embed Dialog */}
             <Dialog open={showEmbed} onOpenChange={setShowEmbed}>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()}>
                     <DialogHeader><DialogTitle>Add Embed / Link</DialogTitle></DialogHeader>
                     <div className="space-y-3 pt-2">
                         <div className="grid grid-cols-2 gap-3">

@@ -1,0 +1,49 @@
+{
+  "summary": "Iteration 16 — Admin Learning Asset upload flow (fix for silently-failing Choose file inside Radix Dialog) verified end-to-end. Backend pytest regression suite (17/17 PASS) covers /api/learning-assets/upload, /embed, /list, /visible, /update, /delete, /topic, /upload-image, and auth guards. Frontend Playwright flow (as-user, admin@edvnova.com) executed successfully against Motion → Speed topic: (1) admin login → /admin loads, Chapter Notes tab renders ChapterNotesEditor with board=IGCSE, subject=Physics, chapter=motion, 5 topics listed. (2) First topic expanded — introduction section shows RichContentEditor + LearningAssetManager. (3) Clicked '+ Upload File' → Upload dialog opens; upload-confirm-btn correctly disabled (assertion PASSED). (4) set_input_files on the hidden #upload-file-input — dialog REMAINS OPEN (KEY BUG-FIX ASSERTION PASSED), file preview shows 'playwright_test_asset.txt · 1.1 KB · Remove', Upload button becomes enabled. (5) Clicked Upload → POST /api/learning-assets/upload returned 200 with id + file_url, dialog closed, sonner toast 'Asset uploaded successfully' shown, asset appears in Learning Assets list under the topic. (6) Clicked '+ Embed URL' → Embed dialog opens, POST /api/learning-assets/embed returned 200 with a YouTube URL. Both created assets cleaned up via DELETE. The fix (onInteractOutside/onPointerDownOutside prevention + two-step select-then-confirm flow) works exactly as spec.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/learning-assets/upload", "issue": "No whitelist on asset_type or file extension — accepts arbitrary values (defense-in-depth)."},
+      {"endpoint": "/api/learning-assets/embed", "issue": "No URL scheme/domain validation for embed_url — could accept javascript: or file:// URLs. Recommend https-only + YouTube/Vimeo allowlist."},
+      {"endpoint": "/api/uploads/assets/*", "issue": "Static-file mount serves files without auth. access_level=private/draft assets are hidden from /list & /visible but their raw file_url is still directly downloadable — data-exposure risk. Carried over from iter 15."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin Chapter Notes chapter dropdown", "issues": ["React hydration warning: '<span> cannot be a child of <option>' from ChapterNotesEditor.js line 284 — the chapter <option> renders `{ch.name} ({ch.topic_count} topics)` but tooling wraps the dynamic name in <span>. Cosmetic only; dropdown still works. Was noted in iter 15 and still present."]},
+      {"screen": "Upload & Embed dialogs", "issues": ["Radix DialogContent shows a11y warning: 'Missing Description or aria-describedby={undefined}'. Add a <DialogDescription> for both dialogs to satisfy WAI-ARIA."]},
+      {"screen": "Upload dialog dropzone", "issues": ["The 'Choose file' clickable target is only the text inside a <label> — the whole dropzone box is not clickable. Adding onClick on the dashed dropzone (delegate to the hidden input) would improve UX; drag-and-drop is also absent even though the container looks like a droparea."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter15_learning_assets.py",
+    "/app/test_reports/pytest/pytest_iter16.xml"
+  ],
+  "action_items": [
+    "(Optional/cosmetic) Add <DialogDescription> in Upload + Embed dialogs to remove Radix a11y warning.",
+    "(Optional/UX) Make the entire dropzone box clickable (delegate to hidden input) and/or add drag-and-drop support (onDragOver/onDrop) — currently only the 'Choose file' text triggers the picker.",
+    "(Optional/hardening) Add embed_url scheme allowlist and reject javascript:/file:/ URLs on POST /api/learning-assets/embed.",
+    "(Optional/security) Gate /api/uploads/* behind an auth/access_level middleware or move to signed URLs — private assets are currently URL-guessable.",
+    "(Cosmetic) Fix hydration <span>-inside-<option> warning in ChapterNotesEditor.js chapter <select>."
+  ],
+  "critical_code_review_comments": [
+    "LearningAssetManager.js line 74: `e.target.value = ''` after storing file — correct, allows re-selecting the same file after Remove.",
+    "LearningAssetManager.js line 176: onOpenChange resets selectedFile when closing — good. But if user clicks Cancel while `uploading=true`, the request continues in the background and a stale toast may fire on an unmounted dialog. Consider AbortController on the axios call.",
+    "LearningAssetManager.js line 177: onInteractOutside/onPointerDownOutside preventDefault — this is the exact fix. Note: pressing Escape still closes the dialog (Radix default). If preserving state on Escape is desired, also add onEscapeKeyDown.",
+    "LearningAssetManager.js line 55/56: uploadForm/embedForm state resets happen only on successful submit — on error the form is preserved which is correct UX.",
+    "LearningAssetManager.js line 90: axios post explicitly sets Content-Type to multipart/form-data without a boundary — normally you should let the browser set it. Works because FormData in the browser triggers correct headers, but explicitly setting Content-Type: multipart/form-data (no boundary=...) can break some proxies. Recommend removing that header entirely.",
+    "learning_assets_api.upload_asset: `count = db.learning_assets.count_documents(...)` sets order = count; concurrent uploads to the same parent/section will race and produce duplicate orders.",
+    "learning_assets_api: no length cap on parent_id / section — a very long string could DoS the query.",
+    "ChapterNotesEditor.js: chapter <option> emits <span> child causing hydration warning (line 284) — pre-existing, not related to this fix."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (17/17 pytest)", "frontend": "100% (all 11 spec assertions verified: dialog open, choose-file does not close dialog, file preview shown, upload button disabled/enabled state, upload success + toast + list update, embed dialog + submit)"},
+  "test_credentials": "admin@edvnova.com / Admin@123 — verified working; login redirects to /dashboard, /admin route reachable manually",
+  "seed_data_creation": "During Playwright run, created 1 upload asset ('Playwright iter16 test' on topic 'Speed' in IGCSE Physics motion chapter) and 1 embed asset (YouTube iter16test URL). BOTH deleted via /api/learning-assets/{id} after the test — DB is clean.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 16 (Admin Learning Asset Upload dialog fix) verified. Regression file: /app/backend/tests/test_iter15_learning_assets.py (17/17). Frontend flow: login via /login → visits /admin → Chapter Notes → notes-subject-select=physics → notes-chapter-select (first chapter) → click chapter-topic-{slug} row → click add-upload-btn → set_input_files on upload-file-input → assert upload-dropzone still visible → click upload-confirm-btn. All data-testids from spec are correctly wired. Open concerns: (1) hydration warning in chapter <option>, (2) Radix a11y DialogDescription missing, (3) whole dropzone not clickable / no drag-drop, (4) static /api/uploads not auth-gated, (5) explicit Content-Type multipart header on axios may cause proxy issues in some environments — none blocking.",
+  "rca_of_the_issue": "N/A — no failing tests. Previous bug (dialog dismissing on file picker open) has been correctly resolved by (a) DialogContent onInteractOutside/onPointerDownOutside preventDefault, (b) storing selected file in state and rendering a preview, (c) explicit Upload confirmation button that submits FormData. Verified end-to-end via Playwright + backend response inspection (200 with id/file_url returned)."
+}
