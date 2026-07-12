@@ -87,7 +87,7 @@ export default function LearningAssetManager({ parentType, parentId, section }) 
         fd.append('asset_type', uploadForm.asset_type);
         fd.append('access_level', uploadForm.access_level);
         try {
-            await axios.post(`${API_URL}/api/learning-assets/upload`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
+            await axios.post(`${API_URL}/api/learning-assets/upload`, fd, { withCredentials: true });
             toast.success('Asset uploaded successfully');
             setShowUpload(false);
             setSelectedFile(null);
@@ -190,21 +190,19 @@ export default function LearningAssetManager({ parentType, parentId, section }) 
                                 </select>
                             </div>
                         </div>
-                        <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl text-center" data-testid="upload-dropzone">
+                        <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl text-center cursor-pointer hover:border-gray-300 transition-colors" data-testid="upload-dropzone" onClick={() => { if (!selectedFile) document.getElementById(`file-input-${parentId}-${section}`).click(); }}>
                             {selectedFile ? (
                                 <div className="space-y-2">
                                     <File className="w-6 h-6 text-accent mx-auto" />
                                     <p className="text-sm font-medium text-primary truncate">{selectedFile.name}</p>
                                     <p className="text-xs text-gray-400">{formatSize(selectedFile.size)}</p>
-                                    <button onClick={() => setSelectedFile(null)} className="text-xs text-red-400 hover:text-red-600 hover:underline">Remove</button>
+                                    <button onClick={(e) => { e.stopPropagation(); setSelectedFile(null); }} className="text-xs text-red-400 hover:text-red-600 hover:underline">Remove</button>
                                 </div>
                             ) : (
                                 <>
                                     <Upload className="w-6 h-6 text-gray-300 mx-auto mb-1" />
-                                    <label className="cursor-pointer">
-                                        <span className="text-sm text-accent font-medium hover:underline" data-testid="choose-file-btn">Choose file</span>
-                                        <input type="file" className="hidden" onChange={handleFileSelect} data-testid="upload-file-input" />
-                                    </label>
+                                    <span className="text-sm text-accent font-medium hover:underline" data-testid="choose-file-btn">Choose file</span>
+                                    <input type="file" id={`file-input-${parentId}-${section}`} className="hidden" onChange={handleFileSelect} data-testid="upload-file-input" />
                                     <p className="text-[10px] text-gray-400 mt-1">PDFs, images, videos, worksheets, etc.</p>
                                 </>
                             )}

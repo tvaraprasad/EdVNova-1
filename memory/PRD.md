@@ -54,6 +54,7 @@ Overview | Website Content | Chapter Notes | Topics | Worksheets | Questions | V
 ## Backlog
 
 ### P0
+- [x] Fix Admin Topic Upload (LearningAssetManager) — Dialog-dismissal bug fixed, two-step upload flow (Feb 2026)
 - [ ] Publish topic content with inline images (10/340 published)
 - [ ] Upload real YouTube videos
 - [ ] Upload worksheets per chapter
