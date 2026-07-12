@@ -340,7 +340,7 @@ function VideosPanel({ videos }) {
 function DownloadsPanel({ worksheets, attachments }) {
     const allDownloads = [
         ...worksheets.map(w => ({ ...w, _type: 'worksheet' })),
-        ...attachments.filter(a => a.file_url && ['pdf', 'ppt', 'worksheet', 'document', 'notes'].includes(a.attachment_type)).map(a => ({ ...a, _type: 'attachment' })),
+        ...attachments.map(a => ({ ...a, _type: 'asset' })),
     ];
 
     if (allDownloads.length === 0) {
@@ -359,24 +359,37 @@ function DownloadsPanel({ worksheets, attachments }) {
         return <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${styles[level] || 'bg-gray-100 text-gray-600'}`}>{level}</span>;
     };
 
+    const getFileUrl = (item) => item.file_url || item.embed_url || '';
+    const getTitle = (item) => item.title || item.original_name || 'Untitled';
+    const getType = (item) => item._type === 'worksheet' ? 'Worksheet' : (item.asset_type || 'Document');
+    const isDownloadable = (item) => {
+        if (item._type === 'worksheet') return item.is_free !== false && (!item.access_level || item.access_level === 'public');
+        return (!item.access_level || item.access_level === 'public') && item.file_url;
+    };
+    const isEmbed = (item) => item.embed_url && !item.file_url;
+
     return (
         <div className="space-y-3">
             {allDownloads.map((item, idx) => (
                 <div key={item.id || idx} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:shadow-sm transition-shadow">
-                    <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-5 h-5 text-red-500" />
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${isEmbed(item) ? 'bg-red-50' : 'bg-red-50'}`}>
+                        {isEmbed(item) ? <Play className="w-5 h-5 text-red-500" /> : <FileText className="w-5 h-5 text-red-500" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-medium text-primary text-sm truncate">{item.title || item.original_name}</p>
+                        <p className="font-medium text-primary text-sm truncate">{getTitle(item)}</p>
                         <p className="text-xs text-gray-400">
-                            {item._type === 'attachment' ? item.attachment_type : 'Worksheet'}
+                            {getType(item)}
                             {item.topic_title && ` · ${item.topic_title}`}
                             {item.description && ` · ${item.description}`}
                         </p>
                     </div>
                     {accessBadge(item.access_level)}
-                    {(item.is_free !== false && (!item.access_level || item.access_level === 'public')) ? (
-                        <a href={`${API_URL}${item.file_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:bg-accent-hover">
+                    {isEmbed(item) ? (
+                        <a href={item.embed_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:bg-accent-hover">
+                            <ExternalLink className="w-3 h-3" /> Open
+                        </a>
+                    ) : isDownloadable(item) ? (
+                        <a href={`${API_URL}${getFileUrl(item)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:bg-accent-hover">
                             <Download className="w-3 h-3" /> Download
                         </a>
                     ) : (
@@ -422,15 +435,15 @@ export default function LearnChapter() {
                 setWorksheets(wRes.data.worksheets || []);
                 setVideos(Array.isArray(vRes.data) ? vRes.data : []);
 
-                // Fetch attachments for all topics in this chapter
-                const attachPromises = resolvedTopics.map(t =>
-                    axios.get(`${API_URL}/api/attachments/topic/${t.id || ''}/visible`).catch(() => ({ data: [] }))
+                // Fetch learning assets for all topics in this chapter
+                const assetPromises = resolvedTopics.map(t =>
+                    axios.get(`${API_URL}/api/learning-assets/visible?parent_type=topic&parent_id=${t.id || ''}`).catch(() => ({ data: [] }))
                 );
-                const attachResults = await Promise.all(attachPromises);
-                const allAttachments = attachResults.flatMap((r, idx) =>
+                const assetResults = await Promise.all(assetPromises);
+                const allAssets = assetResults.flatMap((r, idx) =>
                     (r.data || []).map(a => ({ ...a, topic_title: resolvedTopics[idx]?.title || '' }))
                 );
-                setAttachments(allAttachments);
+                setAttachments(allAssets);
             } catch (e) { console.error(e); }
             finally { setLoading(false); }
         };

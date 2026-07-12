@@ -3,13 +3,14 @@ import axios from 'axios';
 import {
     Search, Filter, ChevronDown, ChevronRight, ArrowLeft, Save, Eye, EyeOff,
     BookOpen, FileText, Beaker, Calculator, Lightbulb, AlertTriangle, CheckCircle,
-    List, Hash, Clock, BarChart3, Globe
+    List, Hash, Clock, BarChart3, Globe, Upload
 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
 import { toast } from 'sonner';
+import LearningAssetManager from './LearningAssetManager';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -577,6 +578,12 @@ function TopicForm({ topicSummary, onBack }) {
                         onChange={setSummary}
                         placeholder="One summary point per line&#10;e.g. Key point 1&#10;Key point 2"
                     />
+                </Section>
+
+                {/* Learning Assets (Upload PDFs, Images, etc.) */}
+                <Section title="Learning Assets" icon={Upload} color="bg-teal-50 text-teal-600" defaultOpen={true}>
+                    <p className="text-xs text-gray-400 mb-3">Upload PDFs, images, worksheets, videos, or embed YouTube links for this topic.</p>
+                    <LearningAssetManager parentType="topic" parentId={topicSummary.id} section="general" />
                 </Section>
             </div>
 

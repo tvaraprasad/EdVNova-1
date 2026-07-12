@@ -55,6 +55,8 @@ Overview | Website Content | Chapter Notes | Topics | Worksheets | Questions | V
 
 ### P0
 - [x] Fix Admin Topic Upload (LearningAssetManager) — Dialog-dismissal bug fixed, two-step upload flow (Feb 2026)
+- [x] Add upload to Topics tab — LearningAssetManager added to TopicEditor (Feb 2026)
+- [x] Fix uploads reflecting on public pages — Downloads tab now reads from learning_assets collection (Feb 2026)
 - [ ] Publish topic content with inline images (10/340 published)
 - [ ] Upload real YouTube videos
 - [ ] Upload worksheets per chapter
