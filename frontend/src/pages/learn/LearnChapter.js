@@ -15,6 +15,37 @@ const TABS = [
     { id: 'downloads', label: 'Downloads', icon: Download },
 ];
 
+// ── Render rich content (text blocks + inline images) ──
+function RichContent({ content }) {
+    if (!content) return null;
+    // If it's a plain string, render as text
+    if (typeof content === 'string') {
+        return <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px]">{content}</p>;
+    }
+    // If it's an array of blocks
+    if (Array.isArray(content)) {
+        return (
+            <div className="space-y-3">
+                {content.map((block, i) => {
+                    if (block.type === 'text') {
+                        return <p key={i} className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px]">{block.value}</p>;
+                    }
+                    if (block.type === 'image') {
+                        return (
+                            <figure key={i} className="my-3">
+                                <img src={block.url?.startsWith('/') ? `${API_URL}${block.url}` : block.url} alt={block.caption || ''} className="max-w-full rounded-lg border" />
+                                {block.caption && <figcaption className="text-xs text-gray-400 mt-1 text-center">{block.caption}</figcaption>}
+                            </figure>
+                        );
+                    }
+                    return null;
+                })}
+            </div>
+        );
+    }
+    return null;
+}
+
 // ── Topic Notes Panel ──
 function NotesPanel({ topics, board, subject, chapter }) {
     const [expanded, setExpanded] = useState(null);
@@ -51,17 +82,26 @@ function NotesPanel({ topics, board, subject, chapter }) {
                         </button>
                         {isOpen && (
                             <div className="px-5 pb-6 border-t border-gray-50 pt-4">
-                                {c.introduction && <p className="text-gray-700 leading-relaxed mb-6">{c.introduction}</p>}
+                                {c.introduction && <div className="mb-6"><RichContent content={c.introduction} /></div>}
                                 {c.sections?.map((s, i) => (
                                     <div key={i} className="mb-6">
                                         <h4 className="text-base font-bold text-primary mb-2">{s.title}</h4>
-                                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px]">{s.content}</p>
+                                        <RichContent content={s.content} />
                                     </div>
                                 ))}
                                 {c.definitions?.length > 0 && (
                                     <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl mb-5">
                                         <p className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-3">Key Definitions</p>
-                                        {c.definitions.map((d, i) => <p key={i} className="text-sm text-gray-700 mb-1.5"><strong className="text-primary">{d.term}:</strong> {d.definition}</p>)}
+                                        {c.definitions.map((d, i) => (
+                                            <div key={i} className="mb-2 last:mb-0">
+                                                <strong className="text-primary">{d.term}:</strong>{' '}
+                                                {typeof d.definition === 'string' ? (
+                                                    <span className="text-sm text-gray-700">{d.definition}</span>
+                                                ) : (
+                                                    <RichContent content={d.definition} />
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                                 {c.formulas?.length > 0 && (

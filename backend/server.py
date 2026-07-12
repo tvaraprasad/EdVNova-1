@@ -734,6 +734,11 @@ from attachments_api import create_attachments_routes
 attachments_router = create_attachments_routes(db, get_admin_user)
 api_router.include_router(attachments_router)
 
+# Universal Learning Assets routes
+from learning_assets_api import create_learning_assets_routes
+learning_assets_router = create_learning_assets_routes(db, get_admin_user)
+api_router.include_router(learning_assets_router)
+
 # Membership routes
 from membership_api import create_membership_routes
 membership_router = create_membership_routes(db, get_current_user, get_admin_user)
@@ -750,8 +755,8 @@ app.include_router(api_router)
 import pathlib
 upload_dir = pathlib.Path("/app/uploads")
 upload_dir.mkdir(exist_ok=True)
-for sub in ["pdfs", "videos", "worksheets", "products", "resources", "questions", "media", "attachments"]:
-    (upload_dir / sub).mkdir(exist_ok=True)
+for sub in ["pdfs", "videos", "worksheets", "products", "resources", "questions", "media", "attachments", "assets", "assets/images"]:
+    (upload_dir / sub).mkdir(exist_ok=True, parents=True)
 app.mount("/api/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
 # CORS
