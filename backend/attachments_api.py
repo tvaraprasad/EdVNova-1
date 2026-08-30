@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request, UploadFile, File, Form
 from datetime import datetime, timezone
 from bson import ObjectId
-import pathlib, uuid
+from storage import upload_file
 
 
 def create_attachments_routes(db, get_admin_user):
@@ -22,15 +22,10 @@ def create_attachments_routes(db, get_admin_user):
         access_level: str = Form("public"),
     ):
         await get_admin_user(request)
-        upload_dir = pathlib.Path("/app/uploads/attachments")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
-        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-        filepath = upload_dir / filename
         content = await file.read()
-        with open(filepath, "wb") as f:
-            f.write(content)
-        file_url = f"/api/uploads/attachments/{filename}"
+        storage_path = upload_file("attachments", file.filename, content, file.content_type or "application/octet-stream")
+        file_url = f"/api/files/{storage_path}"
+        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
         now = datetime.now(timezone.utc).isoformat()
         count = await db.topic_attachments.count_documents({"topic_id": topic_id})
         doc = {
@@ -39,6 +34,7 @@ def create_attachments_routes(db, get_admin_user):
             "description": description,
             "attachment_type": attachment_type,
             "file_url": file_url,
+            "storage_path": storage_path,
             "original_name": file.filename,
             "file_size": len(content),
             "extension": ext.lower(),
@@ -50,12 +46,12 @@ def create_attachments_routes(db, get_admin_user):
             "updated_at": now,
         }
         result = await db.topic_attachments.insert_one(doc)
-        # Also save to media library
         await db.media_files.insert_one({
-            "filename": filename,
+            "filename": storage_path.split("/")[-1],
             "original_name": file.filename,
             "folder": f"attachments/{attachment_type}",
             "file_url": file_url,
+            "storage_path": storage_path,
             "file_size": len(content),
             "content_type": file.content_type or "",
             "extension": ext.lower(),
@@ -140,13 +136,7 @@ def create_attachments_routes(db, get_admin_user):
         await get_admin_user(request)
         if not ObjectId.is_valid(attachment_id):
             raise HTTPException(400, "Invalid ID")
-        doc = await db.topic_attachments.find_one({"_id": ObjectId(attachment_id)})
-        if doc and doc.get("file_url"):
-            filepath = pathlib.Path(f"/app/uploads/attachments/{doc.get('original_name', '')}")
-            fname = doc["file_url"].split("/")[-1]
-            real_path = pathlib.Path(f"/app/uploads/attachments/{fname}")
-            if real_path.exists():
-                real_path.unlink()
+        # Soft-delete (storage has no delete API)
         await db.topic_attachments.delete_one({"_id": ObjectId(attachment_id)})
         return {"message": "Deleted"}
 

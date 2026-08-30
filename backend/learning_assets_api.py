@@ -6,7 +6,7 @@ Uses parent_type + parent_id + section to attach assets to anything.
 from fastapi import APIRouter, HTTPException, Request, UploadFile, File, Form
 from datetime import datetime, timezone
 from bson import ObjectId
-import pathlib, uuid
+from storage import upload_file
 
 
 def create_learning_assets_routes(db, get_admin_user):
@@ -29,16 +29,11 @@ def create_learning_assets_routes(db, get_admin_user):
         access_level: str = Form("public"),
     ):
         await get_admin_user(request)
-        upload_dir = pathlib.Path("/app/uploads/assets")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
-        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-        filepath = upload_dir / filename
         content = await file.read()
-        with open(filepath, "wb") as f:
-            f.write(content)
-        file_url = f"/api/uploads/assets/{filename}"
+        storage_path = upload_file("assets", file.filename, content, file.content_type or "application/octet-stream")
+        file_url = f"/api/files/{storage_path}"
         now = datetime.now(timezone.utc).isoformat()
+        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
         count = await db.learning_assets.count_documents({"parent_type": parent_type, "parent_id": parent_id, "section": section})
         doc = {
             "parent_type": parent_type,
@@ -48,6 +43,7 @@ def create_learning_assets_routes(db, get_admin_user):
             "title": title or file.filename,
             "description": description,
             "file_url": file_url,
+            "storage_path": storage_path,
             "embed_url": "",
             "original_name": file.filename,
             "file_size": len(content),
@@ -55,6 +51,7 @@ def create_learning_assets_routes(db, get_admin_user):
             "content_type": file.content_type or "",
             "access_level": access_level,
             "is_visible": True,
+            "is_deleted": False,
             "order": count,
             "created_at": now,
             "updated_at": now,
@@ -62,10 +59,11 @@ def create_learning_assets_routes(db, get_admin_user):
         result = await db.learning_assets.insert_one(doc)
         # Mirror to media library
         await db.media_files.insert_one({
-            "filename": filename,
+            "filename": storage_path.split("/")[-1],
             "original_name": file.filename,
             "folder": f"assets/{asset_type}",
             "file_url": file_url,
+            "storage_path": storage_path,
             "file_size": len(content),
             "content_type": file.content_type or "",
             "extension": ext.lower(),
@@ -78,21 +76,17 @@ def create_learning_assets_routes(db, get_admin_user):
     @router.post("/upload-image")
     async def upload_inline_image(request: Request, file: UploadFile = File(...)):
         await get_admin_user(request)
-        upload_dir = pathlib.Path("/app/uploads/assets/images")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "png"
-        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-        filepath = upload_dir / filename
         content = await file.read()
-        with open(filepath, "wb") as f:
-            f.write(content)
-        file_url = f"/api/uploads/assets/images/{filename}"
+        storage_path = upload_file("inline-images", file.filename, content, file.content_type or "image/png")
+        file_url = f"/api/files/{storage_path}"
         now = datetime.now(timezone.utc).isoformat()
+        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "png"
         await db.media_files.insert_one({
-            "filename": filename,
+            "filename": storage_path.split("/")[-1],
             "original_name": file.filename,
             "folder": "inline-images",
             "file_url": file_url,
+            "storage_path": storage_path,
             "file_size": len(content),
             "content_type": file.content_type or "",
             "extension": ext.lower(),
@@ -138,7 +132,7 @@ def create_learning_assets_routes(db, get_admin_user):
     # ── Get assets for a parent+section ──
     @router.get("/list")
     async def list_assets(parent_type: str, parent_id: str, section: str = ""):
-        query = {"parent_type": parent_type, "parent_id": parent_id}
+        query = {"parent_type": parent_type, "parent_id": parent_id, "is_deleted": {"$ne": True}}
         if section:
             query["section"] = section
         docs = await db.learning_assets.find(query).sort("order", 1).to_list(200)
@@ -147,7 +141,7 @@ def create_learning_assets_routes(db, get_admin_user):
     # ── Get visible assets only (public) ──
     @router.get("/visible")
     async def list_visible_assets(parent_type: str, parent_id: str, section: str = ""):
-        query = {"parent_type": parent_type, "parent_id": parent_id, "is_visible": True}
+        query = {"parent_type": parent_type, "parent_id": parent_id, "is_visible": True, "is_deleted": {"$ne": True}}
         if section:
             query["section"] = section
         # Exclude draft/scheduled/private from public view
@@ -187,17 +181,13 @@ def create_learning_assets_routes(db, get_admin_user):
         await get_admin_user(request)
         if not ObjectId.is_valid(asset_id):
             raise HTTPException(400, "Invalid ID")
-        doc = await db.learning_assets.find_one({"_id": ObjectId(asset_id)})
-        if doc and doc.get("file_url"):
-            fname = doc["file_url"].split("/")[-1]
-            real_path = pathlib.Path(f"/app/uploads/assets/{fname}")
-            if real_path.exists():
-                real_path.unlink()
-            # Also try images subfolder
-            img_path = pathlib.Path(f"/app/uploads/assets/images/{fname}")
-            if img_path.exists():
-                img_path.unlink()
-        await db.learning_assets.delete_one({"_id": ObjectId(asset_id)})
+        # Soft-delete: mark as deleted (Emergent storage has no delete API)
+        result = await db.learning_assets.update_one(
+            {"_id": ObjectId(asset_id)},
+            {"$set": {"is_deleted": True, "is_visible": False}}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(404, "Asset not found")
         return {"message": "Deleted"}
 
     # ── Get all assets for a topic (across all sections) ──

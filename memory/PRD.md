@@ -1,80 +1,88 @@
-# EdVNova Learning Platform - PRD v2.1
+# EdVNova Learning Platform — PRD v3.0
 
 ## Vision
-Global educational publishing platform. CMS-driven — zero code changes after deployment. Designed for 10+ years of growth supporting thousands of videos, notes, worksheets, and multiple curricula.
+World-class learning platform for Cambridge IGCSE, AS & A Level, and IB students. Initially focused on Mathematics, Physics, Chemistry, Biology. Long-term: UNDERSTAND → PRACTISE → APPLY → ASSESS → ANALYSE → IMPROVE.
+
+**Core principle:** POWERFUL UNDER THE HOOD. SIMPLE IN THE HANDS OF THE STUDENT.
 
 ## Tech Stack
-React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini (Emergent Key)
+React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini (Emergent Key) | Emergent Object Storage
+
+## Dual Navigation Architecture (v3.0)
+- **Public visitors** → Discovery nav: Learn, Store, Community, About, Contact + Sign In / Get Started
+- **Authenticated students** → Learning nav: Home, Learn, Practise, Store, About + Profile dropdown (Workshops, Career Guidance, Profile Building, Help, Admin, Logout)
+- Same platform, same data, different UX context
 
 ## Content Hierarchy
-Curriculum → Subject → Chapter → Topic → Subtopic → Learning Resources
+Curriculum → Qualification → Subject → Syllabus → Topic → Subtopic → Learning Objective → Learning Asset
 
-## Universal Content System (v2.1)
-
-### Rich Content Editor
-Every topic section supports **text + inline images** interleaved:
-- Text blocks with free-form content
-- Inline image blocks (upload new or choose from Media Library)
-- Images appear naturally within explanations, not just as downloads
-- Stored as block arrays `[{type:"text",value:""},{type:"image",url:"",caption:""}]`
-- Backward compatible with plain string content
-
-### Learning Asset Manager
-ONE reusable "Add Learning Asset" component used everywhere:
-- Upload: PDF, PPT/PPTX, DOC/DOCX, ZIP, images, videos, audio
-- Embed: YouTube, Vimeo, external links
-- Per-asset: title, description, type, access level, visibility, display order
-- All uploads auto-mirrored to Media Library
-- `parent_type` + `parent_id` + `section` schema (attaches to anything)
-- Used in: Topic intro, content sections, formulas, worked examples, general
-
-### Access Control
-7 levels on every asset: **public** | registered | premium | school | private | draft | scheduled
-
-### Membership Architecture
-6 tiers: free | starter | premium | school | teacher | lifetime
-Ready for Razorpay/Stripe — no redesign needed.
-
-## Auto-Content Surfacing
-Upload to Board → Subject → Chapter → Topic → Section → automatically appears on public page. No manual linking.
+## Universal Content System
+- **RichContentEditor**: Text + inline images for concept explanations
+- **LearningAssetManager**: Upload PDFs, embed YouTube, per-asset access levels
+- **Emergent Object Storage**: All uploads persistent in cloud (migrated from local pod storage)
+- 7 access levels: public | registered | premium | school | private | draft | scheduled
 
 ## CMS Coverage (9 pages, 20+ sections)
-Home (7) | About (3) | Contact (2) | Store (1) | Community (1) | Career Guidance (1) | Profile Building (1) | Learn (1) | Global (3: Footer, SEO, Navigation)
+Home, About, Contact, Store, Community, Career Guidance, Profile Building, Learn, Global
 
 ## Admin Panel (13 tabs)
 Overview | Website Content | Chapter Notes | Topics | Worksheets | Questions | Videos | Media Library | Courses | Products | Users | Orders | Contacts
 
 ## Key Systems
-- **Chapter Hub** (`/learn/:board/:subject/:chapter`): 5 tabs
-- **Question IDs**: Permanent (P-EL-001), auto-generated
-- **Video Management**: YouTube embeds, 5 status badges
+- **Chapter Hub** (`/learn/:board/:subject/:chapter`): 5 tabs (Overview, Notes, Workbook, Videos, Downloads)
 - **AI Academic Mentor**: GPT-4o-mini with curriculum context
-- **Practice Questions**: 17+ with filters, bookmarks, completions
+- **Practice Questions**: Bookmarks, completions, filters
+- **Course enrollment + Store + Cart + Orders** (payments MOCKED)
 
-## Backlog
+## What's Been Completed
+- [x] Full auth system (JWT, cookies, admin/student)
+- [x] Curriculum hierarchy: 3 boards × 4 subjects × 95 chapters × 340 topics
+- [x] CMS v2.1 for all public pages
+- [x] Admin Panel with 13 tabs
+- [x] LearningAssetManager (upload + embed, per-asset access)
+- [x] RichContentEditor (inline images)
+- [x] AI Mentor integration
+- [x] File upload migration to Emergent Object Storage (Aug 2026)
+- [x] Context-aware dual navigation (public vs authenticated) (Aug 2026)
+- [x] Route shadowing + bare exception fixes (Aug 2026)
 
-### P0
-- [x] Fix Admin Topic Upload (LearningAssetManager) — Dialog-dismissal bug fixed, two-step upload flow (Feb 2026)
-- [x] Add upload to Topics tab — LearningAssetManager added to TopicEditor (Feb 2026)
-- [x] Fix uploads reflecting on public pages — Downloads tab now reads from learning_assets collection (Feb 2026)
-- [ ] Publish topic content with inline images (10/340 published)
-- [ ] Upload real YouTube videos
-- [ ] Upload worksheets per chapter
+## Current Backlog
 
-### P1
-- [ ] Analytics dashboard
-- [ ] Search system (Question ID, concept, topic)
-- [ ] QR codes per chapter
-- [ ] Student progress tracking
+### Phase 1A — Foundation
+- [ ] Extend curriculum data model (syllabus codes, learning objectives, IB)
+- [ ] Extend question bank metadata (source, year, session, paper, variant)
+- [ ] Past Paper data model + admin bulk import
+- [ ] Past Paper Library student UI
+- [ ] Consolidate duplicate systems (TopicEditor ↔ ChapterNotesEditor, attachments ↔ learning_assets)
+- [ ] Global search
+- [ ] Redesign student dashboard ("What should I do next?")
 
-### P2
-- [ ] Razorpay/Stripe payments
-- [ ] Quiz mode with scoring
-- [ ] Role permissions (Teacher, Editor, Moderator)
-- [ ] Signed URLs for private asset access
+### Phase 1B — Student Experience
+- [ ] Improve Learn experience (lesson-like flow)
+- [ ] Student onboarding flow
+- [ ] Mobile-first optimization
 
-### P3
+### Phase 2 — Core Learning
+- [ ] Exam Mode (timer, navigation, review)
+- [ ] Mistake Book
+- [ ] Flashcards & Revision Notes
+- [ ] Student Progress & Mastery tracking
+- [ ] Quiz engine
+
+### Phase 3 — Live Learning
+- [ ] Scheduled Classes + Zoom integration
+- [ ] Teacher class workspace
+- [ ] Recording association + class summaries
+- [ ] Attendance tracking
+
+### Phase 4 — Teacher Ecosystem
+- [ ] Teacher Platform + Test Builder
+- [ ] Assignments + Homework
+- [ ] Parent view
+- [ ] Study Planner
+
+### Phase 5 — Differentiation
+- [ ] AI-assisted feedback + adaptive learning
+- [ ] Personalised learning paths
+- [ ] Advanced analytics
 - [ ] RAG grounding for AI Mentor
-- [ ] Dark mode, PDF export, SEO sitemap
-- [ ] Scale to IB, CBSE boards
-- [ ] Mobile app

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
 from bson import ObjectId
-import pathlib, uuid
+from storage import upload_file as storage_upload
 
 
 def create_worksheets_routes(db, get_current_user, get_admin_user):
@@ -27,15 +27,9 @@ def create_worksheets_routes(db, get_current_user, get_admin_user):
         is_free: bool = Form(False),
     ):
         await get_admin_user(request)
-        upload_dir = pathlib.Path("/app/uploads/worksheets")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-        ext = file.filename.split(".")[-1] if "." in file.filename else "pdf"
-        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-        filepath = upload_dir / filename
         content = await file.read()
-        with open(filepath, "wb") as f:
-            f.write(content)
-        file_url = f"/api/uploads/worksheets/{filename}"
+        storage_path = storage_upload("worksheets", file.filename, content, file.content_type or "application/pdf")
+        file_url = f"/api/files/{storage_path}"
         now = datetime.now(timezone.utc).isoformat()
         doc = {
             "title": title,
@@ -45,6 +39,7 @@ def create_worksheets_routes(db, get_current_user, get_admin_user):
             "topic": topic,
             "description": description,
             "file_url": file_url,
+            "storage_path": storage_path,
             "file_name": file.filename,
             "file_size": len(content),
             "is_free": is_free,
@@ -129,7 +124,7 @@ def create_worksheets_routes(db, get_current_user, get_admin_user):
         if not ws.get("is_free", False):
             try:
                 user = await get_current_user(request)
-            except:
+            except Exception:
                 raise HTTPException(401, "Sign in to download premium worksheets")
         await db.worksheets.update_one({"_id": ObjectId(worksheet_id)}, {"$inc": {"download_count": 1}})
         return {"file_url": ws["file_url"], "file_name": ws.get("file_name", "")}

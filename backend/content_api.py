@@ -154,10 +154,9 @@ def create_content_routes(db, get_current_user, get_admin_user):
         if len(content) > max_mb * 1024 * 1024:
             raise HTTPException(status_code=400, detail=f"File too large. Max {max_mb}MB")
 
-        with open(file_path, "wb") as f:
-            f.write(content)
-
-        file_url = f"/api/uploads/{upload_type}/{unique_name}"
+        from storage import upload_file as storage_upload
+        storage_path = storage_upload(upload_type, file.filename, content, file.content_type or "application/octet-stream")
+        file_url = f"/api/files/{storage_path}"
         return {"file_url": file_url, "filename": file.filename, "size": len(content)}
 
     # ===== COURSE CONTENT (Student-facing) =====

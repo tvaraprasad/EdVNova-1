@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
 from bson import ObjectId
-import pathlib, uuid, os
+from storage import upload_file as storage_upload
+import uuid
 
 
 def create_videos_routes(db, get_current_user, get_admin_user):
@@ -167,21 +168,17 @@ def create_media_routes(db, get_admin_user):
         folder: str = Form("general"),
     ):
         await get_admin_user(request)
-        upload_dir = pathlib.Path(f"/app/uploads/media/{folder}")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
-        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-        filepath = upload_dir / filename
         content = await file.read()
-        with open(filepath, "wb") as f:
-            f.write(content)
-        file_url = f"/api/uploads/media/{folder}/{filename}"
+        storage_path = storage_upload(f"media/{folder}", file.filename, content, file.content_type or "application/octet-stream")
+        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
+        file_url = f"/api/files/{storage_path}"
         now = datetime.now(timezone.utc).isoformat()
         doc = {
-            "filename": filename,
+            "filename": storage_path.split("/")[-1],
             "original_name": file.filename,
             "folder": folder,
             "file_url": file_url,
+            "storage_path": storage_path,
             "file_size": len(content),
             "content_type": file.content_type or "",
             "extension": ext.lower(),
@@ -189,7 +186,7 @@ def create_media_routes(db, get_admin_user):
             "created_at": now,
         }
         result = await db.media_files.insert_one(doc)
-        return {"id": str(result.inserted_id), "file_url": file_url, "filename": filename}
+        return {"id": str(result.inserted_id), "file_url": file_url, "filename": storage_path.split("/")[-1]}
 
     @router.get("/list")
     async def list_media(
@@ -230,12 +227,7 @@ def create_media_routes(db, get_admin_user):
         await get_admin_user(request)
         if not ObjectId.is_valid(file_id):
             raise HTTPException(400, "Invalid ID")
-        doc = await db.media_files.find_one({"_id": ObjectId(file_id)})
-        if not doc:
-            raise HTTPException(404, "File not found")
-        filepath = pathlib.Path(f"/app/uploads/media/{doc['folder']}/{doc['filename']}")
-        if filepath.exists():
-            filepath.unlink()
+        # Soft-delete (storage has no delete API)
         await db.media_files.delete_one({"_id": ObjectId(file_id)})
         return {"message": "File deleted"}
 
@@ -270,21 +262,15 @@ def create_media_routes(db, get_admin_user):
         doc = await db.media_files.find_one({"_id": ObjectId(file_id)})
         if not doc:
             raise HTTPException(404, "File not found")
-        old_path = pathlib.Path(f"/app/uploads/media/{doc['folder']}/{doc['filename']}")
-        if old_path.exists():
-            old_path.unlink()
-        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
-        new_filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-        upload_dir = pathlib.Path(f"/app/uploads/media/{doc['folder']}")
-        upload_dir.mkdir(parents=True, exist_ok=True)
         content = await file.read()
-        with open(upload_dir / new_filename, "wb") as f:
-            f.write(content)
-        new_url = f"/api/uploads/media/{doc['folder']}/{new_filename}"
+        storage_path = storage_upload(f"media/{doc.get('folder', 'general')}", file.filename, content, file.content_type or "application/octet-stream")
+        ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "bin"
+        new_url = f"/api/files/{storage_path}"
         await db.media_files.update_one({"_id": ObjectId(file_id)}, {"$set": {
-            "filename": new_filename,
+            "filename": storage_path.split("/")[-1],
             "original_name": file.filename,
             "file_url": new_url,
+            "storage_path": storage_path,
             "file_size": len(content),
             "extension": ext.lower(),
             "content_type": file.content_type or "",

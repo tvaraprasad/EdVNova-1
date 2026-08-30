@@ -126,15 +126,10 @@ def create_questions_routes(db, get_current_user, get_admin_user):
     @router.post("/admin/upload-image")
     async def upload_question_image(request: Request, file: UploadFile = File(...)):
         await get_admin_user(request)
-        upload_dir = pathlib.Path("/app/uploads/questions")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-        ext = file.filename.split(".")[-1] if "." in file.filename else "png"
-        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-        filepath = upload_dir / filename
+        from storage import upload_file as storage_upload
         content = await file.read()
-        with open(filepath, "wb") as f:
-            f.write(content)
-        return {"url": f"/api/uploads/questions/{filename}"}
+        storage_path = storage_upload("questions", file.filename, content, file.content_type or "image/png")
+        return {"url": f"/api/files/{storage_path}"}
 
     @router.post("/admin/bulk-import")
     async def bulk_import_questions(request: Request):

@@ -323,12 +323,6 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
             result.append(item)
         return result
 
-    @router.put("/admin/topics/_bulk-publish-legacy-noop")
-    async def _bulk_publish_legacy_noop(request: Request):
-        """Legacy route kept only to avoid removal; real handler is declared earlier."""
-        await get_admin_user(request)
-        return {"message": "0 topics published", "count": 0}
-
     # ===== STUDENT FEATURES =====
     @router.post("/user/bookmark")
     async def toggle_bookmark(request: Request):

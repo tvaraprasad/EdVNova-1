@@ -405,7 +405,7 @@ async def get_resources(request: Request):
     try:
         user = await get_current_user(request)
         is_authenticated = True
-    except:
+    except Exception:
         is_authenticated = False
     
     resources = await db.resources.find({}).to_list(100)
@@ -434,7 +434,7 @@ async def get_resource(resource_id: str, request: Request):
     try:
         user = await get_current_user(request)
         is_authenticated = True
-    except:
+    except Exception:
         is_authenticated = False
     
     resource_data = {
@@ -751,7 +751,19 @@ api_router.include_router(ai_mentor_router)
 
 app.include_router(api_router)
 
-# Serve uploaded files
+# Serve files from Emergent Object Storage
+from storage import init_storage, get_object
+from fastapi.responses import Response as FastAPIResponse
+
+@app.get("/api/files/{path:path}")
+async def serve_storage_file(path: str):
+    try:
+        data, content_type = get_object(path)
+        return FastAPIResponse(content=data, media_type=content_type)
+    except Exception:
+        raise HTTPException(status_code=404, detail="File not found")
+
+# Legacy: still serve local uploads for backward compat (old data)
 import pathlib
 upload_dir = pathlib.Path("/app/uploads")
 upload_dir.mkdir(exist_ok=True)
@@ -775,6 +787,12 @@ logger = logging.getLogger(__name__)
 # Startup event
 @app.on_event("startup")
 async def startup():
+    # Initialize Emergent Object Storage
+    try:
+        init_storage()
+    except Exception as e:
+        logger.error(f"Storage init failed (will retry on first upload): {e}")
+
     # Create indexes
     await db.users.create_index("email", unique=True)
     

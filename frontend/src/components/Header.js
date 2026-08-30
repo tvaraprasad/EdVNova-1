@@ -1,49 +1,37 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
-import { Menu, X, ShoppingCart, User, LogOut, LayoutDashboard, ChevronDown, BookOpen, GraduationCap, Users, Award, Compass, Play, FileText, Lightbulb } from 'lucide-react';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+    Menu, X, ShoppingCart, User, LogOut, ChevronDown, BookOpen, GraduationCap,
+    Award, Users, Compass, Lightbulb, Home, PenLine, FileCheck, BarChart3,
+    CalendarDays, Store, Settings, HelpCircle, ShieldCheck
+} from 'lucide-react';
+import {
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuSeparator, DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 
-// Desktop nav dropdown (hover-based)
+// ── Hover dropdown (desktop) ──
 function NavDropdown({ label, items, isActive }) {
     const [open, setOpen] = useState(false);
     const timeoutRef = useRef(null);
-
-    const handleEnter = () => {
-        clearTimeout(timeoutRef.current);
-        setOpen(true);
-    };
-    const handleLeave = () => {
-        timeoutRef.current = setTimeout(() => setOpen(false), 150);
-    };
+    const handleEnter = () => { clearTimeout(timeoutRef.current); setOpen(true); };
+    const handleLeave = () => { timeoutRef.current = setTimeout(() => setOpen(false), 150); };
 
     return (
-        <div
-            className="relative"
-            onMouseEnter={handleEnter}
-            onMouseLeave={handleLeave}
-        >
+        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
             <button
                 className={`flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    isActive
-                        ? 'text-accent bg-accent/5'
-                        : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                    isActive ? 'text-accent bg-accent/5' : 'text-gray-600 hover:text-primary hover:bg-gray-50'
                 }`}
-                data-testid={`nav-${label.toLowerCase()}`}
+                data-testid={`nav-${label.toLowerCase().replace(/\s/g, '-')}`}
             >
                 {label}
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
-
             {open && (
-                <div className="absolute top-full left-0 pt-2 z-50" data-testid={`dropdown-${label.toLowerCase()}`}>
+                <div className="absolute top-full left-0 pt-2 z-50">
                     <div className="bg-white rounded-xl border border-gray-100 shadow-xl shadow-gray-200/50 py-2 min-w-[220px]">
                         {items.map((item) => (
                             <Link
@@ -64,117 +52,129 @@ function NavDropdown({ label, items, isActive }) {
     );
 }
 
+// ── Simple nav link (desktop) ──
+function NavLink({ to, label, isActive, testId }) {
+    return (
+        <Link
+            to={to}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                isActive ? 'text-accent bg-accent/5' : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+            }`}
+            data-testid={testId}
+        >
+            {label}
+        </Link>
+    );
+}
+
+// ── Mobile accordion section ──
+function MobileAccordion({ label, items, onNavigate }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <div>
+            <button
+                onClick={() => setOpen(!open)}
+                className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
+            >
+                <span>{label}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+            {open && (
+                <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-0.5 mt-1 mb-2">
+                    {items.map(item => (
+                        <Link key={item.name} to={item.href} className="block px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary" onClick={onNavigate}>
+                            {item.name}
+                        </Link>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [mobileLearnOpen, setMobileLearnOpen] = useState(false);
-    const [mobileCommunityOpen, setMobileCommunityOpen] = useState(false);
     const { user, logout, isAuthenticated, isAdmin } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/');
-    };
+    const handleLogout = async () => { await logout(); navigate('/'); };
+    const closeMobile = () => setMobileMenuOpen(false);
+    const isActive = (href) => location.pathname === href || location.pathname.startsWith(href + '/');
+    const isActiveAny = (paths) => paths.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
 
-    const learnItems = [
+    // ═══════════════════════════════════════════════════════════
+    //  PUBLIC NAVIGATION (visitors, parents, prospective students)
+    // ═══════════════════════════════════════════════════════════
+    const publicLearnItems = [
         { name: 'IGCSE', href: '/learn/igcse', icon: BookOpen },
         { name: 'AS Level', href: '/learn/as-level', icon: GraduationCap },
         { name: 'A Level', href: '/learn/a-level', icon: Award },
-        { name: 'Live Coaching', href: '/programs', icon: Users },
+        { name: 'Courses', href: '/programs', icon: Users },
     ];
-
-    const communityItems = [
-        { name: 'Profile Building', href: '/profile-building', icon: Compass },
+    const publicMoreItems = [
+        { name: 'Workshops', href: '/workshops', icon: CalendarDays },
         { name: 'Career Guidance', href: '/career-guidance', icon: Lightbulb },
-        { name: 'Workshops', href: '/workshops', icon: Users },
+        { name: 'Profile Building', href: '/profile-building', icon: Compass },
     ];
 
-    const isActiveLearn = ['/learn', '/boards', '/igcse', '/as-level', '/a-level', '/programs', '/practice'].some(
-        p => location.pathname === p || location.pathname.startsWith(p + '/')
-    );
-    const isActiveCommunity = ['/profile-building', '/career-guidance', '/workshops'].some(
-        p => location.pathname === p || location.pathname.startsWith(p + '/')
-    );
-    const isActiveLink = (href) => location.pathname === href || location.pathname.startsWith(href + '/');
+    // ═══════════════════════════════════════════════════════════
+    //  AUTHENTICATED NAVIGATION (students in learning mode)
+    // ═══════════════════════════════════════════════════════════
+    const studentLearnItems = [
+        { name: 'IGCSE', href: '/learn/igcse', icon: BookOpen },
+        { name: 'AS Level', href: '/learn/as-level', icon: GraduationCap },
+        { name: 'A Level', href: '/learn/a-level', icon: Award },
+    ];
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 glass-header" data-testid="main-header">
             <nav className="container-custom">
                 <div className="flex items-center justify-between h-18 md:h-20">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center" data-testid="logo-link" aria-label="Home">
-                        <span className="text-[22px] md:text-[24px] font-bold text-primary tracking-tight">
-                            EdVNova
-                        </span>
+                    <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center" data-testid="logo-link" aria-label="Home">
+                        <span className="text-[22px] md:text-[24px] font-bold text-primary tracking-tight">EdVNova</span>
                     </Link>
 
-                    {/* Desktop Navigation */}
+                    {/* ═══ DESKTOP NAV ═══ */}
                     <div className="hidden lg:flex items-center gap-0.5">
-                        <NavDropdown label="Learn" items={learnItems} isActive={isActiveLearn} />
-
-                        <Link
-                            to="/store"
-                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                                isActiveLink('/store')
-                                    ? 'text-accent bg-accent/5'
-                                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
-                            }`}
-                            data-testid="nav-store"
-                        >
-                            Store
-                        </Link>
-
-                        <NavDropdown label="Community" items={communityItems} isActive={isActiveCommunity} />
-
-                        <Link
-                            to="/about"
-                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                                isActiveLink('/about')
-                                    ? 'text-accent bg-accent/5'
-                                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
-                            }`}
-                            data-testid="nav-about"
-                        >
-                            About
-                        </Link>
-
-                        <Link
-                            to="/contact"
-                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                                isActiveLink('/contact')
-                                    ? 'text-accent bg-accent/5'
-                                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
-                            }`}
-                            data-testid="nav-contact"
-                        >
-                            Contact
-                        </Link>
+                        {isAuthenticated ? (
+                            /* ── Student Learning Nav ── */
+                            <>
+                                <NavLink to="/dashboard" label="Home" isActive={isActive('/dashboard')} testId="nav-home" />
+                                <NavDropdown label="Learn" items={studentLearnItems} isActive={isActiveAny(['/learn', '/boards', '/igcse', '/as-level', '/a-level'])} />
+                                <NavLink to="/practice" label="Practise" isActive={isActive('/practice')} testId="nav-practise" />
+                                <NavLink to="/store" label="Store" isActive={isActive('/store')} testId="nav-store" />
+                                <NavLink to="/about" label="About" isActive={isActive('/about')} testId="nav-about" />
+                            </>
+                        ) : (
+                            /* ── Public Discovery Nav ── */
+                            <>
+                                <NavDropdown label="Learn" items={publicLearnItems} isActive={isActiveAny(['/learn', '/boards', '/igcse', '/as-level', '/a-level', '/programs'])} />
+                                <NavLink to="/store" label="Store" isActive={isActive('/store')} testId="nav-store" />
+                                <NavDropdown label="Community" items={publicMoreItems} isActive={isActiveAny(['/workshops', '/career-guidance', '/profile-building'])} />
+                                <NavLink to="/about" label="About" isActive={isActive('/about')} testId="nav-about" />
+                                <NavLink to="/contact" label="Contact" isActive={isActive('/contact')} testId="nav-contact" />
+                            </>
+                        )}
                     </div>
 
-                    {/* Desktop Actions */}
+                    {/* ═══ DESKTOP ACTIONS ═══ */}
                     <div className="hidden lg:flex items-center gap-3">
-                        <Link
-                            to="/store/cart"
-                            className="relative p-2.5 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-all duration-200"
-                            data-testid="cart-button"
-                        >
+                        {/* Cart (always visible) */}
+                        <Link to="/store/cart" className="relative p-2.5 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-all duration-200" data-testid="cart-button">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">
-                                    {cartCount}
-                                </span>
+                                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">{cartCount}</span>
                             )}
                         </Link>
 
                         {isAuthenticated ? (
+                            /* ── Authenticated: Profile dropdown ── */
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button
-                                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-lg transition-all duration-200"
-                                        data-testid="user-menu-trigger"
-                                    >
+                                    <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-lg transition-all duration-200" data-testid="user-menu-trigger">
                                         <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
                                             <User className="w-4 h-4 text-accent" />
                                         </div>
@@ -182,196 +182,115 @@ export default function Header() {
                                         <ChevronDown className="w-4 h-4" />
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-52">
+                                <DropdownMenuContent align="end" className="w-56">
                                     <DropdownMenuItem asChild>
                                         <Link to="/dashboard" className="flex items-center gap-3 py-2" data-testid="dashboard-link">
-                                            <LayoutDashboard className="w-4 h-4" />
-                                            Dashboard
+                                            <Home className="w-4 h-4" /> My Dashboard
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/workshops" className="flex items-center gap-3 py-2">
+                                            <CalendarDays className="w-4 h-4" /> Workshops
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/career-guidance" className="flex items-center gap-3 py-2">
+                                            <Lightbulb className="w-4 h-4" /> Career Guidance
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/profile-building" className="flex items-center gap-3 py-2">
+                                            <Compass className="w-4 h-4" /> Profile Building
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/contact" className="flex items-center gap-3 py-2">
+                                            <HelpCircle className="w-4 h-4" /> Help & Contact
                                         </Link>
                                     </DropdownMenuItem>
                                     {isAdmin && (
-                                        <DropdownMenuItem asChild>
-                                            <Link to="/admin" className="flex items-center gap-3 py-2" data-testid="admin-link">
-                                                <User className="w-4 h-4" />
-                                                Admin Panel
-                                            </Link>
-                                        </DropdownMenuItem>
+                                        <>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem asChild>
+                                                <Link to="/admin" className="flex items-center gap-3 py-2" data-testid="admin-link">
+                                                    <ShieldCheck className="w-4 h-4" /> Admin Panel
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        </>
                                     )}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-3 py-2 text-red-600 focus:text-red-600" data-testid="logout-button">
-                                        <LogOut className="w-4 h-4" />
-                                        Logout
+                                        <LogOut className="w-4 h-4" /> Logout
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
+                            /* ── Public: Sign In + Get Started ── */
                             <div className="flex items-center gap-2">
-                                <Link
-                                    to="/login"
-                                    className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-primary transition-colors"
-                                    data-testid="login-button"
-                                >
+                                <Link to="/login" className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-primary transition-colors" data-testid="login-button">
                                     Sign In
                                 </Link>
-                                <Link
-                                    to="/contact"
-                                    className="px-5 py-2.5 text-sm font-semibold bg-accent text-white rounded-xl hover:bg-accent-hover transition-all duration-200 shadow-sm"
-                                    data-testid="book-consultation-btn"
-                                >
-                                    Book Consultation
+                                <Link to="/register" className="px-5 py-2.5 text-sm font-semibold bg-accent text-white rounded-xl hover:bg-accent-hover transition-all duration-200 shadow-sm" data-testid="get-started-btn">
+                                    Get Started
                                 </Link>
                             </div>
                         )}
                     </div>
 
-                    {/* Mobile Menu Button */}
+                    {/* ═══ MOBILE MENU BUTTON ═══ */}
                     <div className="flex items-center gap-2 lg:hidden">
-                        <Link
-                            to="/store/cart"
-                            className="relative p-2.5 text-gray-500"
-                            data-testid="mobile-cart-button"
-                        >
+                        <Link to="/store/cart" className="relative p-2.5 text-gray-500" data-testid="mobile-cart-button">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">
-                                    {cartCount}
-                                </span>
+                                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">{cartCount}</span>
                             )}
                         </Link>
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="p-2.5 text-gray-500 hover:text-primary"
-                            data-testid="mobile-menu-toggle"
-                        >
+                        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2.5 text-gray-500 hover:text-primary" data-testid="mobile-menu-toggle">
                             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
+                {/* ═══ MOBILE MENU ═══ */}
                 {mobileMenuOpen && (
                     <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg" data-testid="mobile-menu">
                         <div className="py-5 px-2 space-y-1">
-                            {/* Learn Accordion */}
-                            <div>
-                                <button
-                                    onClick={() => setMobileLearnOpen(!mobileLearnOpen)}
-                                    className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
-                                >
-                                    <span>Learn</span>
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${mobileLearnOpen ? 'rotate-180' : ''}`} />
-                                </button>
-                                {mobileLearnOpen && (
-                                    <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-0.5 mt-1 mb-2">
-                                        {learnItems.map(item => (
-                                            <Link
-                                                key={item.name}
-                                                to={item.href}
-                                                className="block px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary"
-                                                onClick={() => setMobileMenuOpen(false)}
-                                            >
-                                                {item.name}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <Link
-                                to="/store"
-                                className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                Store
-                            </Link>
-
-                            {/* Community Accordion */}
-                            <div>
-                                <button
-                                    onClick={() => setMobileCommunityOpen(!mobileCommunityOpen)}
-                                    className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
-                                >
-                                    <span>Community</span>
-                                    <ChevronDown className={`w-4 h-4 transition-transform ${mobileCommunityOpen ? 'rotate-180' : ''}`} />
-                                </button>
-                                {mobileCommunityOpen && (
-                                    <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-0.5 mt-1 mb-2">
-                                        {communityItems.map(item => (
-                                            <Link
-                                                key={item.name}
-                                                to={item.href}
-                                                className="block px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary"
-                                                onClick={() => setMobileMenuOpen(false)}
-                                            >
-                                                {item.name}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <Link
-                                to="/about"
-                                className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                About
-                            </Link>
-
-                            <Link
-                                to="/contact"
-                                className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                Contact
-                            </Link>
-
-                            {/* Auth Actions */}
-                            <div className="pt-5 px-2 space-y-3 border-t border-gray-100 mt-3">
-                                {isAuthenticated ? (
-                                    <>
-                                        <Link
-                                            to="/dashboard"
-                                            className="block w-full py-3.5 text-center font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
-                                            Dashboard
-                                        </Link>
+                            {isAuthenticated ? (
+                                /* ── Student mobile nav ── */
+                                <>
+                                    <Link to="/dashboard" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Home</Link>
+                                    <MobileAccordion label="Learn" items={studentLearnItems} onNavigate={closeMobile} />
+                                    <Link to="/practice" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Practise</Link>
+                                    <Link to="/store" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Store</Link>
+                                    <MobileAccordion label="More" items={[
+                                        { name: 'Workshops', href: '/workshops' },
+                                        { name: 'Career Guidance', href: '/career-guidance' },
+                                        { name: 'Profile Building', href: '/profile-building' },
+                                        { name: 'About', href: '/about' },
+                                        { name: 'Contact', href: '/contact' },
+                                    ]} onNavigate={closeMobile} />
+                                    <div className="pt-5 px-2 space-y-3 border-t border-gray-100 mt-3">
                                         {isAdmin && (
-                                            <Link
-                                                to="/admin"
-                                                className="block w-full py-3.5 text-center font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50"
-                                                onClick={() => setMobileMenuOpen(false)}
-                                            >
-                                                Admin Panel
-                                            </Link>
+                                            <Link to="/admin" className="block w-full py-3.5 text-center font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Admin Panel</Link>
                                         )}
-                                        <button
-                                            onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                                            className="block w-full py-3.5 text-center font-semibold text-red-600 border-2 border-red-100 rounded-xl hover:bg-red-50"
-                                        >
-                                            Logout
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Link
-                                            to="/login"
-                                            className="block w-full py-3.5 text-center font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
-                                            Sign In
-                                        </Link>
-                                        <Link
-                                            to="/contact"
-                                            className="block w-full py-3.5 text-center font-semibold bg-accent text-white rounded-xl shadow-md"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
-                                            Book Consultation
-                                        </Link>
-                                    </>
-                                )}
-                            </div>
+                                        <button onClick={() => { handleLogout(); closeMobile(); }} className="block w-full py-3.5 text-center font-semibold text-red-600 border-2 border-red-100 rounded-xl hover:bg-red-50">Logout</button>
+                                    </div>
+                                </>
+                            ) : (
+                                /* ── Public mobile nav ── */
+                                <>
+                                    <MobileAccordion label="Learn" items={publicLearnItems} onNavigate={closeMobile} />
+                                    <Link to="/store" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Store</Link>
+                                    <MobileAccordion label="Community" items={publicMoreItems} onNavigate={closeMobile} />
+                                    <Link to="/about" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>About</Link>
+                                    <Link to="/contact" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Contact</Link>
+                                    <div className="pt-5 px-2 space-y-3 border-t border-gray-100 mt-3">
+                                        <Link to="/login" className="block w-full py-3.5 text-center font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Sign In</Link>
+                                        <Link to="/register" className="block w-full py-3.5 text-center font-semibold bg-accent text-white rounded-xl shadow-md" onClick={closeMobile}>Get Started</Link>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
