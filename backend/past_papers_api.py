@@ -28,7 +28,7 @@ def parse_cambridge_filename(filename: str) -> dict:
     result = {"confidence": "low", "inferred": {}}
     clean = filename.rsplit(".", 1)[0] if "." in filename else filename
     # Pattern: {code}_{session}{year}_{type}_{paper}{variant}
-    m = re.match(r"(\d{4})_([smw])(\d{2})_([a-z]{2})_?(\d)(\d)?", clean, re.IGNORECASE)
+    m = re.search(r"(\d{4})_([smw])(\d{2})_([a-z]{2})_?(\d)(\d)?", clean, re.IGNORECASE)
     if m:
         code, sess, yr, rtype, paper, variant = m.groups()
         year = int(yr) + (1900 if int(yr) > 50 else 2000)
@@ -219,6 +219,105 @@ def create_past_papers_routes(db, get_admin_user):
             "years": [y for y in years if y],
             "sessions": [s for s in sessions if s],
         }
+
+    # ── SEO: Individual past paper page by slug parts ──
+    @router.get("/page/{qualification}/{subject_code}/{year}/{session_slug}/{paper_slug}/{resource_type_slug}")
+    async def get_paper_page(qualification: str, subject_code: str, year: int, session_slug: str, paper_slug: str, resource_type_slug: str):
+        """Public SEO-friendly individual paper page."""
+        session_map = {"feb-mar": "Feb/Mar", "may-jun": "May/Jun", "oct-nov": "Oct/Nov"}
+        session = session_map.get(session_slug, session_slug.replace("-", "/").title())
+        type_map = {"question-paper": "question_paper", "mark-scheme": "mark_scheme", "examiner-report": "examiner_report",
+                     "grade-thresholds": "grade_thresholds", "insert": "insert", "specimen": "specimen_paper"}
+        resource_type = type_map.get(resource_type_slug, resource_type_slug.replace("-", "_"))
+        paper_num = int(paper_slug.replace("paper-", "")) if paper_slug.startswith("paper-") else 0
+
+        query = {
+            "qualification": qualification, "syllabus_code": subject_code,
+            "year": year, "resource_type": resource_type,
+            "is_deleted": {"$ne": True}, "is_visible": True,
+        }
+        if session: query["session"] = session
+        if paper_num: query["paper"] = paper_num
+
+        doc = await db.past_papers.find_one(query)
+        if not doc:
+            raise HTTPException(404, "Paper not found")
+
+        paper = doc_out(doc)
+
+        # Find related papers (same syllabus+year+session+paper, different resource_type)
+        related_query = {
+            "syllabus_code": doc.get("syllabus_code"), "year": doc.get("year"),
+            "session": doc.get("session"), "paper": doc.get("paper"),
+            "is_deleted": {"$ne": True}, "is_visible": True,
+            "_id": {"$ne": doc["_id"]},
+        }
+        related_docs = await db.past_papers.find(related_query).to_list(10)
+        related = [doc_out(r) for r in related_docs]
+
+        # Other papers from same subject
+        other_query = {
+            "syllabus_code": doc.get("syllabus_code"),
+            "is_deleted": {"$ne": True}, "is_visible": True,
+            "_id": {"$ne": doc["_id"]},
+            "year": doc.get("year"),
+        }
+        other_docs = await db.past_papers.find(other_query).sort([("session", 1), ("paper", 1)]).limit(20).to_list(20)
+        other_papers = [doc_out(o) for o in other_docs if o["_id"] != doc["_id"] and str(o["_id"]) not in [r["id"] for r in related]]
+
+        return {"paper": paper, "related": related, "other_same_year": other_papers[:10]}
+
+    # ── SEO: Collection page for a subject/syllabus ──
+    @router.get("/collection/{qualification}/{subject_code}")
+    async def get_paper_collection(qualification: str, subject_code: str, year: int = 0, session: str = ""):
+        """Public collection page: all papers for a subject."""
+        query = {
+            "qualification": qualification, "syllabus_code": subject_code,
+            "is_deleted": {"$ne": True}, "is_visible": True,
+        }
+        if year: query["year"] = year
+        session_map = {"feb-mar": "Feb/Mar", "may-jun": "May/Jun", "oct-nov": "Oct/Nov"}
+        if session: query["session"] = session_map.get(session, session)
+
+        docs = await db.past_papers.find(query).sort([("year", -1), ("session", 1), ("paper", 1), ("resource_type", 1)]).to_list(500)
+        papers = [doc_out(d) for d in docs]
+
+        # Group by year → session → paper
+        years_available = sorted(set(p.get("year", 0) for p in papers if p.get("year")), reverse=True)
+        sessions_available = sorted(set(p.get("session", "") for p in papers if p.get("session")))
+
+        # Subject info
+        subj_info = SUBJECT_CODES.get(subject_code, (subject_code, qualification))
+
+        return {
+            "qualification": qualification,
+            "syllabus_code": subject_code,
+            "subject": subj_info[0] if isinstance(subj_info, tuple) else subject_code,
+            "total": len(papers),
+            "years": years_available,
+            "sessions": sessions_available,
+            "papers": papers,
+        }
+
+    # ── Get single paper by ID (public) ──
+    @router.get("/paper/{paper_id}")
+    async def get_single_paper(paper_id: str):
+        if not ObjectId.is_valid(paper_id):
+            raise HTTPException(400, "Invalid ID")
+        doc = await db.past_papers.find_one({"_id": ObjectId(paper_id), "is_visible": True, "is_deleted": {"$ne": True}})
+        if not doc:
+            raise HTTPException(404, "Paper not found")
+        paper = doc_out(doc)
+
+        # Related papers
+        related_query = {
+            "syllabus_code": doc.get("syllabus_code"), "year": doc.get("year"),
+            "session": doc.get("session"), "paper": doc.get("paper"),
+            "is_deleted": {"$ne": True}, "is_visible": True,
+            "_id": {"$ne": doc["_id"]},
+        }
+        related_docs = await db.past_papers.find(related_query).to_list(10)
+        return {"paper": paper, "related": [doc_out(r) for r in related_docs]}
 
     # ── Admin: list all (including hidden) ──
     @router.get("/admin/list")

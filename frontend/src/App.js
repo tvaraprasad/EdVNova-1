@@ -33,6 +33,9 @@ import SearchPage from "./pages/curriculum/SearchPage";
 import PracticeQuestions from "./pages/PracticeQuestions";
 import LearnChapter from "./pages/learn/LearnChapter";
 import PastPaperLibrary from "./pages/exam/PastPaperLibrary";
+import PastPaperPage from "./pages/exam/PastPaperPage";
+import PastPaperCollection from "./pages/exam/PastPaperCollection";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
     return (
@@ -57,6 +60,9 @@ function App() {
                                 <Route path="/profile-building" element={<ProfileBuilding />} />
                                 <Route path="/career-guidance" element={<CareerGuidance />} />
                                 <Route path="/exam/past-papers" element={<PastPaperLibrary />} />
+                                <Route path="/past-papers/:qualification/:subjectCode/:year/:session/:paperSlug/:resourceType" element={<PastPaperPage />} />
+                                <Route path="/past-papers/:qualification/:subjectCode" element={<PastPaperCollection />} />
+                                <Route path="/search" element={<SearchResults />} />
                                 <Route
                                     path="/course/:courseId"
                                     element={

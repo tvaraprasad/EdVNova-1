@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowRight, BookOpen, Users, Trophy, GraduationCap, CheckCircle, Star, Brain, Award, Target, Sparkles, FileText, Compass, BookMarked, FlaskConical, Atom, Leaf, Calculator } from 'lucide-react';
+import { ArrowRight, BookOpen, Users, Trophy, GraduationCap, CheckCircle, Star, Brain, Award, Target, Sparkles, FileText, Compass, BookMarked, FlaskConical, Atom, Leaf, Calculator, Search } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -11,10 +11,56 @@ const PATH_ICONS = [Users, FileText, Compass];
 
 export default function Home() {
     const [cms, setCms] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [placeholderIdx, setPlaceholderIdx] = useState(0);
+    const [animatedText, setAnimatedText] = useState('');
+    const [isTyping, setIsTyping] = useState(true);
+    const inputRef = useRef(null);
+    const navigate = useNavigate();
+
+    const PLACEHOLDERS = [
+        'Search for a topic…',
+        'Search for a subject…',
+        'Search for a course…',
+        'Search for a past paper…',
+        'Search for revision notes…',
+        'Search for a mark scheme…',
+    ];
 
     useEffect(() => {
         axios.get(`${API_URL}/api/cms/page/home`).then(r => setCms(r.data)).catch(() => {});
     }, []);
+
+    // Animated placeholder cycling
+    useEffect(() => {
+        if (searchQuery) return; // Don't animate when user is typing
+        const phrase = PLACEHOLDERS[placeholderIdx];
+        let charIdx = 0;
+        let timeout;
+        setIsTyping(true);
+
+        const typeChar = () => {
+            if (charIdx <= phrase.length) {
+                setAnimatedText(phrase.slice(0, charIdx));
+                charIdx++;
+                timeout = setTimeout(typeChar, 50);
+            } else {
+                setIsTyping(false);
+                timeout = setTimeout(() => {
+                    setPlaceholderIdx((prev) => (prev + 1) % PLACEHOLDERS.length);
+                }, 2000);
+            }
+        };
+        typeChar();
+        return () => clearTimeout(timeout);
+    }, [placeholderIdx, searchQuery]);
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
 
     // Fallback to hardcoded if CMS not loaded yet
     const hero = cms?.hero || { badge: "Premium Learning for Cambridge Students", heading: "The Premium Learning Platform for Cambridge Students", heading_accent: "Cambridge Students", subheading: "Master Mathematics and Science through expert coaching, structured resources, premium courses, and academic guidance.", cta_primary: { text: "Start Learning", link: "/learn" }, cta_secondary: { text: "Book Consultation", link: "/contact" }, trust_line: "Trusted by students across India, UAE, UK, and Singapore" };
@@ -35,29 +81,46 @@ export default function Home() {
 
     return (
         <div className="pt-16 md:pt-20" data-testid="home-page">
-            {/* HERO */}
-            <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden" data-testid="hero-section">
+            {/* HERO — Search First */}
+            <section className="relative py-20 md:py-28 lg:py-36 overflow-hidden" data-testid="hero-section">
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-white" />
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-50/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
                 <div className="container-custom relative">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full text-sm font-medium text-blue-700 mb-8" data-testid="hero-badge">
-                            <Sparkles className="w-4 h-4" /> {hero.badge}
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.1] mb-6" data-testid="hero-headline">
-                            {renderHeading()}
+                    <div className="max-w-3xl mx-auto text-center">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.1] mb-5" data-testid="hero-headline">
+                            What do you want to <span className="text-accent">learn today</span>?
                         </h1>
-                        <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">{hero.subheading}</p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                            <Link to={hero.cta_primary?.link || '/learn'} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-all duration-200 shadow-lg shadow-primary/20" data-testid="hero-cta-learn">
-                                {hero.cta_primary?.text || 'Start Learning'} <ArrowRight className="w-5 h-5" />
-                            </Link>
-                            <Link to={hero.cta_secondary?.link || '/contact'} className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-gray-200 text-primary font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200" data-testid="hero-cta-consult">
-                                {hero.cta_secondary?.text || 'Book Consultation'}
-                            </Link>
+                        <p className="text-base sm:text-lg text-gray-500 max-w-xl mx-auto mb-10">
+                            Cambridge IGCSE · AS & A Level · IB — Mathematics, Physics, Chemistry, Biology
+                        </p>
+
+                        {/* Search Bar */}
+                        <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto mb-8" data-testid="hero-search-form">
+                            <div className="flex items-center bg-white border-2 border-gray-200 rounded-2xl shadow-lg shadow-gray-200/50 hover:border-gray-300 focus-within:border-accent focus-within:shadow-accent/10 transition-all duration-200">
+                                <Search className="w-5 h-5 text-gray-400 ml-5 flex-shrink-0" />
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder={searchQuery ? '' : animatedText}
+                                    className="flex-1 px-4 py-4 sm:py-5 text-base sm:text-lg bg-transparent outline-none text-primary placeholder:text-gray-400"
+                                    data-testid="hero-search-input"
+                                />
+                                <button type="submit" className="mr-2 px-5 sm:px-7 py-2.5 sm:py-3 bg-accent text-white font-semibold rounded-xl hover:bg-accent-hover transition-colors text-sm sm:text-base" data-testid="hero-search-btn">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+
+                        {/* Quick Links */}
+                        <div className="flex flex-wrap justify-center gap-2 text-sm" data-testid="hero-quick-links">
+                            <span className="text-gray-400">Popular:</span>
+                            {['Quadratic Equations', 'Electrolysis', 'Newton Laws', 'Photosynthesis'].map(t => (
+                                <Link key={t} to={`/search?q=${encodeURIComponent(t)}`} className="text-accent hover:underline">{t}</Link>
+                            ))}
                         </div>
-                        <p className="text-sm text-gray-400">{hero.trust_line}</p>
                     </div>
                 </div>
             </section>
