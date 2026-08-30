@@ -11,8 +11,22 @@ import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
 import { toast } from 'sonner';
 import LearningAssetManager from './LearningAssetManager';
+import RichContentEditor from './RichContentEditor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Convert plain text to blocks for RichContentEditor
+function textToBlocks(text) {
+    if (!text) return [];
+    if (Array.isArray(text)) return text;
+    return [{ type: 'text', value: text }];
+}
+function blocksToStorable(blocks) {
+    if (!Array.isArray(blocks)) return blocks || '';
+    if (blocks.length === 0) return '';
+    if (blocks.some(b => b.type === 'image')) return blocks;
+    return blocks.map(b => b.value || '').join('\n\n');
+}
 
 // ─── Collapsible Section ──────────────────────────────
 function Section({ title, icon: Icon, color, children, defaultOpen = false, count }) {
@@ -331,7 +345,7 @@ function TopicForm({ topicSummary, onBack }) {
     const [seoDescription, setSeoDescription] = useState('');
     const [studyTime, setStudyTime] = useState('');
     const [difficulty, setDifficulty] = useState('medium');
-    const [introduction, setIntroduction] = useState('');
+    const [introduction, setIntroduction] = useState([]);
     const [sections, setSections] = useState([]);
     const [definitions, setDefinitions] = useState([]);
     const [formulas, setFormulas] = useState([]);
@@ -356,9 +370,9 @@ function TopicForm({ topicSummary, onBack }) {
             setStudyTime(t.study_time || '');
             setDifficulty(t.difficulty || 'medium');
             const c = t.content || {};
-            setIntroduction(c.introduction || '');
-            setSections(c.sections || []);
-            setDefinitions(c.definitions || []);
+            setIntroduction(textToBlocks(c.introduction));
+            setSections((c.sections || []).map(s => ({ ...s, contentBlocks: textToBlocks(s.content) })));
+            setDefinitions((c.definitions || []).map(d => ({ ...d, defBlocks: textToBlocks(d.definition) })));
             setFormulas(c.formulas || []);
             setWorkedExamples(c.worked_examples || []);
             setCommonMistakes(c.common_mistakes || []);
@@ -375,9 +389,9 @@ function TopicForm({ topicSummary, onBack }) {
         setSaving(true);
         try {
             const content = {
-                introduction,
-                sections,
-                definitions,
+                introduction: blocksToStorable(introduction),
+                sections: sections.map(s => ({ title: s.title, content: blocksToStorable(s.contentBlocks || s.content) })),
+                definitions: definitions.map(d => ({ term: d.term, definition: blocksToStorable(d.defBlocks || d.definition) })),
                 formulas,
                 worked_examples: workedExamples,
                 common_mistakes: commonMistakes,
@@ -488,42 +502,41 @@ function TopicForm({ topicSummary, onBack }) {
                 <Section title="Main Content" icon={FileText} color="bg-slate-100 text-slate-600" defaultOpen={true}>
                     <div className="space-y-4">
                         <div>
-                            <Label className="text-sm">Introduction</Label>
-                            <Textarea
-                                value={introduction}
-                                onChange={e => setIntroduction(e.target.value)}
-                                rows={4}
-                                className="mt-1"
-                                placeholder="Write the topic introduction..."
-                                data-testid="topic-intro-input"
-                            />
+                            <Label className="text-sm">Introduction (text + images)</Label>
+                            <RichContentEditor blocks={introduction} onChange={setIntroduction} placeholder="Write the topic introduction..." />
+                            <LearningAssetManager parentType="topic" parentId={topicSummary.id} section="introduction" />
                         </div>
                         <div>
                             <Label className="text-sm mb-2 block">Content Sections</Label>
-                            <ListEditor
-                                items={sections}
-                                onChange={setSections}
-                                addLabel="Add Section"
-                                fields={[
-                                    { key: 'title', label: 'Section Title', type: 'input', placeholder: 'e.g. How It Works' },
-                                    { key: 'content', label: 'Content', type: 'textarea', rows: 5, placeholder: 'Write section content...\nUse new lines for paragraphs.' },
-                                ]}
-                            />
+                            {sections.map((s, i) => (
+                                <div key={i} className="p-3 bg-white rounded-lg border border-gray-100 mb-2 space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <Input value={s.title || ''} onChange={e => { const u = [...sections]; u[i] = { ...u[i], title: e.target.value }; setSections(u); }} placeholder="Section title" className="text-sm flex-1" />
+                                        <button onClick={() => setSections(p => p.filter((_, j) => j !== i))} className="text-xs text-red-400 hover:text-red-600">Remove</button>
+                                    </div>
+                                    <RichContentEditor blocks={s.contentBlocks || textToBlocks(s.content)} onChange={blocks => { const u = [...sections]; u[i] = { ...u[i], contentBlocks: blocks }; setSections(u); }} placeholder="Section content..." />
+                                    <LearningAssetManager parentType="topic" parentId={topicSummary.id} section={`section-${i}`} />
+                                </div>
+                            ))}
+                            <button onClick={() => setSections(p => [...p, { title: '', contentBlocks: [] }])} className="w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-accent hover:text-accent transition-colors">
+                                + Add Section
+                            </button>
                         </div>
                     </div>
                 </Section>
 
                 {/* Definitions */}
                 <Section title="Definitions" icon={BookOpen} color="bg-blue-50 text-blue-600" count={definitions.length}>
-                    <ListEditor
-                        items={definitions}
-                        onChange={setDefinitions}
-                        addLabel="Add Definition"
-                        fields={[
-                            { key: 'term', label: 'Term', type: 'input', placeholder: 'e.g. Isotope' },
-                            { key: 'definition', label: 'Definition', type: 'textarea', rows: 2, placeholder: 'The definition...' },
-                        ]}
-                    />
+                    {definitions.map((d, i) => (
+                        <div key={i} className="p-3 bg-white rounded-lg border border-gray-100 mb-2 space-y-2">
+                            <div className="flex items-center gap-2">
+                                <Input value={d.term || ''} onChange={e => { const u = [...definitions]; u[i] = { ...u[i], term: e.target.value }; setDefinitions(u); }} placeholder="Term" className="text-sm w-1/3" />
+                                <button onClick={() => setDefinitions(p => p.filter((_, j) => j !== i))} className="text-xs text-red-400 ml-auto">Remove</button>
+                            </div>
+                            <RichContentEditor blocks={d.defBlocks || textToBlocks(d.definition)} onChange={blocks => { const u = [...definitions]; u[i] = { ...u[i], defBlocks: blocks }; setDefinitions(u); }} placeholder="Definition..." />
+                        </div>
+                    ))}
+                    <button onClick={() => setDefinitions(p => [...p, { term: '', defBlocks: [] }])} className="w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-accent hover:text-accent transition-colors">+ Add Definition</button>
                 </Section>
 
                 {/* Formulas */}

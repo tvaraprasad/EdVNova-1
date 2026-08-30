@@ -11,6 +11,7 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuSeparator, DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import GlobalSearch from './GlobalSearch';
 
 // ── Hover dropdown (desktop) ──
 function NavDropdown({ label, items, isActive }) {
@@ -162,6 +163,7 @@ export default function Header() {
 
                     {/* ═══ DESKTOP ACTIONS ═══ */}
                     <div className="hidden lg:flex items-center gap-3">
+                        <GlobalSearch />
                         {/* Cart (always visible) */}
                         <Link to="/store/cart" className="relative p-2.5 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-all duration-200" data-testid="cart-button">
                             <ShoppingCart className="w-5 h-5" />

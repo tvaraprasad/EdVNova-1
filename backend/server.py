@@ -749,6 +749,16 @@ from ai_mentor_api import create_ai_mentor_routes
 ai_mentor_router = create_ai_mentor_routes(db, get_current_user)
 api_router.include_router(ai_mentor_router)
 
+# Past Papers routes
+from past_papers_api import create_past_papers_routes
+past_papers_router = create_past_papers_routes(db, get_admin_user)
+api_router.include_router(past_papers_router)
+
+# Global Search routes
+from search_api import create_search_routes
+search_router = create_search_routes(db)
+api_router.include_router(search_router)
+
 app.include_router(api_router)
 
 # Serve files from Emergent Object Storage

@@ -1,0 +1,27 @@
+{
+  "summary": "Iteration 17: Tested Past Paper System (upload/bulk-upload/browse/filters/stats/update/bulk-approve/delete), Global Search API, Student Dashboard redesign, Past Paper Library page, Admin Past Papers tab, dual navigation. Backend: 13/13 pytest tests passed. Frontend: All data-testids present and functional for authenticated flows.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Public Header (unauthenticated)", "issues": ["Public nav shows only 'Store | About | Contact' — spec requires 'Learn | Store | Community | About | Contact'. Missing 'Learn' and 'Community' links for logged-out users."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter17_past_papers_search.py", "/app/test_reports/pytest/iter17.xml"],
+  "action_items": [
+    "Add 'Learn' and 'Community' links to public (unauthenticated) navigation in Header.js to match spec."
+  ],
+  "critical_code_review_comments": [
+    "past_papers_api.py upload endpoint: resource_type default 'question_paper' logic is asymmetric — if user explicitly passes 'question_paper', it gets overridden by inference. Consider using an Optional[str] = None sentinel for cleaner override semantics.",
+    "search_api.py: past_paper subtitle formatting uses .upper()/.title() on possibly empty strings — works but produces trailing separators like ' · ·  P' when metadata is sparse. Consider joining only truthy parts.",
+    "past_papers_api.py bulk_upload: no per-file size or content-type validation; a corrupt/huge file could break the batch. Consider try/except per file with error entries in the result."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter17_past_papers_search.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@edvnova.com / Admin@123 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Tests upload dummy PDFs (0580_s24_qp_22.pdf, 0620_w23_ms_31.pdf, 0625_m22_qp_12.pdf); 0580 paper is soft-deleted by delete test. Remaining 0620 and 0625 papers persist in DB.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 17 features (past papers + global search + dashboard redesign + admin PP tab) all pass. Only outstanding item: public nav is missing Learn and Community links. Backend pytest suite at test_iter17_past_papers_search.py has 13 tests covering the full CRUD + search flow."
+}
