@@ -1,0 +1,29 @@
+{
+  "summary": "Iteration 19: Regression test of homepage/navigation evolution + preservation of prior features. Backend: /api/curriculum/boards/igcse returns Cambridge IGCSE with 4 subjects; admin@edvnova.com/Admin@123 login returns 200. Frontend: All 24 UI checks passed via Playwright — new hero headline 'The Premium Learning Platform for Cambridge Students' with Explore Learning + Browse Past Papers CTAs, hero search form, all 9 homepage sections (hero, paths, explore, past-papers finder, free-resources, subjects, ai-mentor, testimonials, cta) present with correct data-testids, 4 path cards (Learn with Expert, Own Pace, Practise & Prepare, Build Your Future), 3 board cards, Past Papers finder button links correctly. Learn mega-menu opens on hover with both 'Explore by Qualification' and 'Study' columns (Cambridge IGCSE/AS/A Level + Courses/Practice/Past Papers/Free Resources). Public nav shows Learn|Store|Community|About|Contact + Sign In/Get Started; Authenticated nav shows Home|Learn|Store|About + profile menu. /learn/igcse strips marketing hero and renders 'Choose a Subject' with 4 subject cards immediately. /learn/igcse/chemistry renders 11 compact chapter cards. /learn/igcse/physics/electricity course workspace with sidebar and topic tabs preserved. /past-papers and /past-papers/igcse routes load. /store, /about, /contact all load. Admin panel accessible after login.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Homepage past-papers finder dropdowns", "issues": ["React hydration warning: '<span> cannot be a child of <option>'. Caused by editor-injected data-ve-dynamic wrapper spans around dynamic option label text in Home.js lines 153-155 and 162. Dev-only warning, does not break functionality, but should be fixed by moving dynamic text to a static-safe pattern or verifying source-editable metadata isn't wrapping <option> children."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter18_ux_features.py"],
+  "action_items": [
+    "Optional: silence the <option><span> hydration warning by ensuring dynamic option labels are not wrapped in tracking spans (Home.js pp-qual-select / pp-subject-select options)."
+  ],
+  "critical_code_review_comments": [
+    "App.js line 99 defines duplicate /search route (SearchPage) while line 67 already maps /search to SearchResults — the second declaration is unreachable/dead code and should be removed to avoid confusion.",
+    "SubjectsList.js line 22 / ChaptersList.js line 12 use window.location.pathname to detect /learn prefix — safer to use useLocation() from react-router for consistency with SSR/testing and to react to client-side nav.",
+    "Home.js hero animated placeholder useEffect creates repeated setTimeout chains without cleanup on placeholderIdx change during typing — minor: pending timeouts from prior phrase may still fire before cleanup. Non-blocking.",
+    "Header.js: Learn mega-menu 200ms hover close delay is acceptable, but there's no keyboard/touch fallback — button has no aria-expanded and mega-menu is not reachable via keyboard focus. Accessibility improvement recommended.",
+    "Home.js PP_SUBJECTS: AS Level and A Level list identical subject codes (9709/9702/9701/9700) — verify this is intentional (Cambridge does share codes) rather than a copy-paste; if intentional, add a brief comment."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100% (24/24 checks)"},
+  "test_credentials": "admin@edvnova.com / Admin@123",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All homepage/nav evolution requirements verified. Existing features (auth, admin panel, curriculum, course workspace with sidebar, past papers) all still working — no regression detected. Only cosmetic dev-only React warning around <option> children in past-papers finder dropdown."
+}

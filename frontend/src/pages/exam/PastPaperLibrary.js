@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { FileText, Download, Filter, ChevronDown, Search, ExternalLink, Lock } from 'lucide-react';
 import axios from 'axios';
 import { Input } from '../../components/ui/input';
@@ -6,12 +7,13 @@ import { Input } from '../../components/ui/input';
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function PastPaperLibrary() {
+    const { qualification: qualParam } = useParams();
     const [papers, setPapers] = useState([]);
     const [filters, setFilters] = useState(null);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
-    const [selected, setSelected] = useState({ qualification: '', subject: '', syllabus_code: '', year: '', session: '', resource_type: '' });
+    const [selected, setSelected] = useState({ qualification: qualParam || '', subject: '', syllabus_code: '', year: '', session: '', resource_type: '' });
 
     useEffect(() => {
         axios.get(`${API_URL}/api/past-papers/filters`).then(r => setFilters(r.data)).catch(() => {});

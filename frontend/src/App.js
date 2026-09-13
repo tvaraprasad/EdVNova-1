@@ -60,6 +60,8 @@ function App() {
                                 <Route path="/profile-building" element={<ProfileBuilding />} />
                                 <Route path="/career-guidance" element={<CareerGuidance />} />
                                 <Route path="/exam/past-papers" element={<PastPaperLibrary />} />
+                                <Route path="/past-papers" element={<PastPaperLibrary />} />
+                                <Route path="/past-papers/:qualification" element={<PastPaperLibrary />} />
                                 <Route path="/past-papers/:qualification/:subjectCode/:year/:session/:paperSlug/:resourceType" element={<PastPaperPage />} />
                                 <Route path="/past-papers/:qualification/:subjectCode" element={<PastPaperCollection />} />
                                 <Route path="/search" element={<SearchResults />} />
@@ -94,7 +96,6 @@ function App() {
                                 <Route path="/learn/:board/:subject/:chapter" element={<LearnChapter />} />
                                 {/* Curriculum Routes (legacy, kept working) */}
                                 <Route path="/boards" element={<BoardsList />} />
-                                <Route path="/search" element={<SearchPage />} />
                                 <Route path="/:board" element={<SubjectsList />} />
                                 <Route path="/:board/:subject" element={<ChaptersList />} />
                                 <Route path="/:board/:subject/:chapter" element={<TopicsList />} />

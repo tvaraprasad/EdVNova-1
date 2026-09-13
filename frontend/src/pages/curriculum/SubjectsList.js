@@ -31,37 +31,35 @@ export default function SubjectsList() {
 
     return (
         <div className="pt-16 md:pt-20 min-h-screen bg-background" data-testid="subjects-page">
-            <section className="py-16 md:py-20 bg-white border-b">
+            <section className="py-8 md:py-10 bg-white border-b">
                 <div className="container-custom">
-                    <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6" data-testid="breadcrumb">
+                    <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4" data-testid="breadcrumb">
                         <Link to={`${prefix || '/boards'}`} className="hover:text-primary">{isLearnRoute ? 'Learn' : 'Boards'}</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
                         <span className="text-primary font-medium">{data.name}</span>
                     </nav>
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary tracking-tight mb-4">{data.name}</h1>
-                    <p className="text-lg text-gray-600 max-w-2xl leading-relaxed">{data.description}</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-primary tracking-tight mb-1">Choose a Subject</h1>
+                    <p className="text-sm text-gray-500">{data.name} — {data.subjects?.length} subjects available</p>
                 </div>
             </section>
-            <section className="py-16 md:py-20">
+            <section className="py-8 md:py-10">
                 <div className="container-custom">
-                    <h2 className="text-xl font-bold text-primary mb-8">Choose a Subject</h2>
-                    <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="grid sm:grid-cols-2 gap-5">
                         {data.subjects?.map(subj => {
                             const Icon = SUBJECT_ICONS[subj.slug] || Calculator;
                             const colors = SUBJECT_COLORS[subj.slug] || SUBJECT_COLORS.mathematics;
                             return (
                                 <Link key={subj.slug} to={`${prefix}/${board}/${subj.slug}`} className="group" data-testid={`subject-card-${subj.slug}`}>
-                                    <div className={`rounded-2xl border ${colors.border} p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-white`}>
-                                        <div className="flex items-start gap-5">
-                                            <div className={`w-14 h-14 ${colors.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                                                <Icon className={`w-7 h-7 ${colors.text}`} />
+                                    <div className={`rounded-2xl border ${colors.border} p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-white`}>
+                                        <div className="flex items-start gap-4">
+                                            <div className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                                                <Icon className={`w-6 h-6 ${colors.text}`} />
                                             </div>
                                             <div className="flex-1">
-                                                <h3 className="text-xl font-bold text-primary mb-1">{subj.name}</h3>
-                                                <p className="text-sm text-gray-500 mb-4 line-clamp-2">{subj.description}</p>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-sm text-gray-500">{subj.chapter_count} Chapters</span>
-                                                    <span className="text-sm text-gray-500">{subj.topic_count} Topics</span>
+                                                <h3 className="text-lg font-bold text-primary mb-0.5">{subj.name}</h3>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-xs text-gray-500">{subj.chapter_count} Chapters</span>
+                                                    <span className="text-xs text-gray-500">{subj.topic_count} Topics</span>
                                                 </div>
                                             </div>
                                             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 mt-1 transition-colors" />

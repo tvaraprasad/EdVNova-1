@@ -5,13 +5,68 @@ import { useCart } from '../contexts/CartContext';
 import {
     Menu, X, ShoppingCart, User, LogOut, ChevronDown, BookOpen, GraduationCap,
     Award, Users, Compass, Lightbulb, Home, PenLine, FileCheck, BarChart3,
-    CalendarDays, Store, Settings, HelpCircle, ShieldCheck
+    CalendarDays, Store, Settings, HelpCircle, ShieldCheck, FileText
 } from 'lucide-react';
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuSeparator, DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import GlobalSearch from './GlobalSearch';
+
+// ── Learn Mega Menu (desktop) ──
+function LearnMegaMenu({ isActive }) {
+    const [open, setOpen] = useState(false);
+    const timeoutRef = useRef(null);
+    const handleEnter = () => { clearTimeout(timeoutRef.current); setOpen(true); };
+    const handleLeave = () => { timeoutRef.current = setTimeout(() => setOpen(false), 200); };
+
+    return (
+        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+            <button className={`flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'text-accent bg-accent/5' : 'text-gray-600 hover:text-primary hover:bg-gray-50'}`} data-testid="nav-learn">
+                Learn <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+            </button>
+            {open && (
+                <div className="absolute top-full left-0 pt-2 z-50">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 p-5 w-[420px]" data-testid="learn-mega-menu">
+                        <div className="grid grid-cols-2 gap-6">
+                            <div>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Explore by Qualification</p>
+                                <div className="space-y-0.5">
+                                    {[
+                                        { name: 'Cambridge IGCSE', href: '/learn/igcse', icon: BookOpen },
+                                        { name: 'Cambridge AS Level', href: '/learn/as-level', icon: GraduationCap },
+                                        { name: 'Cambridge A Level', href: '/learn/a-level', icon: Award },
+                                    ].map(item => (
+                                        <Link key={item.name} to={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors" onClick={() => setOpen(false)}>
+                                            <item.icon className="w-4 h-4 text-gray-400" />
+                                            <span className="font-medium">{item.name}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Study</p>
+                                <div className="space-y-0.5">
+                                    {[
+                                        { name: 'Courses', href: '/programs', icon: Users },
+                                        { name: 'Practice', href: '/practice', icon: PenLine },
+                                        { name: 'Past Papers', href: '/past-papers', icon: FileCheck },
+                                        { name: 'Free Resources', href: '/learn', icon: FileText },
+                                    ].map(item => (
+                                        <Link key={item.name} to={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors" onClick={() => setOpen(false)}>
+                                            <item.icon className="w-4 h-4 text-gray-400" />
+                                            <span className="font-medium">{item.name}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
 
 // ── Hover dropdown (desktop) ──
 function NavDropdown({ label, items, isActive }) {
@@ -144,15 +199,14 @@ export default function Header() {
                             /* ── Student Learning Nav ── */
                             <>
                                 <NavLink to="/dashboard" label="Home" isActive={isActive('/dashboard')} testId="nav-home" />
-                                <NavDropdown label="Learn" items={studentLearnItems} isActive={isActiveAny(['/learn', '/boards', '/igcse', '/as-level', '/a-level'])} />
-                                <NavLink to="/practice" label="Practise" isActive={isActive('/practice')} testId="nav-practise" />
+                                <LearnMegaMenu isActive={isActiveAny(['/learn', '/boards', '/igcse', '/as-level', '/a-level', '/programs', '/practice', '/past-papers'])} />
                                 <NavLink to="/store" label="Store" isActive={isActive('/store')} testId="nav-store" />
                                 <NavLink to="/about" label="About" isActive={isActive('/about')} testId="nav-about" />
                             </>
                         ) : (
                             /* ── Public Discovery Nav ── */
                             <>
-                                <NavDropdown label="Learn" items={publicLearnItems} isActive={isActiveAny(['/learn', '/boards', '/igcse', '/as-level', '/a-level', '/programs'])} />
+                                <LearnMegaMenu isActive={isActiveAny(['/learn', '/boards', '/igcse', '/as-level', '/a-level', '/programs', '/practice', '/past-papers'])} />
                                 <NavLink to="/store" label="Store" isActive={isActive('/store')} testId="nav-store" />
                                 <NavDropdown label="Community" items={publicMoreItems} isActive={isActiveAny(['/workshops', '/career-guidance', '/profile-building'])} />
                                 <NavLink to="/about" label="About" isActive={isActive('/about')} testId="nav-about" />
@@ -262,8 +316,14 @@ export default function Header() {
                                 /* ── Student mobile nav ── */
                                 <>
                                     <Link to="/dashboard" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Home</Link>
-                                    <MobileAccordion label="Learn" items={studentLearnItems} onNavigate={closeMobile} />
-                                    <Link to="/practice" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Practise</Link>
+                                    <MobileAccordion label="Learn" items={[
+                                        { name: 'Cambridge IGCSE', href: '/learn/igcse' },
+                                        { name: 'Cambridge AS Level', href: '/learn/as-level' },
+                                        { name: 'Cambridge A Level', href: '/learn/a-level' },
+                                        { name: 'Courses', href: '/programs' },
+                                        { name: 'Practice', href: '/practice' },
+                                        { name: 'Past Papers', href: '/past-papers' },
+                                    ]} onNavigate={closeMobile} />
                                     <Link to="/store" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Store</Link>
                                     <MobileAccordion label="More" items={[
                                         { name: 'Workshops', href: '/workshops' },
@@ -282,7 +342,14 @@ export default function Header() {
                             ) : (
                                 /* ── Public mobile nav ── */
                                 <>
-                                    <MobileAccordion label="Learn" items={publicLearnItems} onNavigate={closeMobile} />
+                                    <MobileAccordion label="Learn" items={[
+                                        { name: 'Cambridge IGCSE', href: '/learn/igcse' },
+                                        { name: 'Cambridge AS Level', href: '/learn/as-level' },
+                                        { name: 'Cambridge A Level', href: '/learn/a-level' },
+                                        { name: 'Courses', href: '/programs' },
+                                        { name: 'Practice', href: '/practice' },
+                                        { name: 'Past Papers', href: '/past-papers' },
+                                    ]} onNavigate={closeMobile} />
                                     <Link to="/store" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Store</Link>
                                     <MobileAccordion label="Community" items={publicMoreItems} onNavigate={closeMobile} />
                                     <Link to="/about" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>About</Link>

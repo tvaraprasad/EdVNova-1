@@ -21,36 +21,32 @@ export default function ChaptersList() {
 
     return (
         <div className="pt-16 md:pt-20 min-h-screen bg-background" data-testid="chapters-page">
-            <section className="py-16 md:py-20 bg-white border-b">
+            <section className="py-6 md:py-8 bg-white border-b">
                 <div className="container-custom">
-                    <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap" data-testid="breadcrumb">
+                    <nav className="flex items-center gap-2 text-sm text-gray-500 mb-3 flex-wrap" data-testid="breadcrumb">
                         <Link to={`${prefix || '/boards'}`} className="hover:text-primary">{isLearnRoute ? 'Learn' : 'Boards'}</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
                         <Link to={`${prefix}/${board}`} className="hover:text-primary">{data.board_name}</Link>
                         <ChevronRight className="w-3.5 h-3.5" />
                         <span className="text-primary font-medium">{data.name}</span>
                     </nav>
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary tracking-tight mb-4">{data.board_name} {data.name}</h1>
-                    <p className="text-lg text-gray-600 max-w-2xl leading-relaxed">{data.description}</p>
-                    <div className="flex gap-6 mt-6">
-                        <span className="text-sm text-gray-500">{data.chapters?.length} Chapters</span>
-                        <span className="text-sm text-gray-500">{data.topic_count} Topics</span>
-                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-primary tracking-tight mb-1">{data.board_name} {data.name}</h1>
+                    <p className="text-sm text-gray-500">{data.chapters?.length} chapters &bull; {data.topic_count} topics</p>
                 </div>
             </section>
-            <section className="py-16 md:py-20">
+            <section className="py-6 md:py-8">
                 <div className="container-custom max-w-4xl">
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {data.chapters?.map((ch, idx) => (
                             <Link key={ch.slug} to={`${prefix}/${board}/${subject}/${ch.slug}`} className="group block" data-testid={`chapter-card-${ch.slug}`}>
-                                <div className="flex items-center gap-5 p-6 bg-white rounded-xl border border-gray-100 transition-all duration-200 hover:shadow-md hover:border-gray-200">
-                                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 transition-colors">
-                                        <span className="text-lg font-bold text-gray-400 group-hover:text-accent transition-colors">{idx + 1}</span>
+                                <div className="flex items-center gap-4 p-5 bg-white rounded-xl border border-gray-100 transition-all duration-200 hover:shadow-md hover:border-gray-200">
+                                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 transition-colors">
+                                        <span className="text-sm font-bold text-gray-400 group-hover:text-accent transition-colors">{idx + 1}</span>
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-lg font-semibold text-primary group-hover:text-accent transition-colors">{ch.name}</h3>
-                                        <div className="flex items-center gap-3 mt-1">
-                                            <span className="text-sm text-gray-500">{ch.topic_count} topics</span>
+                                        <h3 className="text-base font-semibold text-primary group-hover:text-accent transition-colors">{ch.name}</h3>
+                                        <div className="flex items-center gap-3 mt-0.5">
+                                            <span className="text-xs text-gray-500">{ch.topic_count} topics</span>
                                             {ch.published_count > 0 && (
                                                 <span className="flex items-center gap-1 text-xs text-green-600">
                                                     <CheckCircle2 className="w-3 h-3" /> {ch.published_count} published
