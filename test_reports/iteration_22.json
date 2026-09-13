@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 22 (visual polish + copy update): All checks pass. Backend regression 15/15 (test_iter21_p1_p2 + test_iter20_regression). Frontend: Homepage hero shows 'Understand. Practise.' + '<br class=hidden sm:inline>' + 'Master Cambridge.' (Cambridge in accent color). Supporting text 'A smarter way to learn, practise and prepare for Cambridge IGCSE, AS & A Level...' present. Search label 'What are you learning today?' present above search input. Search placeholder is animated typewriter using PLACEHOLDERS=['Search a topic, past paper, question or resource…'] (Home.js line 18); captured snapshots showed 'Search a top', 'Search a topic, p' during animation — matches expected copy. Sections verified present: 'What are you working on?' with 4 action cards (Learn a concept, Practise, Find a past paper, Get help), 'Explore Cambridge' with IGCSE/AS/A Level cards, Combined Science + Co-ordinated Sciences subject cards, 'Learn. Practise. Master.' section. /learn/igcse shows 6 subjects. /learn/igcse/chemistry redirects to /learn/igcse/chemistry/atomic-structure. /learn/igcse/combined-science redirects to /learn/igcse/combined-science/cell-structure-and-organisation. /past-papers loads (2737 chars, contains 'Past Papers'). /search?q=quadratic loads and shows quadratic results. Admin login POST /api/auth/login returns 200. Micro-interactions (transition-all duration-200, active:scale-[0.98]) present on Explore Learning CTA per screenshot. Whitespace tightened per new py-10/py-12 pattern — visible in screenshot (hero section is more compact than previous iters).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Homepage past-papers finder dropdowns", "issues": ["Pre-existing dev-only hydration warning: <span> inside <option> caused by editor-injected data-ve-dynamic wrappers. Not caused by this iteration (carry-over from iter19-21)."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter21_p1_p2.py",
+    "/app/backend/tests/test_iter20_regression.py",
+    "/app/test_reports/pytest/iter22.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.js line 18: PLACEHOLDERS array contains only 1 entry — the typewriter animation loops on a single phrase, which is fine but the animation state machine could be simplified if only one phrase is intended.",
+    "Home.js line 84: When searchQuery is non-empty, placeholder becomes empty string. Fine, but consider using aria-label='Search' for accessibility since the visible label is a small (11px) muted text that screen readers may deprioritize.",
+    "Copy accessibility: hero h1 uses <br class='hidden sm:inline' /> — this hides the break on mobile as intended. Good implementation.",
+    "Pre-existing: Home.js past-papers finder still emits <span>-inside-<option> hydration warning from editor-injected wrappers."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% (all hero copy, sections, redirects, past-papers, search, admin login verified)"},
+  "test_credentials": "admin@edvnova.com / Admin@123 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iter22 was pure visual polish + copy update — all previous iter17-21 functionality intact. Reuse test_iter21_p1_p2.py + test_iter20_regression.py for regression. Hero headline testid: [data-testid='hero-headline']. Search input testid: [data-testid='hero-search-input']. Note the animated placeholder — do not assert exact placeholder value; check PLACEHOLDERS[0] in source instead. Pre-existing <span>/<option> hydration warning still present (dev-only, harmless)."
+}

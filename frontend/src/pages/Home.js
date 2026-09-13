@@ -15,7 +15,7 @@ export default function Home() {
     const inputRef = useRef(null);
     const navigate = useNavigate();
 
-    const PLACEHOLDERS = ['Search for a topic…', 'Search for a subject…', 'Search for a past paper…', 'Search for revision notes…', 'Search for a mark scheme…'];
+    const PLACEHOLDERS = ['Search a topic, past paper, question or resource…'];
 
     useEffect(() => { axios.get(`${API_URL}/api/cms/page/home`).then(r => setCms(r.data)).catch(() => {}); }, []);
 
@@ -42,61 +42,58 @@ export default function Home() {
     };
 
     return (
-        <div className="pt-16 md:pt-20" data-testid="home-page">
+        <div className="pt-[60px] md:pt-[72px]" data-testid="home-page">
             {/* ═══ 1. HERO ═══ */}
-            <section className="relative py-14 md:py-20 overflow-hidden" data-testid="hero-section">
-                {/* Scientific background — subtle grid + particles */}
+            <section className="relative py-12 md:py-16 overflow-hidden" data-testid="hero-section">
                 <div className="absolute inset-0 bg-[#fafbfc]" />
-                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1e293b 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-                <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] opacity-[0.04]" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1e293b 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+                <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] opacity-[0.035]" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="400" cy="300" r="120" stroke="#1e293b" strokeWidth="0.5" />
-                    <circle cx="400" cy="300" r="200" stroke="#1e293b" strokeWidth="0.5" />
+                    <circle cx="400" cy="300" r="200" stroke="#1e293b" strokeWidth="0.4" />
                     <circle cx="400" cy="300" r="280" stroke="#1e293b" strokeWidth="0.3" />
                     <path d="M100,400 Q250,100 400,300 T700,200" stroke="#1e293b" strokeWidth="0.5" fill="none" />
                     <path d="M150,500 Q300,200 450,350 T750,150" stroke="#1e293b" strokeWidth="0.3" fill="none" />
-                    <circle cx="320" cy="220" r="3" fill="#3b82f6" opacity="0.4" />
-                    <circle cx="480" cy="350" r="2.5" fill="#7c3aed" opacity="0.3" />
-                    <circle cx="550" cy="180" r="2" fill="#16a34a" opacity="0.3" />
-                    <circle cx="250" cy="380" r="2" fill="#0891b2" opacity="0.3" />
                 </svg>
 
                 <div className="container-custom relative">
-                    <div className="max-w-3xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/5 border border-primary/10 rounded-full text-xs font-semibold text-primary/70 tracking-wide uppercase mb-5" data-testid="hero-badge">
-                            Cambridge IGCSE &bull; AS & A Level
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-primary tracking-tight leading-[1.1] mb-4" data-testid="hero-headline">
-                            Where Curiosity Becomes <span className="text-accent">Mastery</span>
-                        </h1>
-                        <p className="text-base text-gray-500 max-w-xl mx-auto mb-3 leading-relaxed">
-                            Interactive learning and exam preparation for Cambridge IGCSE, AS & A Level Mathematics and Sciences.
+                    <div className="max-w-2xl mx-auto text-center">
+                        <p className="text-[11px] font-semibold text-gray-400 tracking-[0.15em] uppercase mb-4" data-testid="hero-badge">
+                            Cambridge IGCSE &middot; AS & A Level
                         </p>
-                        <p className="text-xs text-gray-400 mb-7 tracking-wide">Mathematics &bull; Physics &bull; Chemistry &bull; Biology &bull; Combined Science &bull; Co-ordinated Sciences</p>
+                        <h1 className="text-[2.25rem] sm:text-[2.75rem] lg:text-[3.25rem] font-bold text-primary tracking-tight leading-[1.12] mb-4" data-testid="hero-headline">
+                            Understand. Practise.<br className="hidden sm:inline" /> Master <span className="text-accent">Cambridge.</span>
+                        </h1>
+                        <p className="text-[15px] text-gray-500 max-w-lg mx-auto mb-6 leading-[1.7]">
+                            A smarter way to learn, practise and prepare for Cambridge IGCSE, AS & A Level — with structured learning, targeted practice, past papers and expert academic support.
+                        </p>
 
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-7">
-                            <Link to="/learn" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-all shadow-lg shadow-primary/15 text-sm" data-testid="hero-cta-learn">
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+                            <Link to="/learn" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-secondary active:scale-[0.98] transition-all duration-200 shadow-lg shadow-primary/10 text-sm" data-testid="hero-cta-learn">
                                 Explore Learning <ArrowRight className="w-4 h-4" />
                             </Link>
-                            <Link to="/past-papers" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-gray-200 text-primary font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all text-sm" data-testid="hero-cta-papers">
+                            <Link to="/past-papers" className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-200 text-primary font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200 text-sm" data-testid="hero-cta-papers">
                                 Find Past Papers
                             </Link>
                         </div>
 
-                        <form onSubmit={handleSearch} className="relative max-w-lg mx-auto" data-testid="hero-search-form">
-                            <div className="flex items-center bg-white border border-gray-200 rounded-xl shadow-sm hover:border-gray-300 focus-within:border-accent focus-within:shadow-md transition-all">
-                                <Search className="w-4 h-4 text-gray-400 ml-4 flex-shrink-0" />
-                                <input ref={inputRef} type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={searchQuery ? '' : animatedText} className="flex-1 px-3 py-3 text-sm bg-transparent outline-none text-primary placeholder:text-gray-400" data-testid="hero-search-input" />
-                                <button type="submit" className="mr-1.5 px-4 py-1.5 bg-accent text-white font-medium rounded-lg hover:bg-accent-hover transition-colors text-xs" data-testid="hero-search-btn">Search</button>
-                            </div>
-                        </form>
+                        <div className="max-w-md mx-auto">
+                            <p className="text-[11px] text-gray-400 mb-2 font-medium">What are you learning today?</p>
+                            <form onSubmit={handleSearch} data-testid="hero-search-form">
+                                <div className="flex items-center bg-white border border-gray-200 rounded-xl hover:border-gray-300 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/10 transition-all duration-200">
+                                    <Search className="w-4 h-4 text-gray-400 ml-3.5 flex-shrink-0" />
+                                    <input ref={inputRef} type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={searchQuery ? '' : animatedText} className="flex-1 px-3 py-2.5 text-sm bg-transparent outline-none text-primary placeholder:text-gray-400" data-testid="hero-search-input" />
+                                    <button type="submit" className="mr-1.5 px-3.5 py-1.5 bg-accent text-white font-medium rounded-lg hover:bg-accent-hover active:scale-[0.97] transition-all duration-150 text-xs" data-testid="hero-search-btn">Search</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* ═══ 2. WHAT ARE YOU WORKING ON? ═══ */}
-            <section className="py-12 md:py-16 bg-white border-y border-gray-100" data-testid="actions-section">
+            <section className="py-10 md:py-12 bg-white border-y border-gray-100" data-testid="actions-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-lg font-bold text-primary mb-8">What are you working on?</h2>
+                    <h2 className="text-center text-base font-bold text-primary mb-6">What are you working on?</h2>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto">
                         {[
                             { icon: BookOpen, label: 'Learn a concept', href: '/learn', color: 'text-blue-600' },
@@ -104,9 +101,9 @@ export default function Home() {
                             { icon: FileCheck, label: 'Find a past paper', href: '/past-papers', color: 'text-violet-600' },
                             { icon: Sparkles, label: 'Get help', href: '/dashboard', color: 'text-amber-600' },
                         ].map((a, i) => (
-                            <Link key={i} to={a.href} className="group flex flex-col items-center gap-2.5 p-5 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all" data-testid={`action-${i}`}>
-                                <a.icon className={`w-6 h-6 ${a.color}`} />
-                                <span className="text-sm font-medium text-gray-700 group-hover:text-primary">{a.label}</span>
+                            <Link key={i} to={a.href} className="group flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm active:scale-[0.98] transition-all duration-200" data-testid={`action-${i}`}>
+                                <a.icon className={`w-5 h-5 ${a.color}`} />
+                                <span className="text-[13px] font-medium text-gray-600 group-hover:text-primary transition-colors duration-200">{a.label}</span>
                             </Link>
                         ))}
                     </div>
@@ -114,10 +111,10 @@ export default function Home() {
             </section>
 
             {/* ═══ 3. EXPLORE CAMBRIDGE ═══ */}
-            <section className="py-12 md:py-16" data-testid="explore-section">
+            <section className="py-10 md:py-12" data-testid="explore-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-xl font-bold text-primary mb-2">Explore Cambridge</h2>
-                    <p className="text-center text-sm text-gray-500 mb-8">Choose your qualification and start learning.</p>
+                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Explore Cambridge</h2>
+                    <p className="text-center text-[13px] text-gray-500 mb-6">Choose your qualification and start learning.</p>
                     <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
                         {[
                             { name: 'IGCSE', slug: 'igcse', color: 'from-blue-600 to-blue-700' },
@@ -139,10 +136,10 @@ export default function Home() {
             </section>
 
             {/* ═══ 4. SUBJECTS ═══ */}
-            <section className="py-12 md:py-16 bg-white" data-testid="subjects-section">
+            <section className="py-10 md:py-12 bg-white" data-testid="subjects-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-xl font-bold text-primary mb-2">Subjects</h2>
-                    <p className="text-center text-sm text-gray-500 mb-8">Comprehensive support across Cambridge Mathematics and Sciences.</p>
+                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Subjects</h2>
+                    <p className="text-center text-[13px] text-gray-500 mb-6">Cambridge Mathematics and Sciences.</p>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
                         {[
                             { title: 'Mathematics', slug: 'mathematics', icon: Calculator, color: 'bg-blue-50 text-blue-600 border-blue-100' },
@@ -167,10 +164,10 @@ export default function Home() {
             </section>
 
             {/* ═══ 5. PAST PAPERS ═══ */}
-            <section className="py-12 md:py-16" data-testid="past-papers-section">
+            <section className="py-10 md:py-12" data-testid="past-papers-section">
                 <div className="container-custom max-w-3xl">
-                    <h2 className="text-center text-xl font-bold text-primary mb-2">Past Papers</h2>
-                    <p className="text-center text-sm text-gray-500 mb-8">Find the paper you need in seconds.</p>
+                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Past Papers</h2>
+                    <p className="text-center text-[13px] text-gray-500 mb-6">Find the paper you need in seconds.</p>
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                         <div className="grid sm:grid-cols-2 gap-3 mb-5">
                             <div>
@@ -202,10 +199,10 @@ export default function Home() {
             </section>
 
             {/* ═══ 6. FREE LEARNING ═══ */}
-            <section className="py-12 md:py-16 bg-white" data-testid="free-resources-section">
+            <section className="py-10 md:py-12 bg-white" data-testid="free-resources-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-xl font-bold text-primary mb-2">Free Learning Library</h2>
-                    <p className="text-center text-sm text-gray-500 mb-8">High-quality resources to help you understand, revise and prepare.</p>
+                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Free Learning Library</h2>
+                    <p className="text-center text-[13px] text-gray-500 mb-6">Resources to help you understand, revise and prepare.</p>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
                         {[
                             { icon: FileText, title: 'Revision Notes', href: '/learn' },
@@ -223,9 +220,9 @@ export default function Home() {
             </section>
 
             {/* ═══ 7. WHY EDVNOVA ═══ */}
-            <section className="py-12 md:py-16" data-testid="why-section">
+            <section className="py-10 md:py-12" data-testid="why-section">
                 <div className="container-custom max-w-3xl">
-                    <h2 className="text-center text-xl font-bold text-primary mb-8">Learn. Practise. Master.</h2>
+                    <h2 className="text-center text-lg font-bold text-primary mb-6">Learn. Practise. Master.</h2>
                     <div className="grid md:grid-cols-3 gap-6 text-center">
                         {[
                             { step: '01', title: 'Learn', desc: 'Understand concepts with structured notes, videos and expert explanations.' },
@@ -243,11 +240,11 @@ export default function Home() {
             </section>
 
             {/* ═══ 8. AI MENTOR ═══ */}
-            <section className="py-12 md:py-16 bg-white" data-testid="ai-mentor-section">
+            <section className="py-10 md:py-12 bg-white" data-testid="ai-mentor-section">
                 <div className="container-custom max-w-2xl text-center">
-                    <Sparkles className="w-8 h-8 text-accent mx-auto mb-4" />
-                    <h2 className="text-xl font-bold text-primary mb-2">EdVNova AI Mentor</h2>
-                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">Your personal academic mentor. Get step-by-step explanations, exam tips and guided practice across all Cambridge subjects.</p>
+                    <Sparkles className="w-7 h-7 text-accent mx-auto mb-3" />
+                    <h2 className="text-lg font-bold text-primary mb-1.5">EdVNova AI Mentor</h2>
+                    <p className="text-[13px] text-gray-500 mb-5 leading-relaxed">Your personal academic mentor. Step-by-step explanations, exam tips and guided practice across all Cambridge subjects.</p>
                     <Link to="/login" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-colors text-sm" data-testid="ai-mentor-cta">
                         Try AI Mentor <ArrowRight className="w-4 h-4" />
                     </Link>
@@ -256,9 +253,9 @@ export default function Home() {
 
             {/* ═══ 9. TESTIMONIALS ═══ */}
             {testimonials.items?.length > 0 && (
-                <section className="py-12 md:py-16" data-testid="testimonials-section">
+                <section className="py-10 md:py-12" data-testid="testimonials-section">
                     <div className="container-custom">
-                        <h2 className="text-center text-xl font-bold text-primary mb-8">{testimonials.heading || 'What Students & Parents Say'}</h2>
+                        <h2 className="text-center text-lg font-bold text-primary mb-6">{testimonials.heading || 'What Students & Parents Say'}</h2>
                         <div className="grid md:grid-cols-3 gap-5">
                             {testimonials.items.map((t, i) => (
                                 <div key={i} className="p-6 bg-white rounded-xl border border-gray-100" data-testid={`testimonial-${i}`}>
@@ -276,10 +273,10 @@ export default function Home() {
             )}
 
             {/* ═══ 10. FINAL CTA ═══ */}
-            <section className="py-16 md:py-20 bg-primary" data-testid="cta-section">
+            <section className="py-12 md:py-16 bg-primary" data-testid="cta-section">
                 <div className="container-custom max-w-2xl text-center">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-4">Start your Cambridge learning journey</h2>
-                    <p className="text-white/50 mb-8 leading-relaxed">Join students building clarity, confidence and results with EdVNova.</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-3">Start your Cambridge learning journey</h2>
+                    <p className="text-white/50 text-sm mb-7 leading-relaxed">Join students building clarity, confidence and results with EdVNova.</p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Link to="/register" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-primary font-semibold rounded-xl hover:bg-gray-100 transition-all text-sm" data-testid="final-cta-primary">
                             Get Started Free <ArrowRight className="w-4 h-4" />

@@ -1,15 +1,29 @@
 /* EdVNova Premium Styles - Clean & Minimal */
 
-/* Premium card - clean, no flashy effects */
+/* ═══ Reduced Motion ═══ */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ═══ Global Micro-Interactions ═══ */
+a, button, [role="button"] {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+
+/* Premium card - clean */
 .premium-card {
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
     border-radius: 12px;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .premium-card:hover {
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.08);
     border-color: #D1D5DB;
 }
 
@@ -49,14 +63,14 @@
     background: #F9FAFB;
 }
 
-/* Section spacing - generous */
+/* Section spacing — consistent tokens */
 .section {
-    padding: 96px 0;
+    padding: 40px 0;
 }
 
 @media (min-width: 768px) {
     .section {
-        padding: 128px 0;
+        padding: 48px 0;
     }
 }
 

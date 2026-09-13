@@ -85,10 +85,10 @@ export default function SearchResults() {
                             </div>
                         </div>
                     ) : results.length === 0 ? (
-                        <div className="text-center py-20">
-                            <Search className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-                            <h2 className="font-bold text-primary text-lg mb-2">No results found</h2>
-                            <p className="text-sm text-gray-400">Try a different search term or browse our subjects.</p>
+                        <div className="text-center py-14">
+                            <Search className="w-8 h-8 text-gray-200 mx-auto mb-3" />
+                            <h2 className="font-bold text-primary text-base mb-1.5">No results found</h2>
+                            <p className="text-[13px] text-gray-400 max-w-sm mx-auto">We couldn't find an exact match. Try a topic, syllabus code or past-paper number.</p>
                             <Link to="/learn" className="inline-flex items-center gap-2 mt-4 text-accent text-sm font-medium hover:underline">Browse Subjects <ArrowRight className="w-4 h-4" /></Link>
                         </div>
                     ) : (

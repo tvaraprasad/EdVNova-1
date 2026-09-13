@@ -86,15 +86,15 @@ export default function PastPaperLibrary() {
                     {loading ? (
                         <div className="flex justify-center py-16"><div className="spinner"></div></div>
                     ) : papers.length === 0 ? (
-                        <div className="text-center py-20">
-                            <FileText className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-                            <h3 className="font-bold text-primary mb-1">No past papers found</h3>
-                            <p className="text-sm text-gray-400">Try adjusting your filters or check back later as papers are being added.</p>
+                        <div className="text-center py-14">
+                            <FileText className="w-8 h-8 text-gray-200 mx-auto mb-3" />
+                            <h3 className="font-bold text-primary text-base mb-1">No past papers found</h3>
+                            <p className="text-[13px] text-gray-400">Try adjusting your filters or check back as papers are being added.</p>
                         </div>
                     ) : (
                         <div className="grid gap-3">
                             {papers.map(p => (
-                                <div key={p.id} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:shadow-sm transition-shadow" data-testid={`pp-item-${p.id}`}>
+                                <div key={p.id} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm active:scale-[0.99] transition-all duration-200" data-testid={`pp-item-${p.id}`}>
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${resourceIcon(p.resource_type)}`}>
                                         <FileText className="w-5 h-5" />
                                     </div>

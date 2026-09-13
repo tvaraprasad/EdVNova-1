@@ -70,7 +70,7 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
 - [x] **P3: Whitespace audit** — tightened all homepage + page sections (Sep 2026)
 - [x] **P4: Hero upgrade** — "Where Curiosity Becomes Mastery" + scientific SVG visual (Sep 2026)
 - [x] **P5: Learn dropdown** — Academic (IGCSE/AS/A) + Learning (Courses/Expert/AI Mentor) (Sep 2026)
-- [x] **P6: Homepage 10-section hierarchy** with Combined/Coordinated Sciences (Sep 2026)
+- [x] **Visual Polish** — Hero: "Understand. Practise. Master Cambridge." + tighter spacing + micro-interactions + typography refinement (Sep 2026)
 
 ## Backlog
 
