@@ -5,7 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import {
     Menu, X, ShoppingCart, User, LogOut, ChevronDown, BookOpen, GraduationCap,
     Award, Users, Compass, Lightbulb, Home, PenLine, FileCheck, BarChart3,
-    CalendarDays, Store, Settings, HelpCircle, ShieldCheck, FileText
+    CalendarDays, Store, Settings, HelpCircle, ShieldCheck, FileText, Sparkles
 } from 'lucide-react';
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -30,12 +30,12 @@ function LearnMegaMenu({ isActive }) {
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 p-5 w-[420px]" data-testid="learn-mega-menu">
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Explore by Qualification</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Academic</p>
                                 <div className="space-y-0.5">
                                     {[
-                                        { name: 'Cambridge IGCSE', href: '/learn/igcse', icon: BookOpen },
-                                        { name: 'Cambridge AS Level', href: '/learn/as-level', icon: GraduationCap },
-                                        { name: 'Cambridge A Level', href: '/learn/a-level', icon: Award },
+                                        { name: 'IGCSE', href: '/learn/igcse', icon: BookOpen },
+                                        { name: 'AS Level', href: '/learn/as-level', icon: GraduationCap },
+                                        { name: 'A Level', href: '/learn/a-level', icon: Award },
                                     ].map(item => (
                                         <Link key={item.name} to={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors" onClick={() => setOpen(false)}>
                                             <item.icon className="w-4 h-4 text-gray-400" />
@@ -45,13 +45,12 @@ function LearnMegaMenu({ isActive }) {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Study</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Learning</p>
                                 <div className="space-y-0.5">
                                     {[
                                         { name: 'Courses', href: '/programs', icon: Users },
-                                        { name: 'Practice', href: '/practice', icon: PenLine },
-                                        { name: 'Past Papers', href: '/past-papers', icon: FileCheck },
-                                        { name: 'Free Resources', href: '/learn', icon: FileText },
+                                        { name: 'Expert Learning', href: '/programs', icon: GraduationCap },
+                                        { name: 'AI Mentor', href: '/dashboard', icon: Sparkles },
                                     ].map(item => (
                                         <Link key={item.name} to={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors" onClick={() => setOpen(false)}>
                                             <item.icon className="w-4 h-4 text-gray-400" />

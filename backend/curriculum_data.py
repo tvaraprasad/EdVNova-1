@@ -18,6 +18,8 @@ SUBJECT_META = {
     "physics": {"icon": "atom", "color": "#7c3aed"},
     "chemistry": {"icon": "flask", "color": "#16a34a"},
     "biology": {"icon": "leaf", "color": "#059669"},
+    "combined-science": {"icon": "flask", "color": "#0891b2"},
+    "co-ordinated-sciences": {"icon": "atom", "color": "#6366f1"},
 }
 
 IGCSE = {
@@ -94,6 +96,48 @@ IGCSE = {
             {"name": "Statistics", "topics": ["Mean Median Mode", "Histograms", "Cumulative Frequency"]},
             {"name": "Vectors", "topics": ["Vector Notation", "Vector Operations"]},
             {"name": "Matrices", "topics": ["Matrix Operations", "Transformations with Matrices"]},
+        ]
+    },
+    "combined-science": {
+        "name": "Combined Science",
+        "syllabus_code": "0653",
+        "description": "Cambridge IGCSE Combined Science covers key concepts across Biology, Chemistry and Physics in a single qualification.",
+        "chapters": [
+            {"name": "Cell Structure & Organisation", "topics": ["Cell Structure", "Levels of Organisation", "Size of Specimens"]},
+            {"name": "Movement In & Out of Cells", "topics": ["Diffusion", "Osmosis", "Active Transport"]},
+            {"name": "Biological Molecules", "topics": ["Carbohydrates, Fats & Proteins", "Enzymes"]},
+            {"name": "Plant Nutrition", "topics": ["Photosynthesis", "Leaf Structure"]},
+            {"name": "Animal Nutrition", "topics": ["Diet", "Alimentary Canal", "Digestion & Absorption"]},
+            {"name": "States of Matter", "topics": ["Solids, Liquids & Gases", "Diffusion of Gases", "Changes of State"]},
+            {"name": "Atoms & Elements", "topics": ["Atomic Structure", "Elements & Compounds", "Bonding"]},
+            {"name": "Stoichiometry", "topics": ["Formulae", "Equations", "Mole Concept"]},
+            {"name": "Electrochemistry", "topics": ["Electrolysis", "Electroplating"]},
+            {"name": "Energy & Thermal Physics", "topics": ["Energy Stores & Transfers", "Thermal Properties"]},
+            {"name": "Forces & Motion", "topics": ["Speed & Velocity", "Acceleration", "Forces", "Momentum"]},
+            {"name": "Waves & Sound", "topics": ["Wave Properties", "Sound", "Electromagnetic Spectrum"]},
+            {"name": "Electricity & Magnetism", "topics": ["Circuits", "Electromagnetism", "Electromagnetic Induction"]},
+            {"name": "Radioactivity", "topics": ["The Atom", "Radioactive Decay", "Half-Life", "Uses & Dangers"]},
+        ]
+    },
+    "co-ordinated-sciences": {
+        "name": "Co-ordinated Sciences",
+        "syllabus_code": "0654",
+        "description": "Cambridge IGCSE Co-ordinated Sciences provides a broad, balanced science education across Biology, Chemistry and Physics.",
+        "chapters": [
+            {"name": "Cells", "topics": ["Cell Structure", "Movement In & Out of Cells", "Biological Molecules"]},
+            {"name": "Organism & Environment", "topics": ["Photosynthesis", "Food Chains & Webs", "Nutrient Cycles"]},
+            {"name": "Human Physiology", "topics": ["Nutrition", "Gas Exchange", "Circulation", "Excretion"]},
+            {"name": "Reproduction & Inheritance", "topics": ["Reproduction", "Inheritance", "Variation & Selection"]},
+            {"name": "Particulate Nature of Matter", "topics": ["States of Matter", "Atoms & Bonding", "Stoichiometry"]},
+            {"name": "Chemistry of Reactions", "topics": ["Chemical Reactions", "Rates of Reaction", "Energetics"]},
+            {"name": "Acids, Bases & Salts", "topics": ["Acids & Bases", "Indicators", "Salts"]},
+            {"name": "The Periodic Table", "topics": ["Groups & Periods", "Metals & Non-Metals", "Transition Metals"]},
+            {"name": "Organic Chemistry", "topics": ["Fuels", "Alkanes & Alkenes", "Polymers"]},
+            {"name": "General Physics", "topics": ["Length, Mass & Time", "Speed & Acceleration", "Forces & Turning Effects"]},
+            {"name": "Thermal Physics", "topics": ["Thermal Expansion", "Transfer of Thermal Energy", "Specific Heat Capacity"]},
+            {"name": "Waves & Light", "topics": ["Wave Properties", "Light", "Sound", "Electromagnetic Spectrum"]},
+            {"name": "Electricity", "topics": ["Circuits", "Resistance", "Electrical Energy", "Electromagnetic Effects"]},
+            {"name": "Atomic Physics", "topics": ["The Nucleus", "Radioactivity", "Nuclear Reactions"]},
         ]
     }
 }

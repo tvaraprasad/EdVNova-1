@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 21: P1-P6 product-quality upgrade verified. Backend (9/9 pass): /api/curriculum/boards/igcse returns 6 subjects (chemistry, physics, biology, mathematics, combined-science, co-ordinated-sciences); each subject has chapters with slugs enabling redirect; combined-science has 14 chapters, co-ordinated-sciences has 14 chapters. Frontend Playwright: All 6 subject URLs /learn/igcse/{subject} correctly redirect (replace:true) to /learn/igcse/{subject}/{first-chapter-slug} — chemistry->atomic-structure, physics->motion, biology->characteristics-of-living-organisms, mathematics->number, combined-science->cell-structure-and-organisation, co-ordinated-sciences->cells. Course workspace on /learn/igcse/chemistry/atomic-structure shows all 5 tabs (Overview, Concept Notes, Workbook, Videos, Downloads). /learn/igcse subject selection page shows all 6 subjects including Combined Science and Co-ordinated Sciences. Homepage: 'Where Curiosity Becomes <span>Mastery</span>' headline present, Explore Learning + Find Past Papers CTAs, animated search bar, 'What are you working on' section, 'Explore Cambridge', Combined Science + Co-ordinated Sciences cards, past-papers finder with 0653/0654 codes, 'Learn. Practise. Master.' present. Regression: admin login works, /admin reachable, /past-papers 200, /store 200, /search?q=quadratic returns 2 results.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Homepage past-papers finder dropdowns", "issues": ["Pre-existing hydration warning (iter19/20): <span> cannot be a child of <option>. Editor-injected data-ve-dynamic wrapper spans around dynamic option label text in Home.js. Dev-only warning, not caused by this iteration."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter21_p1_p2.py",
+    "/app/backend/tests/test_iter20_regression.py",
+    "/app/test_reports/pytest/iter21.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ChaptersList.js line 11 still uses window.location.pathname to detect /learn prefix — recommend useLocation() from react-router for SSR/testing consistency (carry-over from iter19).",
+    "ChaptersList.js: If a subject briefly returns empty chapters (network flake), user sees fallback 'No chapters available yet' with no retry. Consider adding a Retry button.",
+    "The auto-redirect (navigate replace:true) means the intermediate /learn/igcse/{subject} URL never appears in history but is bookmarkable and will always re-redirect — good UX. However, if a user later wants a chapter-index view, they'll need a different route.",
+    "Home.js still has the <option>-<span> hydration warning around past-papers finder dropdowns (Home.js option labels wrapped with editor tracking spans). Suggest guarding editor-injected wrappers so they don't render inside <option>."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter21_p1_p2.py"],
+  "success_rate": {"backend": "100% (9/9 new + 6/6 regression = 15/15)", "frontend": "100% (all P1 redirects, workspace tabs, homepage sections, regression flows verified)"},
+  "test_credentials": "admin@edvnova.com / Admin@123 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None (Combined Science + Co-ordinated Sciences pre-seeded via MongoDB by main agent)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All P1-P6 upgrades verified working. ChaptersList redirect pattern is solid. New regression test file test_iter21_p1_p2.py verifies (a) 6 IGCSE subjects present, (b) each subject has redirect-ready chapters, (c) new subjects have >=10 chapters. Reuse for future iterations. Only outstanding issue is the pre-existing dev-only <span>/<option> hydration warning around Home.js past-papers finder dropdowns."
+}

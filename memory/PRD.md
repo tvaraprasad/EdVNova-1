@@ -61,13 +61,16 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
 - [x] Auth, Admin (14 tabs), Store/Cart, CMS, Workshops, Career Guidance
 - [x] Curriculum, AI Mentor, Practice Questions
 - [x] Emergent Object Storage, Learning Asset Manager, Rich Content Editor
-- [x] Homepage v4.0 — premium hero, 9 sections, past papers finder (Sep 2026)
-- [x] Learn mega-menu with structured columns (Sep 2026)
-- [x] Friction-free intermediate pages (Sep 2026)
-- [x] Course workspace with persistent sidebar
+- [x] Course workspace with persistent sidebar (approved interface)
 - [x] Past paper system (bulk upload, SEO pages, collection pages)
 - [x] Global search (⌘K + homepage + /search)
 - [x] Student Dashboard ("What should I do next?")
+- [x] **P1: Subject → Course workspace direct** — no intermediate ChaptersList page (Sep 2026)
+- [x] **P2: Combined Science (0653) + Co-ordinated Sciences (0654)** seeded (14ch/40t + 14ch/45t) (Sep 2026)
+- [x] **P3: Whitespace audit** — tightened all homepage + page sections (Sep 2026)
+- [x] **P4: Hero upgrade** — "Where Curiosity Becomes Mastery" + scientific SVG visual (Sep 2026)
+- [x] **P5: Learn dropdown** — Academic (IGCSE/AS/A) + Learning (Courses/Expert/AI Mentor) (Sep 2026)
+- [x] **P6: Homepage 10-section hierarchy** with Combined/Coordinated Sciences (Sep 2026)
 
 ## Backlog
 
