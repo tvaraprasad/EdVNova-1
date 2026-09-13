@@ -45,24 +45,24 @@ export default function Home() {
     return (
         <div className="pt-16 md:pt-20" data-testid="home-page">
             {/* ═══ 1. HERO ═══ */}
-            <section className="relative py-20 md:py-28 lg:py-36 overflow-hidden" data-testid="hero-section">
+            <section className="relative py-16 md:py-22 lg:py-28 overflow-hidden" data-testid="hero-section">
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-white" />
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-50/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
                 <div className="container-custom relative">
                     <div className="max-w-3xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/5 border border-accent/10 rounded-full text-sm font-medium text-accent mb-8" data-testid="hero-badge">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/5 border border-accent/10 rounded-full text-sm font-medium text-accent mb-6" data-testid="hero-badge">
                             IGCSE &bull; AS & A Level
                         </div>
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.1] mb-6" data-testid="hero-headline">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.1] mb-5" data-testid="hero-headline">
                             The Premium Learning Platform for <span className="text-accent">Cambridge Students</span>
                         </h1>
-                        <p className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto mb-5 leading-relaxed">
+                        <p className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto mb-4 leading-relaxed">
                             Learn, practise and prepare with expert teaching, structured courses, powerful resources, past papers and personalised academic support.
                         </p>
-                        <p className="text-sm text-gray-400 mb-10">Mathematics &bull; Physics &bull; Chemistry &bull; Biology</p>
+                        <p className="text-sm text-gray-400 mb-8">Mathematics &bull; Physics &bull; Chemistry &bull; Biology</p>
 
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                             <Link to="/learn" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-all shadow-lg shadow-primary/20" data-testid="hero-cta-learn">
                                 Explore Learning <ArrowRight className="w-5 h-5" />
                             </Link>
