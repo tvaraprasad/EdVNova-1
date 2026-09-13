@@ -216,11 +216,13 @@ def create_media_routes(db, get_admin_user):
     @router.get("/folders")
     async def list_folders(request: Request):
         await get_admin_user(request)
-        folders = await db.media_files.distinct("folder")
-        counts = {}
-        for f in folders:
-            counts[f] = await db.media_files.count_documents({"folder": f})
-        return [{"name": f, "count": counts[f]} for f in sorted(folders)]
+        folders = [f for f in await db.media_files.distinct("folder") if f]
+        result = []
+        for folder in folders:
+            count = await db.media_files.count_documents({"folder": folder})
+            result.append({"name": folder, "count": count})
+        result.sort(key=lambda x: x["name"])
+        return result
 
     @router.delete("/{file_id}")
     async def delete_media(file_id: str, request: Request):

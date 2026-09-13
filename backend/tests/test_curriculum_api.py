@@ -5,6 +5,7 @@ Tests all curriculum endpoints: boards, subjects, chapters, topics, search, and 
 import pytest
 import requests
 import os
+from tests.conftest import ADMIN_EMAIL, ADMIN_PASSWORD
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
@@ -211,14 +212,14 @@ class TestAuth:
     def test_login_with_admin_credentials(self):
         """POST /api/auth/login with admin@edvnova.com / Admin@123"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "admin@edvnova.com",
-            "password": "Admin@123"
+            "email": ADMIN_EMAIL,
+            "password": ADMIN_PASSWORD
         })
         assert response.status_code == 200
         
         data = response.json()
         # Login returns user data directly (not nested under "user" key)
-        assert data["email"] == "admin@edvnova.com"
+        assert data["email"] == ADMIN_EMAIL
         assert data["role"] == "admin"
 
 
@@ -230,8 +231,8 @@ class TestStudentFeatures:
         """Get authenticated session"""
         session = requests.Session()
         response = session.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "admin@edvnova.com",
-            "password": "Admin@123"
+            "email": ADMIN_EMAIL,
+            "password": ADMIN_PASSWORD
         })
         if response.status_code != 200:
             pytest.skip("Authentication failed")

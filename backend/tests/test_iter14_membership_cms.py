@@ -17,8 +17,7 @@ import requests
 
 BASE = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
 
-ADMIN_EMAIL = "admin@edvnova.com"
-ADMIN_PASSWORD = "Admin@123"
+from tests.conftest import ADMIN_EMAIL, ADMIN_PASSWORD
 
 TEST_TOPIC_ID = "TEST_iter14_topic_membership"
 

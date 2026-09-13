@@ -9,8 +9,7 @@ import os
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
 # Test credentials
-ADMIN_EMAIL = "admin@edvnova.com"
-ADMIN_PASSWORD = "Admin@123"
+from tests.conftest import ADMIN_EMAIL, ADMIN_PASSWORD
 
 
 class TestAuthAndHealth:

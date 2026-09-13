@@ -7,12 +7,12 @@ import os
 import io
 import pytest
 import requests
+from tests.conftest import ADMIN_EMAIL, ADMIN_PASSWORD
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:8001").rstrip("/")
 API = f"{BASE_URL}/api"
 
-ADMIN_EMAIL = "admin@edvnova.com"
-ADMIN_PASS = "Admin@123"
+ADMIN_PASS = ADMIN_PASSWORD
 
 
 @pytest.fixture(scope="session")

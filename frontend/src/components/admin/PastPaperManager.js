@@ -57,7 +57,7 @@ export default function PastPaperManager({ onBack }) {
         try {
             const res = await axios.get(`${API_URL}/api/past-papers/stats`, { withCredentials: true });
             setStats(res.data);
-        } catch (e) { /* ignore */ }
+        } catch (err) { /* stats non-critical */ }
     }, []);
 
     useEffect(() => { fetchPapers(); }, [fetchPapers]);

@@ -54,7 +54,7 @@ export default function CourseContent() {
                 resource_type: 'lesson', resource_id: lesson.id,
                 resource_title: lesson.title, file_url: fileUrl
             }, { withCredentials: true });
-        } catch { /* silent */ }
+        } catch (err) { console.error('Download tracking failed:', err); }
         window.open(`${API_URL}${fileUrl}`, '_blank');
     };
 

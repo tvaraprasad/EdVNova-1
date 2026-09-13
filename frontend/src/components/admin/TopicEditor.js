@@ -154,7 +154,7 @@ function TopicList({ onSelect }) {
         try {
             const res = await axios.get(`${API_URL}/api/curriculum/admin/topics-stats`, { withCredentials: true });
             setStats(res.data);
-        } catch {}
+        } catch (err) { console.error('Failed to fetch topic stats:', err); }
     }, []);
 
     useEffect(() => { fetchStats(); }, [fetchStats]);

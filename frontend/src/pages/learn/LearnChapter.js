@@ -191,7 +191,7 @@ function WorkbookPanel({ questions, board, subject, chapter, isAuth }) {
         ]).then(([b, c]) => {
             setBookmarks(new Set(b.data.map(x => x.question_id)));
             setCompletions(new Set(c.data.map(x => x.question_id)));
-        }).catch(() => {});
+        }).catch(err => { console.error('Failed to load bookmarks/completions:', err); });
     }, [isAuth]);
 
     const toggleBookmark = async (id) => {

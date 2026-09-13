@@ -3,11 +3,11 @@ import io
 import os
 import pytest
 import requests
+from tests.conftest import ADMIN_EMAIL, ADMIN_PASSWORD
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://igcse-elite.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
-ADMIN_EMAIL = "admin@edvnova.com"
-ADMIN_PASS = "Admin@123"
+ADMIN_PASS = ADMIN_PASSWORD
 
 
 @pytest.fixture(scope="module")

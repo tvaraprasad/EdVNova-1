@@ -9,8 +9,7 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/") or "https://igcse-elite.preview.emergentagent.com"
-ADMIN_EMAIL = "admin@edvnova.com"
-ADMIN_PASSWORD = "Admin@123"
+from tests.conftest import ADMIN_EMAIL, ADMIN_PASSWORD
 
 # Deterministic test parent id/type so we can cleanup by query
 TEST_PARENT_TYPE = "topic"

@@ -120,7 +120,7 @@ export default function PracticeQuestions() {
             const res = await axios.get(`${API_URL}/api/questions/browse?${params}`);
             setQuestions(res.data.questions);
             setTotal(res.data.total);
-        } catch { } finally { setLoading(false); }
+        } catch (err) { console.error('Failed to fetch questions:', err); } finally { setLoading(false); }
     }, [subject, board, topic, difficulty, paperType, page]);
 
     const fetchTopics = useCallback(async () => {
@@ -130,7 +130,7 @@ export default function PracticeQuestions() {
             if (board) params.set('board', board);
             const res = await axios.get(`${API_URL}/api/questions/topics?${params}`);
             setTopics(res.data);
-        } catch { }
+        } catch (err) { console.error('Failed to fetch topics:', err); }
     }, [subject, board]);
 
     const fetchUserData = useCallback(async () => {
@@ -142,7 +142,7 @@ export default function PracticeQuestions() {
             ]);
             setBookmarks(new Set(bRes.data.map(b => b.question_id)));
             setCompletions(new Set(cRes.data.map(c => c.question_id)));
-        } catch { }
+        } catch (err) { console.error('Failed to fetch user data:', err); }
     }, [isAuthenticated]);
 
     useEffect(() => { fetchQuestions(); }, [fetchQuestions]);
