@@ -6,11 +6,11 @@ module.exports = {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: '#0B1F3A',
+                    DEFAULT: '#07182E',
                     foreground: '#FFFFFF',
                 },
                 secondary: {
-                    DEFAULT: '#1E3A5F',
+                    DEFAULT: '#102B4B',
                     foreground: '#FFFFFF',
                 },
                 accent: {
@@ -18,7 +18,18 @@ module.exports = {
                     hover: '#1D4ED8',
                     foreground: '#FFFFFF',
                 },
-                background: '#F8FAFC',
+                navy: {
+                    DEFAULT: '#07182E',
+                    deep: '#102B4B',
+                },
+                electric: '#4C8DFF',
+                soft: '#F6F8FC',
+                tint: '#EAF1FB',
+                ink: {
+                    DEFAULT: '#0F172A',
+                    muted: '#64748B',
+                },
+                background: '#F6F8FC',
                 surface: '#FFFFFF',
                 border: '#E2E8F0',
                 text: {
@@ -51,6 +62,11 @@ module.exports = {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
+            },
+            boxShadow: {
+                card: '0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.03)',
+                'card-hover': '0 2px 4px rgba(15,23,42,0.04), 0 12px 32px -12px rgba(15,23,42,0.14)',
+                pop: '0 4px 6px -2px rgba(15,23,42,0.05), 0 20px 40px -12px rgba(15,23,42,0.18)',
             },
             keyframes: {
                 "accordion-down": {

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -21,39 +21,39 @@ function LearnMegaMenu({ isActive }) {
     const handleLeave = () => { timeoutRef.current = setTimeout(() => setOpen(false), 200); };
 
     return (
-        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-            <button className={`flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'text-accent bg-accent/5' : 'text-gray-600 hover:text-primary hover:bg-gray-50'}`} data-testid="nav-learn">
+        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave} onBlur={e => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)}>
+            <button type="button" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen(true)} onKeyDown={e => e.key === 'Escape' && setOpen(false)} className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${isActive ? 'text-accent bg-accent/[0.07]' : 'text-slate-600 hover:text-primary hover:bg-slate-900/[0.04]'}`} data-testid="nav-learn">
                 Learn <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
                 <div className="absolute top-full left-0 pt-2 z-50">
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 p-5 w-[420px]" data-testid="learn-mega-menu">
+                    <div className="nav-pop rounded-2xl p-4 w-[440px]" data-testid="learn-mega-menu">
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Academic</p>
+                                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.16em] mb-2 px-3">Academic</p>
                                 <div className="space-y-0.5">
                                     {[
                                         { name: 'IGCSE', href: '/learn/igcse', icon: BookOpen },
                                         { name: 'AS Level', href: '/learn/as-level', icon: GraduationCap },
                                         { name: 'A Level', href: '/learn/a-level', icon: Award },
                                     ].map(item => (
-                                        <Link key={item.name} to={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors" onClick={() => setOpen(false)}>
-                                            <item.icon className="w-4 h-4 text-gray-400" />
+                                        <Link key={item.name} to={item.href} className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" onClick={() => setOpen(false)}>
+                                            <item.icon className="w-4 h-4 text-slate-400 group-hover:text-accent transition-colors" />
                                             <span className="font-medium">{item.name}</span>
                                         </Link>
                                     ))}
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Learning</p>
+                                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.16em] mb-2 px-3">Learning</p>
                                 <div className="space-y-0.5">
                                     {[
                                         { name: 'Courses', href: '/programs', icon: Users },
                                         { name: 'Expert Learning', href: '/programs', icon: GraduationCap },
                                         { name: 'AI Mentor', href: '/dashboard', icon: Sparkles },
                                     ].map(item => (
-                                        <Link key={item.name} to={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors" onClick={() => setOpen(false)}>
-                                            <item.icon className="w-4 h-4 text-gray-400" />
+                                        <Link key={item.name} to={item.href} className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" onClick={() => setOpen(false)}>
+                                            <item.icon className="w-4 h-4 text-slate-400 group-hover:text-accent transition-colors" />
                                             <span className="font-medium">{item.name}</span>
                                         </Link>
                                     ))}
@@ -75,10 +75,15 @@ function NavDropdown({ label, items, isActive }) {
     const handleLeave = () => { timeoutRef.current = setTimeout(() => setOpen(false), 150); };
 
     return (
-        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave} onBlur={e => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)}>
             <button
-                className={`flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    isActive ? 'text-accent bg-accent/5' : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                type="button"
+                aria-haspopup="true"
+                aria-expanded={open}
+                onClick={() => setOpen(true)}
+                onKeyDown={e => e.key === 'Escape' && setOpen(false)}
+                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${
+                    isActive ? 'text-accent bg-accent/[0.07]' : 'text-slate-600 hover:text-primary hover:bg-slate-900/[0.04]'
                 }`}
                 data-testid={`nav-${label.toLowerCase().replace(/\s/g, '-')}`}
             >
@@ -87,16 +92,16 @@ function NavDropdown({ label, items, isActive }) {
             </button>
             {open && (
                 <div className="absolute top-full left-0 pt-2 z-50">
-                    <div className="bg-white rounded-xl border border-gray-100 shadow-xl shadow-gray-200/50 py-2 min-w-[220px]">
+                    <div className="nav-pop rounded-xl p-1.5 min-w-[230px]">
                         {items.map((item) => (
                             <Link
                                 key={item.name}
                                 to={item.href}
-                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors"
+                                className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
                                 onClick={() => setOpen(false)}
                                 data-testid={`dropdown-item-${item.name.toLowerCase().replace(/\s/g, '-')}`}
                             >
-                                {item.icon && <item.icon className="w-4 h-4 text-gray-400" />}
+                                {item.icon && <item.icon className="w-4 h-4 text-slate-400 group-hover:text-accent transition-colors" />}
                                 <span className="font-medium">{item.name}</span>
                             </Link>
                         ))}
@@ -112,8 +117,8 @@ function NavLink({ to, label, isActive, testId }) {
     return (
         <Link
             to={to}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                isActive ? 'text-accent bg-accent/5' : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+            className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${
+                isActive ? 'text-accent bg-accent/[0.07]' : 'text-slate-600 hover:text-primary hover:bg-slate-900/[0.04]'
             }`}
             data-testid={testId}
         >
@@ -128,16 +133,18 @@ function MobileAccordion({ label, items, onNavigate }) {
     return (
         <div>
             <button
+                type="button"
+                aria-expanded={open}
                 onClick={() => setOpen(!open)}
-                className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50"
+                className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-slate-700 rounded-xl hover:bg-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
             >
                 <span>{label}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
-                <div className="ml-4 pl-4 border-l-2 border-gray-100 space-y-0.5 mt-1 mb-2">
+                <div className="ml-4 pl-4 border-l border-slate-200 space-y-0.5 mt-1 mb-2">
                     {items.map(item => (
-                        <Link key={item.name} to={item.href} className="block px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary" onClick={onNavigate}>
+                        <Link key={item.name} to={item.href} className="block px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-soft hover:text-primary" onClick={onNavigate}>
                             {item.name}
                         </Link>
                     ))}
@@ -153,6 +160,14 @@ export default function Header() {
     const { cartCount } = useCart();
     const navigate = useNavigate();
     const location = useLocation();
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 8);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     const handleLogout = async () => { await logout(); navigate('/'); };
     const closeMobile = () => setMobileMenuOpen(false);
@@ -184,12 +199,12 @@ export default function Header() {
     ];
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 glass-header" data-testid="main-header">
+        <header className={`fixed top-0 left-0 right-0 z-50 glass-header ${scrolled || mobileMenuOpen ? 'is-scrolled' : ''}`} data-testid="main-header">
             <nav className="container-custom">
-                <div className="flex items-center justify-between h-18 md:h-20">
+                <div className="flex items-center justify-between h-[60px] md:h-[72px]">
                     {/* Logo */}
-                    <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center" data-testid="logo-link" aria-label="Home">
-                        <span className="text-[22px] md:text-[24px] font-bold text-primary tracking-tight">EdVNova</span>
+                    <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" data-testid="logo-link" aria-label="Home">
+                        <span className="text-[22px] md:text-[23px] font-bold text-primary tracking-[-0.03em]">EdVNova</span>
                     </Link>
 
                     {/* ═══ DESKTOP NAV ═══ */}
@@ -218,7 +233,7 @@ export default function Header() {
                     <div className="hidden lg:flex items-center gap-3">
                         <GlobalSearch />
                         {/* Cart (always visible) */}
-                        <Link to="/store/cart" className="relative p-2.5 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-all duration-200" data-testid="cart-button">
+                        <Link to="/store/cart" aria-label="Cart" className="relative p-2.5 text-slate-500 hover:text-primary hover:bg-slate-900/[0.04] rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" data-testid="cart-button">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
                                 <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">{cartCount}</span>
@@ -283,10 +298,10 @@ export default function Header() {
                         ) : (
                             /* ── Public: Sign In + Get Started ── */
                             <div className="flex items-center gap-2">
-                                <Link to="/login" className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-primary transition-colors" data-testid="login-button">
+                                <Link to="/login" className="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-primary rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" data-testid="login-button">
                                     Sign In
                                 </Link>
-                                <Link to="/register" className="px-5 py-2.5 text-sm font-semibold bg-accent text-white rounded-xl hover:bg-accent-hover transition-all duration-200 shadow-sm" data-testid="get-started-btn">
+                                <Link to="/register" className="px-4 py-2 text-sm font-semibold bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors duration-200 shadow-[0_1px_2px_rgba(15,23,42,0.1),0_4px_12px_-4px_rgba(37,99,235,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2" data-testid="get-started-btn">
                                     Get Started
                                 </Link>
                             </div>
@@ -295,13 +310,13 @@ export default function Header() {
 
                     {/* ═══ MOBILE MENU BUTTON ═══ */}
                     <div className="flex items-center gap-2 lg:hidden">
-                        <Link to="/store/cart" className="relative p-2.5 text-gray-500" data-testid="mobile-cart-button">
+                        <Link to="/store/cart" aria-label="Cart" className="relative p-2.5 text-slate-500 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" data-testid="mobile-cart-button">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
                                 <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">{cartCount}</span>
                             )}
                         </Link>
-                        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2.5 text-gray-500 hover:text-primary" data-testid="mobile-menu-toggle">
+                        <button type="button" aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2.5 text-slate-600 hover:text-primary rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" data-testid="mobile-menu-toggle">
                             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
@@ -309,12 +324,12 @@ export default function Header() {
 
                 {/* ═══ MOBILE MENU ═══ */}
                 {mobileMenuOpen && (
-                    <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg" data-testid="mobile-menu">
+                    <div className="lg:hidden bg-white border-t border-slate-100 -mx-6 md:-mx-10 px-4 md:px-8 max-h-[calc(100vh-60px)] overflow-y-auto" data-testid="mobile-menu">
                         <div className="py-5 px-2 space-y-1">
                             {isAuthenticated ? (
                                 /* ── Student mobile nav ── */
                                 <>
-                                    <Link to="/dashboard" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Home</Link>
+                                    <Link to="/dashboard" className="block px-4 py-3 text-base font-medium text-slate-700 rounded-xl hover:bg-soft" onClick={closeMobile}>Home</Link>
                                     <MobileAccordion label="Learn" items={[
                                         { name: 'Cambridge IGCSE', href: '/learn/igcse' },
                                         { name: 'Cambridge AS Level', href: '/learn/as-level' },
@@ -323,7 +338,7 @@ export default function Header() {
                                         { name: 'Practice', href: '/practice' },
                                         { name: 'Past Papers', href: '/past-papers' },
                                     ]} onNavigate={closeMobile} />
-                                    <Link to="/store" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Store</Link>
+                                    <Link to="/store" className="block px-4 py-3 text-base font-medium text-slate-700 rounded-xl hover:bg-soft" onClick={closeMobile}>Store</Link>
                                     <MobileAccordion label="More" items={[
                                         { name: 'Workshops', href: '/workshops' },
                                         { name: 'Career Guidance', href: '/career-guidance' },
@@ -349,13 +364,13 @@ export default function Header() {
                                         { name: 'Practice', href: '/practice' },
                                         { name: 'Past Papers', href: '/past-papers' },
                                     ]} onNavigate={closeMobile} />
-                                    <Link to="/store" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Store</Link>
+                                    <Link to="/store" className="block px-4 py-3 text-base font-medium text-slate-700 rounded-xl hover:bg-soft" onClick={closeMobile}>Store</Link>
                                     <MobileAccordion label="Community" items={publicMoreItems} onNavigate={closeMobile} />
-                                    <Link to="/about" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>About</Link>
-                                    <Link to="/contact" className="block px-4 py-3 text-base font-medium text-gray-700 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Contact</Link>
+                                    <Link to="/about" className="block px-4 py-3 text-base font-medium text-slate-700 rounded-xl hover:bg-soft" onClick={closeMobile}>About</Link>
+                                    <Link to="/contact" className="block px-4 py-3 text-base font-medium text-slate-700 rounded-xl hover:bg-soft" onClick={closeMobile}>Contact</Link>
                                     <div className="pt-5 px-2 space-y-3 border-t border-gray-100 mt-3">
-                                        <Link to="/login" className="block w-full py-3.5 text-center font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50" onClick={closeMobile}>Sign In</Link>
-                                        <Link to="/register" className="block w-full py-3.5 text-center font-semibold bg-accent text-white rounded-xl shadow-md" onClick={closeMobile}>Get Started</Link>
+                                        <Link to="/login" className="block w-full py-3.5 text-center font-semibold text-primary border border-slate-200 rounded-xl hover:bg-soft" onClick={closeMobile}>Sign In</Link>
+                                        <Link to="/register" className="block w-full py-3.5 text-center font-semibold bg-accent text-white rounded-xl hover:bg-accent-hover" onClick={closeMobile}>Get Started</Link>
                                     </div>
                                 </>
                             )}

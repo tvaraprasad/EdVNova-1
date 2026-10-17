@@ -96,19 +96,19 @@ export default function Home() {
             </section>
 
             {/* ═══ 2. WHAT ARE YOU WORKING ON? ═══ */}
-            <section className="py-10 md:py-12 bg-white border-y border-gray-100" data-testid="actions-section">
+            <section className="py-12 md:py-14 bg-white border-b border-slate-100" data-testid="actions-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-base font-bold text-primary mb-6">What are you working on?</h2>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto">
+                    <h2 className="text-[15px] font-semibold text-primary mb-5">What are you working on?</h2>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {[
-                            { icon: BookOpen, label: 'Learn a concept', href: '/learn', color: 'text-blue-600' },
-                            { icon: PenLine, label: 'Practise', href: '/practice', color: 'text-green-600' },
-                            { icon: FileCheck, label: 'Find a past paper', href: '/past-papers', color: 'text-violet-600' },
-                            { icon: Sparkles, label: 'Get help', href: '/dashboard', color: 'text-amber-600' },
+                            { icon: BookOpen, label: 'Learn a concept', href: '/learn' },
+                            { icon: PenLine, label: 'Practise', href: '/practice' },
+                            { icon: FileCheck, label: 'Find a past paper', href: '/past-papers' },
+                            { icon: Sparkles, label: 'Get help', href: '/dashboard' },
                         ].map((a, i) => (
-                            <Link key={i} to={a.href} className="group flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm active:scale-[0.98] transition-all duration-200" data-testid={`action-${i}`}>
-                                <a.icon className={`w-5 h-5 ${a.color}`} />
-                                <span className="text-[13px] font-medium text-gray-600 group-hover:text-primary transition-colors duration-200">{a.label}</span>
+                            <Link key={i} to={a.href} className="group ev-card ev-card-link flex items-center gap-3 px-4 py-3.5" data-testid={`action-${i}`}>
+                                <span className="ev-icon-tile w-9 h-9 flex-shrink-0"><a.icon className="w-[18px] h-[18px]" /></span>
+                                <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors duration-200">{a.label}</span>
                             </Link>
                         ))}
                     </div>
@@ -116,86 +116,92 @@ export default function Home() {
             </section>
 
             {/* ═══ 3. EXPLORE CAMBRIDGE ═══ */}
-            <section className="py-10 md:py-12" data-testid="explore-section">
+            <section className="py-14 md:py-20 bg-soft" data-testid="explore-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Explore Cambridge</h2>
-                    <p className="text-center text-[13px] text-gray-500 mb-6">Choose your qualification and start learning.</p>
-                    <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                        {[
-                            { name: 'IGCSE', slug: 'igcse', color: 'from-blue-600 to-blue-700' },
-                            { name: 'AS Level', slug: 'as-level', color: 'from-indigo-600 to-indigo-700' },
-                            { name: 'A Level', slug: 'a-level', color: 'from-violet-600 to-violet-700' },
-                        ].map(b => (
-                            <Link key={b.slug} to={`/learn/${b.slug}`} className="group" data-testid={`board-card-${b.slug}`}>
-                                <div className={`bg-gradient-to-br ${b.color} rounded-xl p-6 text-white flex items-center justify-between`}>
-                                    <div>
-                                        <p className="text-xs text-white/60 font-medium mb-1">Cambridge</p>
-                                        <h3 className="text-lg font-bold">{b.name}</h3>
-                                    </div>
-                                    <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                                </div>
-                            </Link>
-                        ))}
+                    <div>
+                        <p className="ev-eyebrow mb-2">Qualifications</p>
+                        <h2 className="ev-section-title mb-2">Explore Cambridge</h2>
+                        <p className="text-[15px] text-slate-500 mb-8">Choose your qualification and start learning.</p>
+                        <div className="grid md:grid-cols-3 gap-4">
+                            {[
+                                { name: 'IGCSE', slug: 'igcse', desc: 'International GCSE, typically studied from ages 14 to 16.' },
+                                { name: 'AS Level', slug: 'as-level', desc: 'The first stage of the Cambridge International A Level.' },
+                                { name: 'A Level', slug: 'a-level', desc: 'The full advanced qualification for university entry.' },
+                            ].map(b => (
+                                <Link key={b.slug} to={`/learn/${b.slug}`} className="group ev-card ev-card-link relative overflow-hidden p-6 flex flex-col min-h-[168px]" data-testid={`board-card-${b.slug}`}>
+                                    <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-navy via-accent to-electric opacity-80" aria-hidden="true" />
+                                    <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-slate-400 mb-1.5">Cambridge</p>
+                                    <h3 className="text-xl font-bold text-primary mb-2">{b.name}</h3>
+                                    <p className="text-[13px] text-slate-500 leading-relaxed mb-5">{b.desc}</p>
+                                    <span className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent">
+                                        Browse subjects <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* ═══ 4. SUBJECTS ═══ */}
-            <section className="py-10 md:py-12 bg-white" data-testid="subjects-section">
+            <section className="py-14 md:py-20 bg-white" data-testid="subjects-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Subjects</h2>
-                    <p className="text-center text-[13px] text-gray-500 mb-6">Cambridge Mathematics and Sciences.</p>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                        {[
-                            { title: 'Mathematics', slug: 'mathematics', icon: Calculator, color: 'bg-blue-50 text-blue-600 border-blue-100' },
-                            { title: 'Physics', slug: 'physics', icon: Atom, color: 'bg-violet-50 text-violet-600 border-violet-100' },
-                            { title: 'Chemistry', slug: 'chemistry', icon: FlaskConical, color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-                            { title: 'Biology', slug: 'biology', icon: Leaf, color: 'bg-teal-50 text-teal-600 border-teal-100' },
-                            { title: 'Combined Science', slug: 'combined-science', icon: Beaker, color: 'bg-cyan-50 text-cyan-600 border-cyan-100', code: '0653' },
-                            { title: 'Co-ordinated Sciences', slug: 'co-ordinated-sciences', icon: Target, color: 'bg-indigo-50 text-indigo-600 border-indigo-100', code: '0654' },
-                        ].map(s => (
-                            <Link key={s.slug} to={`/learn/igcse/${s.slug}`} className={`group flex items-center gap-4 p-4 rounded-xl border ${s.color} hover:shadow-md transition-all`} data-testid={`subject-${s.slug}`}>
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${s.color.split(' ').slice(0, 2).join(' ')}`}>
-                                    <s.icon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-primary text-sm group-hover:text-accent transition-colors">{s.title}</h3>
-                                    {s.code && <p className="text-xs text-gray-400">{s.code}</p>}
-                                </div>
-                            </Link>
-                        ))}
+                    <div>
+                        <p className="ev-eyebrow mb-2">IGCSE subjects</p>
+                        <h2 className="ev-section-title mb-2">Subjects</h2>
+                        <p className="text-[15px] text-slate-500 mb-8">Cambridge Mathematics and Sciences.</p>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {[
+                                { title: 'Mathematics', slug: 'mathematics', icon: Calculator, code: '0580' },
+                                { title: 'Physics', slug: 'physics', icon: Atom, code: '0625' },
+                                { title: 'Chemistry', slug: 'chemistry', icon: FlaskConical, code: '0620' },
+                                { title: 'Biology', slug: 'biology', icon: Leaf, code: '0610' },
+                                { title: 'Combined Science', slug: 'combined-science', icon: Beaker, code: '0653' },
+                                { title: 'Co-ordinated Sciences', slug: 'co-ordinated-sciences', icon: Target, code: '0654' },
+                            ].map(s => (
+                                <Link key={s.slug} to={`/learn/igcse/${s.slug}`} className="group ev-card ev-card-link flex items-center gap-4 p-4" data-testid={`subject-${s.slug}`}>
+                                    <span className="ev-icon-tile flex-shrink-0"><s.icon className="w-5 h-5" /></span>
+                                    <div className="min-w-0 flex-1">
+                                        <h3 className="font-semibold text-primary text-sm">{s.title}</h3>
+                                        <p className="text-xs text-slate-400 tabular-nums">{s.code}</p>
+                                    </div>
+                                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-accent group-hover:translate-x-0.5 transition-[color,transform] duration-200" />
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* ═══ 5. PAST PAPERS ═══ */}
-            <section className="py-10 md:py-12" data-testid="past-papers-section">
-                <div className="container-custom max-w-3xl">
-                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Past Papers</h2>
-                    <p className="text-center text-[13px] text-gray-500 mb-6">Find the paper you need in seconds.</p>
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <section className="py-14 md:py-20 bg-soft" data-testid="past-papers-section">
+                <div className="container-custom">
+                    <p className="ev-eyebrow mb-2">Exam preparation</p>
+                    <h2 className="ev-section-title mb-2">Past Papers</h2>
+                    <p className="text-[15px] text-slate-500 mb-8">Find the paper you need in seconds.</p>
+                    <div className="ev-card p-6 md:p-7 max-w-3xl">
                         <div className="grid sm:grid-cols-2 gap-3 mb-5">
                             <div>
-                                <label className="text-xs font-medium text-gray-500 mb-1 block">Qualification</label>
-                                <select value={ppQual} onChange={e => { setPpQual(e.target.value); setPpSubject(''); }} className="w-full h-10 px-3 border rounded-lg text-sm bg-white" data-testid="pp-qual-select">
+                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Qualification</label>
+                                <select value={ppQual} onChange={e => { setPpQual(e.target.value); setPpSubject(''); }} className="ev-select" data-testid="pp-qual-select">
                                     <option value="igcse">Cambridge IGCSE</option>
                                     <option value="as-level">Cambridge AS Level</option>
                                     <option value="a-level">Cambridge A Level</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-gray-500 mb-1 block">Subject</label>
-                                <select value={ppSubject} onChange={e => setPpSubject(e.target.value)} className="w-full h-10 px-3 border rounded-lg text-sm bg-white" data-testid="pp-subject-select">
+                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Subject</label>
+                                <select value={ppSubject} onChange={e => setPpSubject(e.target.value)} className="ev-select" data-testid="pp-subject-select">
                                     <option value="">Select subject</option>
                                     {(PP_SUBJECTS[ppQual] || []).map(s => <option key={s.code} value={s.code} label={`${s.name} (${s.code})`} />)}
                                 </select>
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3">
-                            <Link to={ppSubject ? `/past-papers/${ppQual}/${ppSubject}` : '/past-papers'} className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-accent text-white font-semibold rounded-xl hover:bg-accent-hover transition-colors text-sm" data-testid="pp-find-btn">
+                            <Link to={ppSubject ? `/past-papers/${ppQual}/${ppSubject}` : '/past-papers'} className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-accent-hover transition-colors text-sm" data-testid="pp-find-btn">
                                 <FileCheck className="w-4 h-4" /> Find Past Papers
                             </Link>
-                            <Link to="/past-papers" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 text-sm">
+                            <Link to="/past-papers" className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-slate-200 text-primary font-medium rounded-xl hover:bg-soft hover:border-slate-300 transition-colors text-sm" data-testid="pp-browse-all">
                                 Browse all <ArrowRight className="w-4 h-4" />
                             </Link>
                         </div>
@@ -204,20 +210,21 @@ export default function Home() {
             </section>
 
             {/* ═══ 6. FREE LEARNING ═══ */}
-            <section className="py-10 md:py-12 bg-white" data-testid="free-resources-section">
+            <section className="py-14 md:py-20 bg-white" data-testid="free-resources-section">
                 <div className="container-custom">
-                    <h2 className="text-center text-lg font-bold text-primary mb-1.5">Free Learning Library</h2>
-                    <p className="text-center text-[13px] text-gray-500 mb-6">Resources to help you understand, revise and prepare.</p>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                    <p className="ev-eyebrow mb-2">Free resources</p>
+                    <h2 className="ev-section-title mb-2">Free Learning Library</h2>
+                    <p className="text-[15px] text-slate-500 mb-8">Resources to help you understand, revise and prepare.</p>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         {[
                             { icon: FileText, title: 'Revision Notes', href: '/learn' },
                             { icon: Calculator, title: 'Formula Sheets', href: '/learn' },
                             { icon: Brain, title: 'Practice Questions', href: '/practice' },
                             { icon: FileCheck, title: 'Past Papers', href: '/past-papers' },
                         ].map((r, i) => (
-                            <Link key={i} to={r.href} className="group flex items-center gap-3 p-4 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all" data-testid={`free-resource-${i}`}>
-                                <r.icon className="w-5 h-5 text-accent flex-shrink-0" />
-                                <span className="text-sm font-medium text-gray-700 group-hover:text-primary">{r.title}</span>
+                            <Link key={i} to={r.href} className="group ev-card ev-card-link flex items-center gap-3 p-4" data-testid={`free-resource-${i}`}>
+                                <span className="ev-icon-tile w-9 h-9 flex-shrink-0"><r.icon className="w-[18px] h-[18px]" /></span>
+                                <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">{r.title}</span>
                             </Link>
                         ))}
                     </div>
@@ -225,19 +232,20 @@ export default function Home() {
             </section>
 
             {/* ═══ 7. WHY EDVNOVA ═══ */}
-            <section className="py-10 md:py-12" data-testid="why-section">
-                <div className="container-custom max-w-3xl">
-                    <h2 className="text-center text-lg font-bold text-primary mb-6">Learn. Practise. Master.</h2>
-                    <div className="grid md:grid-cols-3 gap-6 text-center">
+            <section className="py-14 md:py-20 bg-soft" data-testid="why-section">
+                <div className="container-custom">
+                    <p className="ev-eyebrow mb-2">How it works</p>
+                    <h2 className="ev-section-title mb-8">Learn. Practise. Master.</h2>
+                    <div className="grid md:grid-cols-3 gap-4">
                         {[
                             { step: '01', title: 'Learn', desc: 'Understand concepts with structured notes, videos and expert explanations.' },
                             { step: '02', title: 'Practise', desc: 'Apply knowledge with topic questions, past papers and targeted practice.' },
                             { step: '03', title: 'Master', desc: 'Identify weaknesses, track progress and build exam confidence.' },
                         ].map(s => (
-                            <div key={s.step}>
-                                <p className="text-xs font-bold text-accent tracking-widest mb-2">{s.step}</p>
-                                <h3 className="text-lg font-bold text-primary mb-2">{s.title}</h3>
-                                <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
+                            <div key={s.step} className="ev-card p-6" data-testid={`why-step-${s.step}`}>
+                                <p className="text-xs font-semibold text-accent tracking-[0.2em] tabular-nums mb-4">{s.step}</p>
+                                <h3 className="text-lg font-bold text-primary mb-1.5">{s.title}</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed">{s.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -245,48 +253,60 @@ export default function Home() {
             </section>
 
             {/* ═══ 8. AI MENTOR ═══ */}
-            <section className="py-10 md:py-12 bg-white" data-testid="ai-mentor-section">
-                <div className="container-custom max-w-2xl text-center">
-                    <Sparkles className="w-7 h-7 text-accent mx-auto mb-3" />
-                    <h2 className="text-lg font-bold text-primary mb-1.5">EdVNova AI Mentor</h2>
-                    <p className="text-[13px] text-gray-500 mb-5 leading-relaxed">Your personal academic mentor. Step-by-step explanations, exam tips and guided practice across all Cambridge subjects.</p>
-                    <Link to="/login" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-secondary transition-colors text-sm" data-testid="ai-mentor-cta">
-                        Try AI Mentor <ArrowRight className="w-4 h-4" />
-                    </Link>
+            <section className="py-14 md:py-16 bg-white" data-testid="ai-mentor-section">
+                <div className="container-custom">
+                    <div className="relative overflow-hidden rounded-2xl bg-navy px-6 py-8 md:px-10 md:py-10 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+                        <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 60% 120% at 100% 0%, rgba(76,141,255,0.22), transparent 60%)' }} />
+                        <div className="relative flex-1">
+                            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#7FB0FF] mb-3 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" /> AI Mentor</p>
+                            <h2 className="text-xl md:text-2xl font-bold text-white mb-2">EdVNova AI Mentor</h2>
+                            <p className="text-[15px] text-[#C5D5E8] leading-relaxed max-w-lg">Your personal academic mentor. Step-by-step explanations, exam tips and guided practice across all Cambridge subjects.</p>
+                        </div>
+                        <Link to="/login" className="relative self-start md:self-center inline-flex items-center gap-2 px-6 py-3 bg-white text-primary font-semibold rounded-xl hover:bg-tint transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7FB0FF] focus-visible:ring-offset-2 focus-visible:ring-offset-navy" data-testid="ai-mentor-cta">
+                            Try AI Mentor <ArrowRight className="w-4 h-4" />
+                        </Link>
+                    </div>
                 </div>
             </section>
 
             {/* ═══ 9. TESTIMONIALS ═══ */}
             {testimonials.items?.length > 0 && (
-                <section className="py-10 md:py-12" data-testid="testimonials-section">
+                <section className="py-14 md:py-20 bg-soft" data-testid="testimonials-section">
                     <div className="container-custom">
-                        <h2 className="text-center text-lg font-bold text-primary mb-6">{testimonials.heading || 'What Students & Parents Say'}</h2>
-                        <div className="grid md:grid-cols-3 gap-5">
+                        <div>
+                        <p className="ev-eyebrow mb-2">Testimonials</p>
+                        <h2 className="ev-section-title mb-2">{testimonials.heading || 'What Students & Parents Say'}</h2>
+                        {testimonials.subheading && <p className="text-[15px] text-slate-500 mb-8">{testimonials.subheading}</p>}
+                        <div className={`grid md:grid-cols-3 gap-4 ${testimonials.subheading ? '' : 'mt-8'}`}>
                             {testimonials.items.map((t, i) => (
-                                <div key={i} className="p-6 bg-white rounded-xl border border-gray-100" data-testid={`testimonial-${i}`}>
-                                    <div className="flex gap-0.5 mb-3">{[...Array(t.rating || 5)].map((_, j) => <Star key={j} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />)}</div>
-                                    <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.quote}&rdquo;</p>
-                                    <div className="flex items-center gap-2.5 pt-3 border-t border-gray-100">
-                                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xs">{t.initial}</div>
-                                        <div><p className="font-bold text-primary text-sm">{t.name}</p><p className="text-xs text-gray-400">{t.role}</p></div>
-                                    </div>
-                                </div>
+                                <figure key={i} className="ev-card p-6 flex flex-col" data-testid={`testimonial-${i}`}>
+                                    <span className="text-4xl leading-none font-serif text-accent/30 select-none mb-2" aria-hidden="true">&ldquo;</span>
+                                    <blockquote className="text-slate-600 text-[14px] leading-[1.75] mb-6">{t.quote}</blockquote>
+                                    <figcaption className="mt-auto flex items-center gap-3 pt-4 border-t border-slate-100">
+                                        <div className="w-9 h-9 bg-tint text-accent rounded-full flex items-center justify-center font-semibold text-sm" aria-hidden="true">{t.initial}</div>
+                                        <div className="flex-1 min-w-0"><p className="font-semibold text-primary text-sm">{t.name}</p><p className="text-xs text-slate-400">{t.role}</p></div>
+                                        {t.rating > 0 && <div className="flex gap-0.5" aria-label={`Rated ${t.rating} out of 5`}>{[...Array(t.rating)].map((_, j) => <Star key={j} className="w-3 h-3 text-amber-400 fill-amber-400" aria-hidden="true" />)}</div>}
+                                    </figcaption>
+                                </figure>
                             ))}
+                        </div>
                         </div>
                     </div>
                 </section>
             )}
 
             {/* ═══ 10. FINAL CTA ═══ */}
-            <section className="py-12 md:py-16 bg-primary" data-testid="cta-section">
-                <div className="container-custom max-w-2xl text-center">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-3">Start your Cambridge learning journey</h2>
-                    <p className="text-white/50 text-sm mb-7 leading-relaxed">Join students building clarity, confidence and results with EdVNova.</p>
+            <section className="relative overflow-hidden py-16 md:py-20 bg-navy" data-testid="cta-section">
+                <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 55% 100% at 50% 0%, #102B4B 0%, transparent 70%)' }} />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4C8DFF]/40 to-transparent" aria-hidden="true" />
+                <div className="container-custom max-w-2xl text-center relative">
+                    <h2 className="text-2xl sm:text-[2rem] font-bold text-white tracking-tight mb-3">Start your Cambridge learning journey</h2>
+                    <p className="text-[#C5D5E8] text-[15px] mb-8 leading-relaxed">Join students building clarity, confidence and results with EdVNova.</p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link to="/register" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-primary font-semibold rounded-xl hover:bg-gray-100 transition-all text-sm" data-testid="final-cta-primary">
+                        <Link to="/register" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#2563EB] text-white font-semibold rounded-xl hover:bg-[#1D4ED8] transition-colors text-sm shadow-[0_8px_30px_-8px_rgba(37,99,235,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7FB0FF] focus-visible:ring-offset-2 focus-visible:ring-offset-navy" data-testid="final-cta-primary">
                             Get Started Free <ArrowRight className="w-4 h-4" />
                         </Link>
-                        <Link to="/learn" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border-2 border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-all text-sm">
+                        <Link to="/learn" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/[0.06] hover:border-white/40 transition-colors text-sm" data-testid="final-cta-secondary">
                             Explore Learning
                         </Link>
                     </div>
