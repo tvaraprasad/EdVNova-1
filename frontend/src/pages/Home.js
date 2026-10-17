@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowRight, BookOpen, Users, GraduationCap, Star, Search, FileText, Sparkles, Brain, PenLine, Compass, Calculator, Atom, FlaskConical, Leaf, FileCheck, HelpCircle, Lightbulb, Beaker, Target } from 'lucide-react';
 
-const ScientificHeroBackground = lazy(() => import('../components/ScientificHeroBackground'));
+import { CrystalHero, StaticCrystal } from '../components/CrystalHero';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -46,46 +46,50 @@ export default function Home() {
     return (
         <div className="pt-[60px] md:pt-[72px]" data-testid="home-page">
             {/* ═══ 1. HERO ═══ */}
-            <section className="relative py-12 md:py-16 overflow-hidden" data-testid="hero-section">
-                {/* Base background */}
-                <div className="absolute inset-0 bg-[#f8f9fb]" />
-                <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #64748b 0.5px, transparent 0)', backgroundSize: '28px 28px' }} />
-
-                {/* 3D Scientific Background — lazy-loaded */}
-                <Suspense fallback={null}>
-                    <ScientificHeroBackground />
-                </Suspense>
+            <section className="relative overflow-hidden bg-[#07182E]" data-testid="hero-section">
+                <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 70% 90% at 78% 50%, #102B4B 0%, rgba(16,43,75,0.45) 45%, transparent 75%), linear-gradient(180deg, #07182E 0%, #0A1F3A 100%)' }} />
+                <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#4C8DFF]/30 to-transparent" aria-hidden="true" />
+                <div className="lg:hidden absolute -top-12 -right-20 sm:-right-10 w-[230px] sm:w-[300px] opacity-50 pointer-events-none" aria-hidden="true">
+                    <StaticCrystal className="w-full" />
+                </div>
 
                 <div className="container-custom relative">
-                    <div className="max-w-2xl mx-auto text-center">
-                        <p className="text-[11px] font-semibold text-gray-400 tracking-[0.15em] uppercase mb-4" data-testid="hero-badge">
-                            Cambridge IGCSE &middot; AS & A Level
-                        </p>
-                        <h1 className="text-[2.25rem] sm:text-[2.75rem] lg:text-[3.25rem] font-bold text-primary tracking-tight leading-[1.12] mb-4" data-testid="hero-headline">
-                            Understand. Practise.<br className="hidden sm:inline" /> Master <span className="text-accent">Cambridge.</span>
-                        </h1>
-                        <p className="text-[15px] text-gray-500 max-w-lg mx-auto mb-6 leading-[1.7]">
-                            A smarter way to learn, practise and prepare for Cambridge IGCSE, AS & A Level — with structured learning, targeted practice, past papers and expert academic support.
-                        </p>
+                    <div className="grid lg:grid-cols-[1.1fr_1fr] items-center gap-6 lg:gap-4 py-14 sm:py-16 lg:py-0 lg:min-h-[600px]">
+                        <div className="max-w-[620px] relative z-10">
+                            <p className="text-[11px] font-semibold text-[#C5D5E8] tracking-[0.2em] uppercase mb-5 flex items-center gap-3" data-testid="hero-badge">
+                                <span className="h-px w-8 bg-[#4C8DFF]" aria-hidden="true" />
+                                Cambridge IGCSE &middot; AS &amp; A Level
+                            </p>
+                            <h1 className="text-[2.4rem] sm:text-5xl lg:text-[3.3rem] xl:text-[3.6rem] font-bold text-white tracking-tight leading-[1.06] mb-5" data-testid="hero-headline">
+                                Understand. Practise.<br /> Master <span className="text-[#7FB0FF]">Cambridge.</span>
+                            </h1>
+                            <p className="text-[15px] sm:text-base text-[#C5D5E8] max-w-md mb-8 leading-[1.7]" data-testid="hero-subtext">
+                                Explore Cambridge IGCSE, AS and A Level Mathematics and Sciences through clear lessons, targeted practice and past papers.
+                            </p>
 
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-                            <Link to="/learn" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-secondary active:scale-[0.98] transition-all duration-200 shadow-lg shadow-primary/10 text-sm" data-testid="hero-cta-learn">
-                                Explore Learning <ArrowRight className="w-4 h-4" />
-                            </Link>
-                            <Link to="/past-papers" className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-200 text-primary font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200 text-sm" data-testid="hero-cta-papers">
-                                Find Past Papers
-                            </Link>
+                            <div className="flex flex-col sm:flex-row gap-3 mb-9">
+                                <Link to="/learn" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2563EB] text-white font-semibold rounded-xl hover:bg-[#1D4ED8] active:scale-[0.98] transition-[background-color,transform] duration-200 shadow-[0_8px_30px_-8px_rgba(37,99,235,0.7)] text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7FB0FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07182E]" data-testid="hero-cta-learn">
+                                    Explore Learning <ArrowRight className="w-4 h-4" />
+                                </Link>
+                                <Link to="/past-papers" className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/[0.06] hover:border-white/40 active:scale-[0.98] transition-[background-color,border-color,transform] duration-200 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7FB0FF]" data-testid="hero-cta-papers">
+                                    Find Past Papers
+                                </Link>
+                            </div>
+
+                            <div className="max-w-md">
+                                <p className="text-[11px] text-[#C5D5E8]/80 mb-2 font-medium tracking-wide">What are you learning today?</p>
+                                <form onSubmit={handleSearch} data-testid="hero-search-form">
+                                    <div className="flex items-center bg-white/[0.97] border border-white/10 rounded-xl shadow-[0_10px_40px_-12px_rgba(0,0,0,0.6)] focus-within:ring-2 focus-within:ring-[#4C8DFF]/60 transition-shadow duration-200">
+                                        <Search className="w-4 h-4 text-gray-400 ml-3.5 flex-shrink-0" />
+                                        <input ref={inputRef} type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={searchQuery ? '' : animatedText} aria-label="Search topics, past papers, questions or resources" className="flex-1 min-w-0 px-3 py-3 text-sm bg-transparent outline-none text-primary placeholder:text-gray-400" data-testid="hero-search-input" />
+                                        <button type="submit" className="mr-1.5 px-4 py-2 bg-[#2563EB] text-white font-medium rounded-lg hover:bg-[#1D4ED8] active:scale-[0.97] transition-[background-color,transform] duration-150 text-xs" data-testid="hero-search-btn">Search</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
-                        <div className="max-w-md mx-auto">
-                            <p className="text-[11px] text-gray-400 mb-2 font-medium">What are you learning today?</p>
-                            <form onSubmit={handleSearch} data-testid="hero-search-form">
-                                <div className="flex items-center bg-white border border-gray-200 rounded-xl hover:border-gray-300 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/10 transition-all duration-200">
-                                    <Search className="w-4 h-4 text-gray-400 ml-3.5 flex-shrink-0" />
-                                    <input ref={inputRef} type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={searchQuery ? '' : animatedText} className="flex-1 px-3 py-2.5 text-sm bg-transparent outline-none text-primary placeholder:text-gray-400" data-testid="hero-search-input" />
-                                    <button type="submit" className="mr-1.5 px-3.5 py-1.5 bg-accent text-white font-medium rounded-lg hover:bg-accent-hover active:scale-[0.97] transition-all duration-150 text-xs" data-testid="hero-search-btn">Search</button>
-                                </div>
-                            </form>
+                        <div className="hidden lg:block relative">
+                            <CrystalHero />
                         </div>
                     </div>
                 </div>
