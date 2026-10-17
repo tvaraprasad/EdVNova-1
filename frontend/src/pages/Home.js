@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowRight, BookOpen, Users, GraduationCap, Star, Search, FileText, Sparkles, Brain, PenLine, Compass, Calculator, Atom, FlaskConical, Leaf, FileCheck, HelpCircle, Lightbulb, Beaker, Target } from 'lucide-react';
+
+const ScientificHeroBackground = lazy(() => import('../components/ScientificHeroBackground'));
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -45,53 +47,14 @@ export default function Home() {
         <div className="pt-[60px] md:pt-[72px]" data-testid="home-page">
             {/* ═══ 1. HERO ═══ */}
             <section className="relative py-12 md:py-16 overflow-hidden" data-testid="hero-section">
-                {/* Base */}
+                {/* Base background */}
                 <div className="absolute inset-0 bg-[#f8f9fb]" />
-
-                {/* Subtle dot grid */}
                 <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #64748b 0.5px, transparent 0)', backgroundSize: '28px 28px' }} />
 
-                {/* Molecular structure — left */}
-                <img
-                    src="https://static.prod-images.emergentagent.com/jobs/31c8b457-64d2-42e1-bf7c-e33f7ac71068/images/f2fc661ad90b0993d7a9b71f99d567026940380b6f5d9ffb582dbf172d923084.jpeg"
-                    alt="" role="presentation"
-                    className="hero-float-slow absolute -left-8 top-1/2 -translate-y-1/2 w-[280px] md:w-[360px] lg:w-[420px] opacity-[0.12] blur-[0.5px] pointer-events-none select-none hidden md:block"
-                />
-
-                {/* Small molecule — top right */}
-                <img
-                    src="https://static.prod-images.emergentagent.com/jobs/31c8b457-64d2-42e1-bf7c-e33f7ac71068/images/44540a9e317462921b7cb4675bef461acaefda8e09e3a9e011b04bcb1c526518.jpeg"
-                    alt="" role="presentation"
-                    className="hero-float-reverse absolute -right-4 top-8 w-[160px] md:w-[200px] lg:w-[240px] opacity-[0.09] blur-[1px] pointer-events-none select-none hidden md:block"
-                />
-
-                {/* Equations + wireframe geometry — SVG */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1200 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    {/* Wireframe pyramid — right */}
-                    <g className="hero-float-slow" opacity="0.06" transform="translate(950, 120)">
-                        <line x1="0" y1="100" x2="80" y2="0" stroke="#3b82f6" strokeWidth="0.8" />
-                        <line x1="80" y1="0" x2="160" y2="100" stroke="#3b82f6" strokeWidth="0.8" />
-                        <line x1="0" y1="100" x2="160" y2="100" stroke="#3b82f6" strokeWidth="0.8" />
-                        <line x1="80" y1="0" x2="80" y2="140" stroke="#3b82f6" strokeWidth="0.5" strokeDasharray="4 4" />
-                        <line x1="0" y1="100" x2="80" y2="140" stroke="#3b82f6" strokeWidth="0.5" strokeDasharray="4 4" />
-                        <line x1="160" y1="100" x2="80" y2="140" stroke="#3b82f6" strokeWidth="0.5" strokeDasharray="4 4" />
-                    </g>
-
-                    {/* Orbital circles — center background */}
-                    <circle cx="600" cy="250" r="160" stroke="#94a3b8" strokeWidth="0.3" opacity="0.06" />
-                    <circle cx="600" cy="250" r="240" stroke="#94a3b8" strokeWidth="0.2" opacity="0.04" />
-
-                    {/* Mathematical curve */}
-                    <path d="M80,380 Q200,280 340,350 T600,300 T860,350 Q980,380 1120,310" stroke="#94a3b8" strokeWidth="0.5" opacity="0.05" fill="none" />
-
-                    {/* Equations — scattered at edges, low opacity */}
-                    <text x="100" y="90" fill="#94a3b8" opacity="0.08" fontSize="13" fontFamily="'Georgia', serif" fontStyle="italic">H₂O</text>
-                    <text x="140" y="390" fill="#94a3b8" opacity="0.07" fontSize="12" fontFamily="'Georgia', serif" fontStyle="italic">y = sin(x)</text>
-                    <text x="180" y="280" fill="#94a3b8" opacity="0.06" fontSize="11" fontFamily="'Georgia', serif" fontStyle="italic">CH₄</text>
-                    <text x="1020" y="80" fill="#94a3b8" opacity="0.07" fontSize="13" fontFamily="'Georgia', serif" fontStyle="italic">F = ma</text>
-                    <text x="960" y="380" fill="#94a3b8" opacity="0.06" fontSize="12" fontFamily="'Georgia', serif" fontStyle="italic">a² + b² = c²</text>
-                    <text x="1050" y="290" fill="#94a3b8" opacity="0.05" fontSize="11" fontFamily="'Georgia', serif" fontStyle="italic">E = mc²</text>
-                </svg>
+                {/* 3D Scientific Background — lazy-loaded */}
+                <Suspense fallback={null}>
+                    <ScientificHeroBackground />
+                </Suspense>
 
                 <div className="container-custom relative">
                     <div className="max-w-2xl mx-auto text-center">

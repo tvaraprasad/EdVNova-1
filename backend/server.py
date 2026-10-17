@@ -24,6 +24,9 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 JWT_ALGORITHM = "HS256"
+IS_PRODUCTION = os.environ.get("ENVIRONMENT", "").lower() == "production"
+COOKIE_SECURE = IS_PRODUCTION or os.environ.get("FRONTEND_URL", "").startswith("https://")
+COOKIE_SAMESITE = "lax"
 
 def get_jwt_secret() -> str:
     return os.environ["JWT_SECRET"]
@@ -259,8 +262,8 @@ async def register(user_data: UserRegister, response: Response):
     access_token = create_access_token(user_id, email)
     refresh_token = create_refresh_token(user_id)
     
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=3600, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE, max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE, max_age=604800, path="/")
     
     return {"id": user_id, "email": email, "name": user_data.name, "role": "student"}
 
@@ -278,8 +281,8 @@ async def login(user_data: UserLogin, response: Response):
     access_token = create_access_token(user_id, email)
     refresh_token = create_refresh_token(user_id)
     
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=3600, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE, max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE, max_age=604800, path="/")
     
     return {"id": user_id, "email": user["email"], "name": user["name"], "role": user["role"]}
 
@@ -308,7 +311,7 @@ async def refresh_token(request: Request, response: Response):
             raise HTTPException(status_code=401, detail="User not found")
         
         access_token = create_access_token(str(user["_id"]), user["email"])
-        response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=3600, path="/")
+        response.set_cookie(key="access_token", value=access_token, httponly=True, secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE, max_age=3600, path="/")
         return {"message": "Token refreshed"}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Refresh token expired")
@@ -523,6 +526,11 @@ async def get_user_orders(request: Request):
 
 @orders_router.post("/{order_id}/mock-payment")
 async def mock_payment(order_id: str, request: Request):
+    """TEST MODE ONLY — simulated payment. Blocked in production."""
+    payment_mode = os.environ.get("PAYMENT_MODE", "test")
+    if payment_mode == "live" or IS_PRODUCTION:
+        raise HTTPException(status_code=403, detail="Mock payments are disabled in production. Use the payment provider.")
+
     user = await get_current_user(request)
     order = await db.orders.find_one({"_id": ObjectId(order_id), "user_id": user["id"]})
     if not order:
@@ -530,9 +538,9 @@ async def mock_payment(order_id: str, request: Request):
     
     await db.orders.update_one(
         {"_id": ObjectId(order_id)},
-        {"$set": {"status": "confirmed", "payment_status": "completed", "paid_at": datetime.now(timezone.utc).isoformat()}}
+        {"$set": {"status": "confirmed", "payment_status": "completed_test", "paid_at": datetime.now(timezone.utc).isoformat(), "payment_mode": "test"}}
     )
-    return {"message": "Payment successful (mock)", "status": "confirmed"}
+    return {"message": "Payment successful (TEST MODE — not a real transaction)", "status": "confirmed", "mode": "test"}
 
 # Contact Route
 @api_router.post("/contact")
@@ -806,23 +814,27 @@ async def startup():
     # Create indexes
     await db.users.create_index("email", unique=True)
     
-    # Seed admin
+    # Seed admin — ONE-TIME ONLY. Never overwrite existing admin credentials.
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@edvnova.com")
-    admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@123")
-    existing = await db.users.find_one({"email": admin_email})
-    if existing is None:
-        hashed = hash_password(admin_password)
-        await db.users.insert_one({
-            "email": admin_email,
-            "password_hash": hashed,
-            "name": "Admin",
-            "role": "admin",
-            "created_at": datetime.now(timezone.utc).isoformat()
-        })
-        logger.info(f"Admin user created: {admin_email}")
-    elif not verify_password(admin_password, existing["password_hash"]):
-        await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_password)}})
-        logger.info(f"Admin password updated: {admin_email}")
+    existing_admin = await db.users.find_one({"email": admin_email})
+    if existing_admin is None:
+        # No admin exists — create initial admin using env password
+        init_password = os.environ.get("ADMIN_PASSWORD")
+        if init_password:
+            hashed = hash_password(init_password)
+            await db.users.insert_one({
+                "email": admin_email,
+                "password_hash": hashed,
+                "name": "Admin",
+                "role": "admin",
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            logger.info("Initial admin account created")
+        else:
+            logger.warning("No ADMIN_PASSWORD set — skipping initial admin creation")
+    else:
+        # Admin exists — preserve existing credentials, never overwrite
+        logger.info("Admin account exists — preserving credentials")
     
     # Seed sample data
     if await db.courses.count_documents({}) == 0:
@@ -1006,7 +1018,7 @@ async def startup():
 
 ## Admin Account
 - Email: {admin_email}
-- Password: {admin_password}
+- Password: (set via ADMIN_PASSWORD env var)
 - Role: admin
 
 ## Auth Endpoints
