@@ -53,8 +53,10 @@ export default function Dashboard() {
                 setSubjects(subjectsRes.data.subjects || []);
 
                 // Get some published topics for "Continue Learning"
-                const topicRes = await axios.get(`${API_URL}/api/curriculum/admin/topics?status=published&limit=5&page=1`, { withCredentials: true }).catch(() => ({ data: { topics: [] } }));
-                setRecentTopics(topicRes.data.topics || []);
+                if (user?.role === 'admin') {
+                    const topicRes = await axios.get(`${API_URL}/api/curriculum/admin/topics?status=published&limit=5&page=1`, { withCredentials: true }).catch(() => ({ data: { topics: [] } }));
+                    setRecentTopics(topicRes.data.topics || []);
+                }
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {
@@ -62,7 +64,7 @@ export default function Dashboard() {
             }
         };
         fetchData();
-    }, []);
+    }, [user?.role]);
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center pt-20"><div className="spinner"></div></div>;

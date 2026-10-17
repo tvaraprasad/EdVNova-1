@@ -1,0 +1,50 @@
+{
+  "summary": "Iteration 23: P0 security + P1 3D hero + regression. Backend: 22 tests in new file, 18 pass. 2 of the 4 failures are app bugs (CORS reflects any origin with credentials; mock-payment with a malformed id returns 500). The other 2 come from the preview ingress, not the app: the backend sends SameSite=lax; Secure; HttpOnly (checked on localhost:8001), but the public URL returns SameSite=None; Partitioned. Auth (register/login/me/refresh/logout) works. RBAC works: admin gets 200 on /api/admin/{stats,users,orders,contacts}, a student gets 403, anonymous gets 401. Mock-payment works: the owner gets mode 'test' and status confirmed / completed_test; another user gets 404; anonymous gets 401. Code review confirms the PAYMENT_MODE=live / ENVIRONMENT=production guard comes before any DB access. After `supervisorctl restart backend`, the log says 'Admin account exists — preserving credentials' and admin login still returns 200; the hash is $2b$. Frontend: hero-3d-background renders a canvas with pointer-events:none at 1920/1440/768/390, with no webpack overlay and no page errors. The headline is readable and both CTAs navigate (/learn, /past-papers). With reduced-motion the SVG hero-static-background shows instead, and the canvas comes back when the setting is turned off. Regression passes: Store, Store->cart->checkout (order-complete shown, both API calls 200), header nav and Learn mega menu, hero search, Ctrl+K search, /learn -> igcse -> chemistry redirect, Past Papers, Contact, About, AI Mentor (one message got a correct answer), admin panel, student redirected away from /admin, no admin link for students, logout.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "CORS middleware (server.py ~793-799)", "issue": "allow_origins=[FRONTEND_URL, '*'] with allow_credentials=True makes Starlette echo ANY Origin with Access-Control-Allow-Credentials:true (seen for https://evil.example.com on both the public URL and localhost). Any site can make credentialed cross-origin requests and read the responses (e.g. /api/auth/me). Fix: remove '*' and use an explicit origin list.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/orders/{id}/mock-payment (and other ObjectId(path) routes, e.g. GET /api/courses/{id}, orders/create product_id)", "issue": "Malformed id returns 500 (bson.errors.InvalidId) instead of 400/404"},
+      {"endpoint": "POST /api/auth/login", "issue": "No brute-force lockout: 7 bad passwords in a row all returned 401, then the correct password returned 200. The playbook expects a lockout after 5 failures."},
+      {"endpoint": "Cookies (infra)", "issue": "The backend sets SameSite=lax; Secure; HttpOnly as intended (checked on localhost:8001). The preview ingress rewrites this to SameSite=None; Secure; Partitioned on the public URL. Not an app bug; Secure and HttpOnly are kept."},
+      {"endpoint": "POST /api/auth/logout", "issue": "delete_cookie is called without secure/samesite/httponly. Browsers usually still clear the cookie, but the flags should match the ones used by set_cookie."},
+      {"endpoint": "POST /api/orders/create", "issue": "Decrements product stock even when payment never completes; there is no restock if an order is abandoned. The test orders from this run took 2 units from the first product."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Dashboard (student)", "issue": "Dashboard.js:56 calls the admin-only /api/curriculum/admin/topics, so every student dashboard load logs 403 console errors. Use a public published-topics endpoint instead.", "selector": "pages/Dashboard.js:56", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Home hero", "issues": ["Console error on every home load: '<span> cannot be a child of <option>' from Home.js:186 ({s.name} inside <option>). It is caused by the visual-edit babel plugin wrapping the expression in a span (dev-only), but it is noisy. A template string or the option label prop would avoid it.", "THREE.Clock deprecation warning printed on every mount (ScientificHeroBackground.js:153). Replace with THREE.Timer or performance.now().", "At 768px the molecule and pyramid sit partly behind the body paragraph. Opacity is low and the text is still readable, but nudge them further out. At 390px the molecule overlaps the 'CAMBRIDGE IGCSE' badge slightly."]},
+      {"screen": "Cart checkout form", "issues": ["name, email, city and pincode inputs have no data-testid (only phone-input and shipping-address-input do)"]},
+      {"screen": "Admin overview", "issues": ["The Recent Users list looks oldest-first; newly registered users do not appear"]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter23_security_regression.py", "/app/test_reports/pytest/pytest_iter23.xml"],
+  "action_items": [
+    "HIGH: Remove '*' from CORS allow_origins (keep explicit FRONTEND_URL, plus localhost for dev if needed)",
+    "Validate ObjectId in path params (mock-payment, orders/create, courses/{id}) and return 400/404, not 500",
+    "Add login brute-force lockout (e.g. 5 fails -> 15 min lock per email+IP), per the auth playbook",
+    "Dashboard.js:56: stop calling /api/curriculum/admin/topics for students",
+    "Replace THREE.Clock with THREE.Timer or performance.now() in ScientificHeroBackground.js",
+    "Fix the <option>{s.name}</option> console error in Home.js:186",
+    "Optional: delete_cookie with matching flags; add data-testids to the checkout name/email/city/pincode inputs"
+  ],
+  "critical_code_review_comments": [
+    "server.py:796 CORS wildcard with credentials (see above)",
+    "Admin seed (server.py ~815) is correctly create-if-missing only; restart verified, admin password unchanged",
+    "The mock-payment guard is evaluated before auth and DB access, and the owner check uses user_id in the query: correct",
+    "ScientificHeroBackground: cleanup (dispose, observers, rAF) is thorough. hasWebGL() creates a throwaway WebGL context that is never released (minor). If the mobile breakpoint flips, the renderer is rebuilt on the same canvas, which is fine.",
+    "server.py is over 1000 lines; consider splitting the auth/orders/admin routers into modules"
+  ],
+  "updated_files": ["/app/backend/tests/test_iter23_security_regression.py"],
+  "success_rate": {"backend": "82% (18/22; 2 failures are real app bugs, 2 are ingress cookie rewriting)", "frontend": "100% of requested flows working; console noise noted"},
+  "test_credentials": "Admin admin@edvnova.com / ADMIN_PASSWORD from backend/.env (unchanged). Test students regress_*@test.com, regress2_*, regresslogout_*, bf_*@test.com / Test@12345",
+  "seed_data_creation": "Created about 7 TEST students (regress_*, regress2_*, regresslogout_*, bf_*@test.com) and 2 test orders (#919f1846, #ea689a89) on the first store product (stock reduced by 2). No existing records were modified.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run: export REACT_APP_BACKEND_URL=... ADMIN_PASSWORD=<from backend/.env>; pytest /app/backend/tests/test_iter23_security_regression.py. Cookie-flag tests fail on the public URL because the ingress rewrites SameSite. Check them against localhost:8001, or relax the assertion to Secure+HttpOnly. The checkout form needs name/email/pincode filled via form [name=...] selectors. AI mentor lives in the /dashboard tab dash-tab-mentor."
+}

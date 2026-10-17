@@ -183,7 +183,7 @@ export default function Home() {
                                 <label className="text-xs font-medium text-gray-500 mb-1 block">Subject</label>
                                 <select value={ppSubject} onChange={e => setPpSubject(e.target.value)} className="w-full h-10 px-3 border rounded-lg text-sm bg-white" data-testid="pp-subject-select">
                                     <option value="">Select subject</option>
-                                    {(PP_SUBJECTS[ppQual] || []).map(s => <option key={s.code} value={s.code}>{s.name} ({s.code})</option>)}
+                                    {(PP_SUBJECTS[ppQual] || []).map(s => <option key={s.code} value={s.code} label={`${s.name} (${s.code})`} />)}
                                 </select>
                             </div>
                         </div>

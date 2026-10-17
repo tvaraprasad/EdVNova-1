@@ -72,6 +72,20 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
 - [x] **P5: Learn dropdown** — Academic (IGCSE/AS/A) + Learning (Courses/Expert/AI Mentor) (Sep 2026)
 - [x] **Visual Polish** — Hero: "Understand. Practise. Master Cambridge." + tighter spacing + micro-interactions + typography refinement (Sep 2026)
 
+- [x] **EdVNova 3.0 P0 Security** (Jun 2026) — admin seed create-if-missing only (never overwrites password); cookies HttpOnly+Secure(https)+SameSite=Lax incl. logout; mock-payment blocked when PAYMENT_MODE=live or ENVIRONMENT=production; CORS wildcard removed (explicit FRONTEND_URL list); invalid ObjectId -> 400 instead of 500
+- [x] **EdVNova 3.0 P1 3D Hero** (Jun 2026) — ScientificHeroBackground.js in plain three.js (R3F removed: dev babel plugin injects x-line-number props that crash R3F). Reduced-motion -> static SVG; mobile: lower dpr, no AA, low-power, fewer objects; WebGL missing/context lost -> static SVG; pauses offscreen/hidden tab. Tested 1920/1440/768/390 (iteration_23)
+- [x] Student dashboard no longer calls admin-only topics endpoint (403 noise)
+
+## Awaiting user approval
+- P2 AI Mind Map Studio — DO NOT START until user approves P0/P1 report
+- P3 AI Study Studio (Notes/Worksheets/Quizzes/Flashcards, Draft->Review->Publish)
+
+## Known risks / follow-ups
+- No login brute-force lockout yet (recommend 5 fails -> 15 min lock)
+- Order creation decrements stock before payment; no restock for abandoned orders
+- Preview ingress rewrites cookie SameSite to None; Partitioned (infra, not app)
+- server.py monolithic (1000+ lines)
+
 ## Backlog
 
 ### Phase 1 (Remaining)

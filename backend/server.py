@@ -17,6 +17,8 @@ from datetime import datetime, timezone, timedelta
 import bcrypt
 import jwt
 from bson import ObjectId
+from bson.errors import InvalidId
+from fastapi.responses import JSONResponse
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -91,6 +93,10 @@ async def get_admin_user(request: Request) -> dict:
 
 # Create the main app
 app = FastAPI(title="EdVNova Learning API")
+
+@app.exception_handler(InvalidId)
+async def invalid_id_handler(request: Request, exc: InvalidId):
+    return JSONResponse(status_code=400, content={"detail": "Invalid ID format"})
 
 # Create routers
 api_router = APIRouter(prefix="/api")
@@ -288,8 +294,8 @@ async def login(user_data: UserLogin, response: Response):
 
 @auth_router.post("/logout")
 async def logout(response: Response):
-    response.delete_cookie(key="access_token", path="/")
-    response.delete_cookie(key="refresh_token", path="/")
+    response.delete_cookie(key="access_token", path="/", httponly=True, secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE)
+    response.delete_cookie(key="refresh_token", path="/", httponly=True, secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE)
     return {"message": "Logged out successfully"}
 
 @auth_router.get("/me")
@@ -793,7 +799,7 @@ app.mount("/api/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=[os.environ.get('FRONTEND_URL', 'http://localhost:3000'), "*"],
+    allow_origins=[o.strip() for o in os.environ['FRONTEND_URL'].split(',')] + ["http://localhost:3000"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

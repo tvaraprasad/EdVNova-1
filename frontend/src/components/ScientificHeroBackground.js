@@ -72,7 +72,9 @@ function disposeScene(scene) {
 function hasWebGL() {
     try {
         const c = document.createElement('canvas');
-        return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')));
+        const gl = window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'));
+        gl?.getExtension('WEBGL_lose_context')?.loseContext();
+        return !!gl;
     } catch {
         return false;
     }
@@ -134,8 +136,8 @@ function useThreeHero(canvasRef, mobile, enabled, onFail) {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
             const halfW = halfH * camera.aspect;
-            const edge = Math.min(7.5, halfW * (mobile ? 0.85 : 0.68));
-            molecule.position.set(-edge, mobile || camera.aspect < 1.2 ? halfH * 0.78 : -0.3, -1);
+            const edge = Math.min(7.5, halfW * (mobile ? 0.9 : camera.aspect < 1.8 ? 0.82 : 0.68));
+            molecule.position.set(-edge, mobile || camera.aspect < 1.2 ? -halfH * 0.72 : -0.3, -1);
             if (pyramid) pyramid.position.set(edge, camera.aspect < 1.2 ? -halfH * 0.5 : 0.5, -1);
         };
         resize();
@@ -150,11 +152,11 @@ function useThreeHero(canvasRef, mobile, enabled, onFail) {
         if (!mobile) window.addEventListener('pointermove', onMove, { passive: true });
 
         let visible = true, raf = 0;
-        const clock = new THREE.Clock();
+        const start = performance.now();
         const tick = () => {
             raf = 0;
             if (!visible || document.hidden) return;
-            const t = clock.getElapsedTime();
+            const t = (performance.now() - start) / 1000;
             molecule.rotation.y = t * 0.08;
             molecule.rotation.x = Math.sin(t * 0.05) * 0.1;
             if (pyramid) {
