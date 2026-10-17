@@ -104,7 +104,7 @@ function App() {
                         </main>
                         <Footer />
                         <WhatsAppButton />
-                        <Toaster position="top-right" richColors />
+                        <Toaster position="top-right" offset={84} richColors />
                     </div>
                 </BrowserRouter>
             </CartProvider>

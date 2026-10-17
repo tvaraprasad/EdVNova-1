@@ -51,7 +51,8 @@ export default function AIMentor() {
     const inputRef = useRef(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const box = messagesEndRef.current?.parentElement;
+        if (box) box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
     };
 
     useEffect(() => { scrollToBottom(); }, [messages]);

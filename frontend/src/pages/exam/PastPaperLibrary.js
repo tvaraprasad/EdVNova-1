@@ -94,7 +94,7 @@ export default function PastPaperLibrary() {
                     ) : (
                         <div className="grid gap-3">
                             {papers.map(p => (
-                                <div key={p.id} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm active:scale-[0.99] transition-all duration-200" data-testid={`pp-item-${p.id}`}>
+                                <div key={p.id} className="flex items-center gap-3 sm:gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm active:scale-[0.99] transition-all duration-200" data-testid={`pp-item-${p.id}`}>
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${resourceIcon(p.resource_type)}`}>
                                         <FileText className="w-5 h-5" />
                                     </div>
@@ -104,7 +104,7 @@ export default function PastPaperLibrary() {
                                             {p.qualification?.toUpperCase()} · {p.subject?.replace(/\b\w/g, c => c.toUpperCase())} {p.syllabus_code && `(${p.syllabus_code})`} · {p.year} {p.session} {p.paper ? `Paper ${p.paper}` : ''}
                                         </p>
                                     </div>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${resourceIcon(p.resource_type)}`}>
+                                    <span className={`hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${resourceIcon(p.resource_type)}`}>
                                         {typeLabel(p.resource_type)}
                                     </span>
                                     {p.access_level === 'public' || !p.access_level ? (

@@ -130,7 +130,7 @@ export default function Home() {
                             ].map(b => (
                                 <Link key={b.slug} to={`/learn/${b.slug}`} className="group ev-card ev-card-link relative overflow-hidden p-6 flex flex-col min-h-[168px]" data-testid={`board-card-${b.slug}`}>
                                     <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-navy via-accent to-electric opacity-80" aria-hidden="true" />
-                                    <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-slate-400 mb-1.5">Cambridge</p>
+                                    <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-slate-500 mb-1.5">Cambridge</p>
                                     <h3 className="text-xl font-bold text-primary mb-2">{b.name}</h3>
                                     <p className="text-[13px] text-slate-500 leading-relaxed mb-5">{b.desc}</p>
                                     <span className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent">
@@ -163,7 +163,7 @@ export default function Home() {
                                     <span className="ev-icon-tile flex-shrink-0"><s.icon className="w-5 h-5" /></span>
                                     <div className="min-w-0 flex-1">
                                         <h3 className="font-semibold text-primary text-sm">{s.title}</h3>
-                                        <p className="text-xs text-slate-400 tabular-nums">{s.code}</p>
+                                        <p className="text-xs text-slate-500 tabular-nums">{s.code}</p>
                                     </div>
                                     <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-accent group-hover:translate-x-0.5 transition-[color,transform] duration-200" />
                                 </Link>
@@ -193,7 +193,7 @@ export default function Home() {
                                 <label className="text-xs font-medium text-slate-500 mb-1.5 block">Subject</label>
                                 <select value={ppSubject} onChange={e => setPpSubject(e.target.value)} className="ev-select" data-testid="pp-subject-select">
                                     <option value="">Select subject</option>
-                                    {(PP_SUBJECTS[ppQual] || []).map(s => <option key={s.code} value={s.code} label={`${s.name} (${s.code})`} />)}
+                                    {(PP_SUBJECTS[ppQual] || []).map(s => <option key={s.code} value={s.code} label={`${s.name} (${s.code})`}>{`${s.name} (${s.code})`}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -284,7 +284,7 @@ export default function Home() {
                                     <blockquote className="text-slate-600 text-[14px] leading-[1.75] mb-6">{t.quote}</blockquote>
                                     <figcaption className="mt-auto flex items-center gap-3 pt-4 border-t border-slate-100">
                                         <div className="w-9 h-9 bg-tint text-accent rounded-full flex items-center justify-center font-semibold text-sm" aria-hidden="true">{t.initial}</div>
-                                        <div className="flex-1 min-w-0"><p className="font-semibold text-primary text-sm">{t.name}</p><p className="text-xs text-slate-400">{t.role}</p></div>
+                                        <div className="flex-1 min-w-0"><p className="font-semibold text-primary text-sm">{t.name}</p><p className="text-xs text-slate-500">{t.role}</p></div>
                                         {t.rating > 0 && <div className="flex gap-0.5" aria-label={`Rated ${t.rating} out of 5`}>{[...Array(t.rating)].map((_, j) => <Star key={j} className="w-3 h-3 text-amber-400 fill-amber-400" aria-hidden="true" />)}</div>}
                                     </figcaption>
                                 </figure>

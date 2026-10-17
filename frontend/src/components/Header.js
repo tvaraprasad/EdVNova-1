@@ -21,8 +21,8 @@ function LearnMegaMenu({ isActive }) {
     const handleLeave = () => { timeoutRef.current = setTimeout(() => setOpen(false), 200); };
 
     return (
-        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave} onBlur={e => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)}>
-            <button type="button" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen(true)} onKeyDown={e => e.key === 'Escape' && setOpen(false)} className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${isActive ? 'text-accent bg-accent/[0.07]' : 'text-slate-600 hover:text-primary hover:bg-slate-900/[0.04]'}`} data-testid="nav-learn">
+        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave} onBlur={e => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)} onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); e.currentTarget.querySelector('button')?.focus(); } }}>
+            <button type="button" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen(true)} className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${isActive ? 'text-accent bg-accent/[0.07]' : 'text-slate-600 hover:text-primary hover:bg-slate-900/[0.04]'}`} data-testid="nav-learn">
                 Learn <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
@@ -30,14 +30,14 @@ function LearnMegaMenu({ isActive }) {
                     <div className="nav-pop rounded-2xl p-4 w-[440px]" data-testid="learn-mega-menu">
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.16em] mb-2 px-3">Academic</p>
+                                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-[0.16em] mb-2 px-3">Academic</p>
                                 <div className="space-y-0.5">
                                     {[
                                         { name: 'IGCSE', href: '/learn/igcse', icon: BookOpen },
                                         { name: 'AS Level', href: '/learn/as-level', icon: GraduationCap },
                                         { name: 'A Level', href: '/learn/a-level', icon: Award },
                                     ].map(item => (
-                                        <Link key={item.name} to={item.href} className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" onClick={() => setOpen(false)}>
+                                        <Link key={item.name} to={item.href} data-testid={`mega-item-${item.name.toLowerCase().replace(/\s/g, '-')}`} className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" onClick={() => setOpen(false)}>
                                             <item.icon className="w-4 h-4 text-slate-400 group-hover:text-accent transition-colors" />
                                             <span className="font-medium">{item.name}</span>
                                         </Link>
@@ -45,14 +45,14 @@ function LearnMegaMenu({ isActive }) {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.16em] mb-2 px-3">Learning</p>
+                                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-[0.16em] mb-2 px-3">Learning</p>
                                 <div className="space-y-0.5">
                                     {[
                                         { name: 'Courses', href: '/programs', icon: Users },
                                         { name: 'Expert Learning', href: '/programs', icon: GraduationCap },
                                         { name: 'AI Mentor', href: '/dashboard', icon: Sparkles },
                                     ].map(item => (
-                                        <Link key={item.name} to={item.href} className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" onClick={() => setOpen(false)}>
+                                        <Link key={item.name} to={item.href} data-testid={`mega-item-${item.name.toLowerCase().replace(/\s/g, '-')}`} className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:text-primary hover:bg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60" onClick={() => setOpen(false)}>
                                             <item.icon className="w-4 h-4 text-slate-400 group-hover:text-accent transition-colors" />
                                             <span className="font-medium">{item.name}</span>
                                         </Link>
@@ -75,13 +75,13 @@ function NavDropdown({ label, items, isActive }) {
     const handleLeave = () => { timeoutRef.current = setTimeout(() => setOpen(false), 150); };
 
     return (
-        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave} onBlur={e => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)}>
+        <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave} onBlur={e => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)} onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); e.currentTarget.querySelector('button')?.focus(); } }}>
             <button
                 type="button"
                 aria-haspopup="true"
                 aria-expanded={open}
                 onClick={() => setOpen(true)}
-                onKeyDown={e => e.key === 'Escape' && setOpen(false)}
+               
                 className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${
                     isActive ? 'text-accent bg-accent/[0.07]' : 'text-slate-600 hover:text-primary hover:bg-slate-900/[0.04]'
                 }`}
@@ -135,6 +135,7 @@ function MobileAccordion({ label, items, onNavigate }) {
             <button
                 type="button"
                 aria-expanded={open}
+                data-testid={`mobile-accordion-${label.toLowerCase()}`}
                 onClick={() => setOpen(!open)}
                 className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-slate-700 rounded-xl hover:bg-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
             >
@@ -144,7 +145,7 @@ function MobileAccordion({ label, items, onNavigate }) {
             {open && (
                 <div className="ml-4 pl-4 border-l border-slate-200 space-y-0.5 mt-1 mb-2">
                     {items.map(item => (
-                        <Link key={item.name} to={item.href} className="block px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-soft hover:text-primary" onClick={onNavigate}>
+                        <Link key={item.name} to={item.href} data-testid={`mobile-link-${item.href.replace(/\//g, '-').slice(1)}`} className="block px-4 py-2.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-soft hover:text-primary" onClick={onNavigate}>
                             {item.name}
                         </Link>
                     ))}

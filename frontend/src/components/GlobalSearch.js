@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Search, X, FileText, HelpCircle, BookOpen, GraduationCap, ShoppingBag, FileCheck } from 'lucide-react';
 import axios from 'axios';
@@ -70,7 +71,7 @@ export default function GlobalSearch() {
         );
     }
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]" onClick={() => setOpen(false)} data-testid="global-search-overlay">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
             <div className="relative w-full max-w-xl mx-4 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden" onClick={e => e.stopPropagation()} data-testid="global-search-modal">
@@ -128,5 +129,5 @@ export default function GlobalSearch() {
                 )}
             </div>
         </div>
-    );
+    , document.body);
 }

@@ -78,8 +78,17 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
 
 - [x] **Homepage hero redesign with React Bits CrystalizedBall** (Jun 2026). The official JS-CSS source is used unmodified (src/components/CrystalizedBall.jsx/.css, dependency `ogl`). The wrapper is src/components/CrystalHero.js: the live crystal runs only at >=1024px with WebGL2 and no reduced-motion setting; otherwise a static CSS crystal is shown. The hero is midnight navy and two-column. ScientificHeroBackground.js and the `three` dependency were removed. Licences are in frontend/THIRD_PARTY_LICENSES.md.
 
+- [x] **Design system Pass A** (Jun 2026, iteration_24).
+  - Tokens: navy/electric/soft/tint/ink colours and card/card-hover/pop shadows in tailwind; primary is now #07182E.
+  - Shared classes in App.css: .ev-card, .ev-card-link, .ev-icon-tile, .ev-eyebrow, .ev-section-title, .ev-select, .nav-pop and .glass-header (with @supports fallback and .is-scrolled).
+  - Header: frosted glass, fixed 60/72px height, aria-expanded, keyboard and Escape support, focus rings.
+  - Homepage sections below the hero restyled on the shared classes.
+  - WhatsApp button reduced to 50/46px.
+  - GlobalSearch now renders in a portal; backdrop-filter on the header was clipping it.
+  - Past-papers rows no longer overflow on mobile; AI Mentor no longer scrolls the whole page; the toast is offset below the header.
+
 ## Awaiting user approval
-- Hero visual approval, then text and card animation styles elsewhere
+- Pass B: apply the design system to discovery pages, workspace polish, practice and dashboards (DO NOT START until approved)
 - P2 AI Mind Map Studio — DO NOT START until user approves P0/P1 report
 - P3 AI Study Studio (Notes/Worksheets/Quizzes/Flashcards, Draft->Review->Publish)
 
