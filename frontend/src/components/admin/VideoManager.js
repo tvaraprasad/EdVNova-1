@@ -36,7 +36,7 @@ export default function VideoManager() {
     const [filters, setFilters] = useState({ subject: '', board: '', status: '', q: '' });
     const [page, setPage] = useState(1);
 
-    const empty = { title: '', description: '', board: 'igcse', subject: 'physics', chapter: '', topic: '', question_id: '', youtube_url: '', thumbnail_url: '', duration: '', difficulty: 'medium', status: 'coming_soon', order: 0 };
+    const empty = { title: '', description: '', board: 'igcse', subject: 'physics', chapter: '', topic: '', question_id: '', youtube_url: '', thumbnail_url: '', duration: '', difficulty: 'medium', status: 'coming_soon', order: 0, required: false };
     const [form, setForm] = useState(empty);
 
     const fetchVideos = useCallback(async () => {
@@ -165,6 +165,7 @@ export default function VideoManager() {
                                         {v.subject} · {v.board} {v.chapter && `· ${v.chapter}`} {v.question_id && `· ${v.question_id}`} {v.duration && `· ${v.duration}`}
                                     </p>
                                 </div>
+                                {v.required && <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full flex-shrink-0 bg-blue-50 text-blue-700" data-testid={`video-required-badge-${v.id}`}>Required</span>}
                                 <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full flex-shrink-0 ${getStatusStyle(v.status)}`}>
                                     {v.status?.replace('_', ' ')}
                                 </span>
@@ -220,6 +221,13 @@ export default function VideoManager() {
                                 </select>
                             </div>
                         </div>
+                        <label className="flex items-start gap-2.5 p-3 rounded-lg border bg-gray-50/60 cursor-pointer" data-testid="video-required-toggle">
+                            <input type="checkbox" checked={!!form.required} onChange={e => setForm(p => ({ ...p, required: e.target.checked }))} className="mt-0.5 h-4 w-4 accent-blue-600" data-testid="video-required-checkbox" />
+                            <span>
+                                <span className="block text-sm font-medium text-gray-800">Required for course completion</span>
+                                <span className="block text-xs text-gray-500">Counts toward chapter and course progress once a student watches 90% of it. Student watch history is kept if you change this.</span>
+                            </span>
+                        </label>
                         <div className="flex justify-end gap-3 pt-3 border-t">
                             <button onClick={() => setShowForm(false)} className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">Cancel</button>
                             <button onClick={handleSave} className="px-6 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-hover" data-testid="save-video-btn">{editItem ? 'Update' : 'Create'}</button>

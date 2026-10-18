@@ -768,6 +768,11 @@ from past_papers_api import create_past_papers_routes
 past_papers_router = create_past_papers_routes(db, get_admin_user)
 api_router.include_router(past_papers_router)
 
+# Learning progress routes
+from progress_api import create_progress_routes
+progress_router, ensure_progress_indexes = create_progress_routes(db, get_current_user)
+api_router.include_router(progress_router)
+
 # Global Search routes
 from search_api import create_search_routes
 search_router = create_search_routes(db)
@@ -1046,6 +1051,7 @@ async def startup():
 
     # Seed CMS content
     await seed_cms_content()
+    await ensure_progress_indexes()
     logger.info("CMS content seeded")
 
 @app.on_event("shutdown")

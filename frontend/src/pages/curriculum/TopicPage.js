@@ -28,9 +28,9 @@ export default function TopicPage() {
         if (!user) return;
         axios.get(`${API_URL}/api/curriculum/user/bookmarks`, { withCredentials: true })
             .then(res => { if (res.data.some(b => b.topic_path === topicPath)) setBookmarked(true); }).catch(() => {});
-        axios.get(`${API_URL}/api/curriculum/user/progress`, { withCredentials: true })
-            .then(res => { if (res.data.some(p => p.topic_path === topicPath)) setCompleted(true); }).catch(() => {});
-    }, [user, topicPath]);
+        axios.post(`${API_URL}/api/progress/visit`, { board, subject, chapter, topic: topicSlug }, { withCredentials: true })
+            .then(res => setCompleted(res.data.status === 'completed')).catch(() => {});
+    }, [user, topicPath, board, subject, chapter, topicSlug]);
 
     const toggleBookmark = useCallback(async () => {
         if (!user) { toast.error('Login to bookmark'); return; }
@@ -42,13 +42,14 @@ export default function TopicPage() {
     }, [user, topicPath, data, board, subject]);
 
     const toggleComplete = useCallback(async () => {
-        if (!user) { toast.error('Login to track progress'); return; }
+        if (!user) { toast.error('Sign in to track progress'); return; }
+        if (completed) return;
         try {
-            const res = await axios.post(`${API_URL}/api/curriculum/user/progress`, { topic_path: topicPath, board_slug: board, subject_slug: subject }, { withCredentials: true });
-            setCompleted(res.data.completed);
-            toast.success(res.data.completed ? 'Marked complete' : 'Unmarked');
-        } catch { toast.error('Failed'); }
-    }, [user, topicPath, board, subject]);
+            await axios.post(`${API_URL}/api/progress/complete`, { board, subject, chapter, topic: topicSlug }, { withCredentials: true });
+            setCompleted(true);
+            toast.success('Lesson completed');
+        } catch { toast.error('Could not save your progress. Please try again.'); }
+    }, [user, completed, board, subject, chapter, topicSlug]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -111,7 +112,7 @@ export default function TopicPage() {
                                 {bookmarked ? 'Saved' : 'Save'}
                             </button>
                             <button onClick={toggleComplete} className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${completed ? 'bg-green-50 text-green-700 border-green-200' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`} data-testid="complete-btn">
-                                <CheckCircle2 className="w-4 h-4" /> {completed ? 'Completed' : 'Mark Complete'}
+                                <CheckCircle2 className="w-4 h-4" /> {completed ? 'Completed' : 'Finish lesson'}
                             </button>
                         </div>
                     </div>

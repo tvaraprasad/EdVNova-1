@@ -1,9 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronRight, BookOpen, FileText, Play, HelpCircle, Download, CheckCircle2, Clock, AlertTriangle, Lightbulb, Bookmark, BookmarkCheck, Lock, Eye, ChevronDown, ChevronLeft, ExternalLink, QrCode, Search, Menu, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
+import { LessonView } from '../../components/learn/LessonView';
+import { CourseOutline } from '../../components/learn/CourseOutline';
+import { YouTubeTracker } from '../../components/learn/YouTubeTracker';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -15,165 +18,20 @@ const TABS = [
     { id: 'downloads', label: 'Downloads', icon: Download },
 ];
 
-// ── Render rich content (text blocks + inline images) ──
-function RichContent({ content }) {
-    if (!content) return null;
-    // If it's a plain string, render as text
-    if (typeof content === 'string') {
-        return <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px]">{content}</p>;
-    }
-    // If it's an array of blocks
-    if (Array.isArray(content)) {
-        return (
-            <div className="space-y-3">
-                {content.map((block, i) => {
-                    if (block.type === 'text') {
-                        return <p key={i} className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px]">{block.value}</p>;
-                    }
-                    if (block.type === 'image') {
-                        return (
-                            <figure key={i} className="my-3">
-                                <img src={block.url?.startsWith('/') ? `${API_URL}${block.url}` : block.url} alt={block.caption || ''} className="max-w-full rounded-lg border" />
-                                {block.caption && <figcaption className="text-xs text-gray-400 mt-1 text-center">{block.caption}</figcaption>}
-                            </figure>
-                        );
-                    }
-                    return null;
-                })}
-            </div>
-        );
-    }
-    return null;
-}
-
-// ── Topic Notes Panel ──
-function NotesPanel({ topics, board, subject, chapter }) {
-    const [expanded, setExpanded] = useState(null);
-
-    const publishedTopics = topics.filter(t => t.status === 'published');
-    const draftTopics = topics.filter(t => t.status !== 'published');
-
-    if (publishedTopics.length === 0) {
+// ── Concept Notes: one lesson at a time ──
+function NotesPanel({ topics, lessonSlug, lessonProps }) {
+    const published = topics.filter(t => t.status === 'published');
+    const topic = published.find(t => t.slug === lessonSlug) || published[0];
+    if (!topic) {
         return (
             <div className="text-center py-16">
                 <FileText className="w-10 h-10 text-gray-200 mx-auto mb-3" />
                 <h3 className="font-bold text-primary mb-1">Notes Coming Soon</h3>
-                <p className="text-sm text-gray-400 max-w-md mx-auto">Our educators are preparing detailed concept notes for this chapter.</p>
+                <p className="text-sm text-gray-500 max-w-md mx-auto">Concept notes for this chapter are being prepared.</p>
             </div>
         );
     }
-
-    return (
-        <div className="space-y-3">
-            {publishedTopics.map((topic) => {
-                const c = topic.content || {};
-                const isOpen = expanded === topic.slug;
-                return (
-                    <div key={topic.slug} className="border border-gray-100 rounded-xl overflow-hidden bg-white" data-testid={`note-${topic.slug}`}>
-                        <button onClick={() => setExpanded(isOpen ? null : topic.slug)} className="w-full flex items-center gap-4 px-5 py-4 hover:bg-gray-50/50 transition-colors text-left">
-                            <div className="w-8 h-8 bg-accent/5 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <FileText className="w-4 h-4 text-accent" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-primary text-sm">{topic.title}</p>
-                                <p className="text-xs text-gray-400 mt-0.5">{topic.study_time} · {topic.difficulty}</p>
-                            </div>
-                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        {isOpen && (
-                            <div className="px-5 pb-6 border-t border-gray-50 pt-4">
-                                {c.introduction && <div className="mb-6"><RichContent content={c.introduction} /></div>}
-                                {c.sections?.map((s, i) => (
-                                    <div key={i} className="mb-6">
-                                        <h4 className="text-base font-bold text-primary mb-2">{s.title}</h4>
-                                        <RichContent content={s.content} />
-                                    </div>
-                                ))}
-                                {c.definitions?.length > 0 && (
-                                    <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl mb-5">
-                                        <p className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-3">Key Definitions</p>
-                                        {c.definitions.map((d, i) => (
-                                            <div key={i} className="mb-2 last:mb-0">
-                                                <strong className="text-primary">{d.term}:</strong>{' '}
-                                                {typeof d.definition === 'string' ? (
-                                                    <span className="text-sm text-gray-700">{d.definition}</span>
-                                                ) : (
-                                                    <RichContent content={d.definition} />
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                {c.formulas?.length > 0 && (
-                                    <div className="p-4 bg-violet-50/50 border border-violet-100 rounded-xl mb-5">
-                                        <p className="text-xs font-bold text-violet-700 uppercase tracking-wider mb-3">Formulas</p>
-                                        {c.formulas.map((f, i) => (
-                                            <div key={i} className="flex items-baseline gap-3 mb-2">
-                                                <code className="text-sm font-mono bg-white px-2 py-0.5 rounded border text-violet-700">{f.formula}</code>
-                                                <span className="text-sm text-gray-600">{f.name} — {f.description}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                {c.worked_examples?.length > 0 && (
-                                    <div className="p-4 bg-green-50/50 border border-green-100 rounded-xl mb-5">
-                                        <p className="text-xs font-bold text-green-700 uppercase tracking-wider mb-3">Worked Examples</p>
-                                        {c.worked_examples.map((w, i) => (
-                                            <div key={i} className="mb-4 last:mb-0">
-                                                <p className="text-sm font-medium text-primary mb-1">Q: {w.question}</p>
-                                                <p className="text-sm text-gray-700 whitespace-pre-wrap">A: {w.solution}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                {(c.examiner_tips?.length > 0 || c.common_mistakes?.length > 0) && (
-                                    <div className="grid sm:grid-cols-2 gap-4 mb-5">
-                                        {c.examiner_tips?.length > 0 && (
-                                            <div className="p-4 bg-accent/5 border border-accent/10 rounded-xl">
-                                                <p className="text-xs font-bold text-accent uppercase tracking-wider mb-2">Examiner Tips</p>
-                                                <ul className="space-y-1">{c.examiner_tips.map((t, i) => <li key={i} className="text-sm text-gray-700 flex gap-2"><Lightbulb className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-0.5" />{t}</li>)}</ul>
-                                            </div>
-                                        )}
-                                        {c.common_mistakes?.length > 0 && (
-                                            <div className="p-4 bg-amber-50/50 border border-amber-100 rounded-xl">
-                                                <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Common Mistakes</p>
-                                                <ul className="space-y-1">{c.common_mistakes.map((m, i) => <li key={i} className="text-sm text-gray-700 flex gap-2"><AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />{m}</li>)}</ul>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                                {c.summary?.length > 0 && (
-                                    <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl">
-                                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Summary</p>
-                                        <ul className="space-y-1">{c.summary.map((s, i) => <li key={i} className="text-sm text-gray-700 flex gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />{s}</li>)}</ul>
-                                    </div>
-                                )}
-                                <div className="flex justify-end mt-4">
-                                    <Link to={`/${board}/${subject}/${chapter}/${topic.slug}`} className="text-sm text-accent font-medium hover:underline flex items-center gap-1">
-                                        Full Topic Page <ExternalLink className="w-3.5 h-3.5" />
-                                    </Link>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
-            {draftTopics.length > 0 && (
-                <div className="mt-6">
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Coming Soon</p>
-                    <div className="space-y-2">
-                        {draftTopics.map(t => (
-                            <div key={t.slug} className="flex items-center gap-3 px-5 py-3 bg-gray-50 rounded-xl text-gray-400">
-                                <Lock className="w-4 h-4" />
-                                <span className="text-sm">{t.title}</span>
-                                <span className="ml-auto text-xs px-2 py-0.5 bg-gray-100 rounded-full">Coming Soon</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+    return <LessonView key={topic.slug} topic={topic} {...lessonProps(topic)} />;
 }
 
 // ── Workbook Panel ──
@@ -270,7 +128,7 @@ function WorkbookPanel({ questions, board, subject, chapter, isAuth }) {
 }
 
 // ── Videos Panel ──
-function VideosPanel({ videos }) {
+function VideosPanel({ videos, isAuthenticated, progress = {}, onProgress }) {
     if (!videos || videos.length === 0) {
         return (
             <div className="text-center py-16">
@@ -299,7 +157,9 @@ function VideosPanel({ videos }) {
                 const ytId = extractYtId(v.youtube_url);
                 return (
                     <div key={v.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden" data-testid={`video-${v.id}`}>
-                        {ytId && v.status === 'available' ? (
+                        {ytId && v.status === 'available' && isAuthenticated ? (
+                            <YouTubeTracker videoId={v.id} ytId={ytId} title={v.title} startAt={progress[v.id]?.completed ? 0 : progress[v.id]?.position || 0} onProgress={res => onProgress(v, res)} />
+                        ) : ytId && v.status === 'available' ? (
                             <div className="aspect-video">
                                 <iframe src={`https://www.youtube.com/embed/${ytId}`} title={v.title} className="w-full h-full" allowFullScreen />
                             </div>
@@ -322,7 +182,15 @@ function VideosPanel({ videos }) {
                                         {v.question_id && <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">{v.question_id}</span>}
                                         {v.duration && <span>{v.duration}</span>}
                                         {v.difficulty && <span className="capitalize">{v.difficulty}</span>}
+                                        <span className={`px-1.5 py-0.5 rounded ${v.required ? 'bg-tint text-accent font-semibold' : 'bg-slate-50 text-slate-500'}`} data-testid={`video-required-${v.id}`}>{v.required ? 'Required' : 'Optional'}</span>
                                     </div>
+                                    {isAuthenticated && v.status === 'available' && (
+                                        <div className="mt-3 flex items-center gap-2 text-xs" data-testid={`video-progress-${v.id}`}>
+                                            {progress[v.id]?.completed
+                                                ? <span className="inline-flex items-center gap-1 text-emerald-700 font-medium"><CheckCircle2 className="w-3.5 h-3.5" /> Watched</span>
+                                                : <><div className="ev-progress w-28"><span style={{ width: `${progress[v.id]?.watched_percent || 0}%` }} /></div><span className="text-slate-500 tabular-nums">{progress[v.id]?.watched_percent || 0}% watched</span></>}
+                                        </div>
+                                    )}
                                 </div>
                                 <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full flex-shrink-0 ${statusBadge(v.status)}`}>
                                     {v.status?.replace('_', ' ')}
@@ -404,7 +272,9 @@ function DownloadsPanel({ worksheets, attachments }) {
 // ═══ MAIN CHAPTER PAGE ═══
 export default function LearnChapter() {
     const { board, subject, chapter } = useParams();
-    const { user, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const lessonParam = searchParams.get('lesson');
     const [chapterData, setChapterData] = useState(null);
     const [topics, setTopics] = useState([]);
     const [questions, setQuestions] = useState([]);
@@ -412,10 +282,28 @@ export default function LearnChapter() {
     const [videos, setVideos] = useState([]);
     const [attachments, setAttachments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useState(lessonParam ? 'notes' : 'overview');
+    const [course, setCourse] = useState(null);
+    const [videoProgress, setVideoProgress] = useState({});
+    const [justCompleted, setJustCompleted] = useState(null);
+    const [milestone, setMilestone] = useState(null);
+
+    const loadCourse = useCallback(() => {
+        axios.get(`${API_URL}/api/progress/course/${board}/${subject}`, { withCredentials: true }).then(r => setCourse(r.data)).catch(() => {});
+    }, [board, subject]);
+
+    useEffect(() => { loadCourse(); }, [loadCourse, isAuthenticated]);
+
+    useEffect(() => {
+        if (!isAuthenticated) { setVideoProgress({}); return; }
+        axios.get(`${API_URL}/api/progress/videos/${board}/${subject}/${chapter}`, { withCredentials: true }).then(r => setVideoProgress(r.data || {})).catch(() => {});
+    }, [board, subject, chapter, isAuthenticated]);
 
     useEffect(() => {
         setLoading(true);
+        setJustCompleted(null);
+        setMilestone(null);
+        if (lessonParam) setActiveTab('notes');
         const fetchAll = async () => {
             try {
                 const [chRes, qRes, wRes, vRes] = await Promise.all([
@@ -425,212 +313,231 @@ export default function LearnChapter() {
                     axios.get(`${API_URL}/api/videos/chapter/${board}/${subject}/${chapter}`).catch(() => ({ data: [] })),
                 ]);
                 setChapterData(chRes.data);
-                const topicPromises = (chRes.data.topics || []).map(t =>
+                const topicResults = await Promise.all((chRes.data.topics || []).map(t =>
                     axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}/${chapter}/${t.slug}`).catch(() => null)
-                );
-                const topicResults = await Promise.all(topicPromises);
+                ));
                 const resolvedTopics = topicResults.filter(Boolean).map(r => r.data);
                 setTopics(resolvedTopics);
                 setQuestions(qRes.data.questions || []);
                 setWorksheets(wRes.data.worksheets || []);
                 setVideos(Array.isArray(vRes.data) ? vRes.data : []);
-
-                // Fetch learning assets for all topics in this chapter
-                const assetPromises = resolvedTopics.map(t =>
+                const assetResults = await Promise.all(resolvedTopics.map(t =>
                     axios.get(`${API_URL}/api/learning-assets/visible?parent_type=topic&parent_id=${t.id || ''}`).catch(() => ({ data: [] }))
-                );
-                const assetResults = await Promise.all(assetPromises);
-                const allAssets = assetResults.flatMap((r, idx) =>
-                    (r.data || []).map(a => ({ ...a, topic_title: resolvedTopics[idx]?.title || '' }))
-                );
-                setAttachments(allAssets);
+                ));
+                setAttachments(assetResults.flatMap((r, idx) => (r.data || []).map(a => ({ ...a, topic_title: resolvedTopics[idx]?.title || '' }))));
             } catch (e) { console.error(e); }
             finally { setLoading(false); }
         };
         fetchAll();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [board, subject, chapter]);
 
     if (loading) return <div className="min-h-screen flex items-center justify-center pt-20"><div className="spinner"></div></div>;
     if (!chapterData) return <div className="min-h-screen pt-20 flex items-center justify-center"><p className="text-gray-500">Chapter not found</p></div>;
-
-    const publishedCount = topics.filter(t => t.status === 'published').length;
-    const completedCount = 0;
 
     return <CourseWorkspace
         board={board} subject={subject} chapter={chapter}
         chapterData={chapterData} topics={topics} questions={questions}
         videos={videos} worksheets={worksheets} attachments={attachments}
         activeTab={activeTab} setActiveTab={setActiveTab}
-        publishedCount={publishedCount} completedCount={completedCount}
         isAuthenticated={isAuthenticated}
+        course={course} setCourse={setCourse} loadCourse={loadCourse}
+        lessonParam={lessonParam} setSearchParams={setSearchParams}
+        videoProgress={videoProgress} setVideoProgress={setVideoProgress}
+        justCompleted={justCompleted} setJustCompleted={setJustCompleted}
+        milestone={milestone} setMilestone={setMilestone}
     />;
 }
 
+function statusMap(course) {
+    const m = {};
+    course?.chapters?.forEach(c => c.topics.forEach(t => { m[`${c.slug}/${t.slug}`] = t.status; }));
+    return m;
+}
+
 // ── Course Workspace Layout (Sidebar + Main) ──
-function CourseWorkspace({ board, subject, chapter, chapterData, topics, questions, videos, worksheets, attachments, activeTab, setActiveTab, publishedCount, isAuthenticated }) {
+function CourseWorkspace({ board, subject, chapter, chapterData, topics, questions, videos, worksheets, attachments, activeTab, setActiveTab, isAuthenticated, course, setCourse, loadCourse, lessonParam, setSearchParams, videoProgress, setVideoProgress, justCompleted, setJustCompleted, milestone, setMilestone }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileSidebar, setMobileSidebar] = useState(false);
-    const [sidebarSearch, setSidebarSearch] = useState('');
     const navigate = useNavigate();
 
-    // All chapters for this subject (fetch once)
-    const [subjectChapters, setSubjectChapters] = useState([]);
-    useEffect(() => {
-        axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}`).then(r => setSubjectChapters(r.data.chapters || [])).catch(() => {});
-    }, [board, subject]);
+    const statuses = useMemo(() => statusMap(course), [course]);
+    const published = topics.filter(t => t.status === 'published');
+    const seq = useMemo(() => (course?.chapters || []).flatMap(c => c.topics.filter(t => t.available).map(t => ({ chapter: c.slug, topic: t.slug, title: t.title }))), [course]);
 
-    const filteredChapters = sidebarSearch
-        ? subjectChapters.filter(c => c.name.toLowerCase().includes(sidebarSearch.toLowerCase()) || c.topics?.some(t => t.title?.toLowerCase().includes(sidebarSearch.toLowerCase())))
-        : subjectChapters;
+    const defaultLesson = (() => {
+        if (lessonParam && published.some(t => t.slug === lessonParam)) return lessonParam;
+        const lv = course?.last_visited;
+        if (lv?.chapter === chapter && published.some(t => t.slug === lv.topic)) return lv.topic;
+        return (published.find(t => statuses[`${chapter}/${t.slug}`] !== 'completed') || published[0])?.slug;
+    })();
+    const activeLesson = activeTab === 'notes' ? defaultLesson : lessonParam;
 
-    const SidebarContent = () => (
-        <div className="flex flex-col h-full">
-            {/* Subject Header */}
-            <div className="p-4 border-b border-gray-100">
-                <Link to={`/learn/${board}/${subject}`} className="text-xs text-accent hover:underline flex items-center gap-1 mb-2">
-                    <ChevronLeft className="w-3 h-3" /> {chapterData?.subject_name}
-                </Link>
-                <h3 className="font-bold text-primary text-sm leading-snug">{chapterData?.board_name || board?.toUpperCase()} {chapterData?.subject_name}</h3>
-            </div>
+    const goTo = useCallback((ch, slug) => {
+        setMobileSidebar(false);
+        setJustCompleted(null);
+        setMilestone(null);
+        if (ch === chapter) {
+            setActiveTab('notes');
+            setSearchParams({ lesson: slug }, { replace: false });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            navigate(`/learn/${board}/${subject}/${ch}?lesson=${slug}`);
+        }
+    }, [chapter, board, subject, navigate, setActiveTab, setSearchParams, setJustCompleted, setMilestone]);
 
-            {/* Course Search */}
-            <div className="px-3 py-2 border-b border-gray-100">
-                <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2.5 py-1.5">
-                    <Search className="w-3.5 h-3.5 text-gray-400" />
-                    <input value={sidebarSearch} onChange={e => setSidebarSearch(e.target.value)} placeholder="Find a topic..." className="bg-transparent text-xs outline-none flex-1 placeholder:text-gray-400" data-testid="sidebar-search" />
-                </div>
-            </div>
+    const setLocalStatus = (slug, status) => setCourse(c => c && ({
+        ...c, chapters: c.chapters.map(ch => ch.slug !== chapter ? ch : { ...ch, topics: ch.topics.map(t => t.slug === slug && t.status !== 'completed' ? { ...t, status } : t) }),
+        last_visited: { chapter, topic: slug, title: topics.find(t => t.slug === slug)?.title },
+    }));
 
-            {/* Chapter List */}
-            <div className="flex-1 overflow-y-auto py-2">
-                {filteredChapters.map((c) => {
-                    const isActive = c.slug === chapter;
-                    return (
-                        <div key={c.slug}>
-                            <button
-                                onClick={() => navigate(`/learn/${board}/${subject}/${c.slug}`)}
-                                className={`w-full text-left px-4 py-2.5 text-xs font-medium transition-colors ${isActive ? 'bg-accent/5 text-accent border-l-2 border-accent' : 'text-gray-600 hover:bg-gray-50 hover:text-primary'}`}
-                                data-testid={`sidebar-chapter-${c.slug}`}
-                            >
-                                {c.name}
-                            </button>
-                            {/* Show topics for active chapter */}
-                            {isActive && topics.length > 0 && (
-                                <div className="ml-4 border-l border-gray-100 pl-3 py-1 space-y-0.5">
-                                    {topics.map((t, idx) => (
-                                        <button
-                                            key={t.slug}
-                                            onClick={() => { setActiveTab('notes'); }}
-                                            className="w-full text-left px-2 py-1.5 text-[11px] text-gray-500 hover:text-primary rounded transition-colors flex items-center gap-2"
-                                        >
-                                            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] flex-shrink-0 ${t.status === 'published' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>{idx + 1}</span>
-                                            <span className="truncate">{t.title}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
+    const onVisit = useCallback(slug => {
+        axios.post(`${API_URL}/api/progress/visit`, { board, subject, chapter, topic: slug }, { withCredentials: true })
+            .then(() => setLocalStatus(slug, 'in_progress')).catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [board, subject, chapter]);
+
+    const onComplete = async slug => {
+        const res = await axios.post(`${API_URL}/api/progress/complete`, { board, subject, chapter, topic: slug }, { withCredentials: true });
+        setCourse(res.data.course);
+        setJustCompleted(res.data.newly_completed ? slug : null);
+        setMilestone(res.data.chapter_completed_first_time ? slug : null);
+    };
+
+    const onVideoProgress = (v, res) => {
+        setVideoProgress(p => ({ ...p, [v.id]: { ...p[v.id], ...res } }));
+        if (res.newly_completed) {
+            toast.success(res.chapter_completed_first_time ? 'Video watched. Chapter completed. Well done!' : 'Video marked as watched');
+            if (v.required) loadCourse();
+        }
+    };
+
+    const lessonProps = topic => {
+        const i = seq.findIndex(s => s.chapter === chapter && s.topic === topic.slug);
+        const prev = i > 0 ? seq[i - 1] : null;
+        const next = i >= 0 && i < seq.length - 1 ? seq[i + 1] : null;
+        const idx = published.findIndex(t => t.slug === topic.slug);
+        return {
+            status: statuses[`${chapter}/${topic.slug}`] || 'not_started',
+            position: { index: idx + 1, total: published.length },
+            prev, next, onGo: s => goTo(s.chapter, s.topic),
+            onVisit, onComplete, isAuthenticated,
+            justCompleted: justCompleted === topic.slug, chapterDone: milestone === topic.slug,
+            board, subject, chapter,
+        };
+    };
+
+    const outline = (
+        <CourseOutline course={course} board={board} subject={subject} chapter={chapter} activeLesson={activeLesson}
+            onSelect={goTo} isAuthenticated={isAuthenticated} subjectName={chapterData?.subject_name} boardName={course?.board_name} />
     );
+    const chProgress = course?.chapters?.find(c => c.slug === chapter);
 
     return (
-        <div className="pt-16 md:pt-20 min-h-screen bg-background" data-testid="learn-chapter-page">
+        <div className="pt-[60px] md:pt-[72px] min-h-screen bg-background" data-testid="learn-chapter-page">
             <div className="flex">
-                {/* Desktop Sidebar */}
                 {sidebarOpen && (
-                    <aside className="hidden lg:block w-72 flex-shrink-0 bg-white border-r border-gray-100 sticky top-16 md:top-20 h-[calc(100vh-5rem)] overflow-hidden" data-testid="course-sidebar">
-                        <SidebarContent />
+                    <aside className="hidden lg:block w-72 flex-shrink-0 bg-white border-r border-slate-100 sticky top-[72px] h-[calc(100vh-72px)] overflow-hidden" data-testid="course-sidebar">
+                        {outline}
                     </aside>
                 )}
 
-                {/* Mobile Sidebar Drawer */}
                 {mobileSidebar && (
                     <div className="fixed inset-0 z-50 lg:hidden">
-                        <div className="absolute inset-0 bg-black/40" onClick={() => setMobileSidebar(false)} />
-                        <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl z-10" data-testid="mobile-sidebar">
+                        <div className="absolute inset-0 bg-navy/40" onClick={() => setMobileSidebar(false)} />
+                        <aside className="absolute left-0 top-0 bottom-0 w-[85vw] max-w-xs bg-white shadow-pop z-10 flex flex-col" data-testid="mobile-sidebar">
                             <div className="flex items-center justify-between p-3 border-b">
-                                <span className="text-xs font-bold text-gray-500">COURSE OUTLINE</span>
-                                <button onClick={() => setMobileSidebar(false)} className="p-1 text-gray-400"><X className="w-4 h-4" /></button>
+                                <span className="text-[11px] font-semibold tracking-[0.14em] text-slate-500 uppercase">Course outline</span>
+                                <button onClick={() => setMobileSidebar(false)} aria-label="Close course outline" className="p-1 text-slate-500" data-testid="mobile-sidebar-close"><X className="w-4 h-4" /></button>
                             </div>
-                            <div className="h-[calc(100%-48px)] overflow-y-auto">
-                                <SidebarContent />
-                            </div>
+                            <div className="flex-1 min-h-0">{outline}</div>
                         </aside>
                     </div>
                 )}
 
-                {/* Main Content */}
                 <main className="flex-1 min-w-0">
-                    {/* Toolbar: sidebar toggle + breadcrumb */}
-                    <div className="bg-white border-b sticky top-16 md:top-20 z-20">
+                    <div className="bg-white/95 border-b border-slate-100 sticky top-[60px] md:top-[72px] z-20">
                         <div className="flex items-center gap-3 px-4 md:px-6 py-2.5">
-                            <button onClick={() => setMobileSidebar(true)} className="lg:hidden p-1.5 text-gray-400 hover:text-primary rounded" data-testid="mobile-sidebar-toggle">
+                            <button onClick={() => setMobileSidebar(true)} aria-label="Open course outline" className="lg:hidden p-1.5 text-slate-500 hover:text-primary rounded" data-testid="mobile-sidebar-toggle">
                                 <Menu className="w-5 h-5" />
                             </button>
-                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="hidden lg:block p-1.5 text-gray-400 hover:text-primary rounded" data-testid="sidebar-toggle">
+                            <button onClick={() => setSidebarOpen(!sidebarOpen)} aria-label={sidebarOpen ? 'Hide course outline' : 'Show course outline'} className="hidden lg:block p-1.5 text-slate-500 hover:text-primary rounded" data-testid="sidebar-toggle">
                                 {sidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
                             </button>
-                            <nav className="flex items-center gap-1.5 text-xs text-gray-400 overflow-hidden flex-1 min-w-0">
+                            <nav className="flex items-center gap-1.5 text-xs text-slate-500 overflow-hidden flex-1 min-w-0" aria-label="Breadcrumb">
                                 <Link to={`/learn/${board}`} className="hover:text-primary whitespace-nowrap">{board?.toUpperCase()}</Link>
                                 <ChevronRight className="w-3 h-3 flex-shrink-0" />
                                 <Link to={`/learn/${board}/${subject}`} className="hover:text-primary whitespace-nowrap">{chapterData?.subject_name}</Link>
                                 <ChevronRight className="w-3 h-3 flex-shrink-0" />
                                 <span className="text-primary font-medium truncate">{chapterData?.name}</span>
                             </nav>
+                            {isAuthenticated && chProgress?.total > 0 && (
+                                <span className="hidden sm:inline text-[11px] text-slate-500 tabular-nums whitespace-nowrap" data-testid="toolbar-chapter-progress">{chProgress.completed} of {chProgress.total} completed</span>
+                            )}
                         </div>
 
-                        {/* Tabs */}
-                        <div className="flex gap-1 overflow-x-auto px-4 md:px-6 pb-2" data-testid="chapter-tabs">
+                        <div className="flex gap-1 overflow-x-auto px-4 md:px-6" role="tablist" data-testid="chapter-tabs">
                             {TABS.map(tab => (
                                 <button
                                     key={tab.id}
+                                    role="tab"
+                                    aria-selected={activeTab === tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? 'bg-accent/10 text-accent' : 'text-gray-500 hover:text-primary hover:bg-gray-50'}`}
+                                    className={`relative flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? 'text-accent' : 'text-slate-500 hover:text-primary'}`}
                                     data-testid={`tab-${tab.id}`}
                                 >
                                     <tab.icon className="w-3.5 h-3.5" />
                                     {tab.label}
+                                    <span className={`absolute left-2 right-2 -bottom-px h-[2px] rounded-full bg-accent transition-opacity duration-200 ${activeTab === tab.id ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true" />
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Tab Content */}
-                    <div className="p-6 md:p-8 lg:p-10 max-w-4xl">
+                    <div className="p-5 md:p-8 lg:p-10 max-w-4xl">
                         {activeTab === 'overview' && (
                             <div data-testid="tab-content-overview">
                                 <h2 className="text-xl font-bold text-primary mb-2">{chapterData?.name}</h2>
-                                <p className="text-sm text-gray-500 mb-6">{chapterData?.subject_name} · {topics.length} concepts · {publishedCount} notes · {questions.length} questions</p>
-
+                                <p className="text-sm text-slate-500 mb-6">{chapterData?.subject_name} · {topics.length} concepts · {published.length} lessons available · {questions.length} questions</p>
+                                {isAuthenticated && chProgress?.total > 0 && (
+                                    <div className="ev-card p-4 mb-5" data-testid="overview-chapter-progress">
+                                        <div className="flex items-center justify-between text-xs text-slate-500 mb-2"><span>{chProgress.completed} of {chProgress.total} completed</span><span className="font-semibold text-primary tabular-nums">{chProgress.percent}%</span></div>
+                                        <div className="ev-progress"><span style={{ width: `${chProgress.percent}%` }} /></div>
+                                    </div>
+                                )}
                                 <div className="space-y-2">
-                                    {topics.map((t, idx) => (
-                                        <div key={t.slug} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100">
-                                            <span className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">{idx + 1}</span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-primary text-sm">{t.title}</p>
-                                                <div className="flex items-center gap-3 mt-0.5">
-                                                    <span className="text-xs text-gray-400">{t.study_time}</span>
-                                                    <span className={`text-xs ${t.status === 'published' ? 'text-green-600' : 'text-gray-400'}`}>
-                                                        {t.status === 'published' ? 'Available' : 'Coming Soon'}
-                                                    </span>
+                                    {topics.map((t, idx) => {
+                                        const st = statuses[`${chapter}/${t.slug}`];
+                                        return (
+                                            <div key={t.slug} className="ev-card flex items-center gap-4 p-4" data-testid={`overview-topic-${t.slug}`}>
+                                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${isAuthenticated && st === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                    {isAuthenticated && st === 'completed' ? <CheckCircle2 className="w-4 h-4" aria-label="Completed" /> : idx + 1}
+                                                </span>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-medium text-primary text-sm">{t.title}</p>
+                                                    <div className="flex items-center gap-3 mt-0.5 text-xs">
+                                                        <span className="text-slate-500">{t.study_time}</span>
+                                                        {t.status !== 'published' ? <span className="text-slate-400">Coming soon</span>
+                                                            : isAuthenticated && st === 'completed' ? <span className="text-emerald-700">Completed</span>
+                                                            : isAuthenticated && st === 'in_progress' ? <span className="text-accent">In progress</span>
+                                                            : <span className="text-slate-500">Available</span>}
+                                                    </div>
                                                 </div>
+                                                {t.status === 'published' && (
+                                                    <button onClick={() => goTo(chapter, t.slug)} className="text-xs text-accent font-semibold hover:underline" data-testid={`open-lesson-${t.slug}`}>
+                                                        {isAuthenticated && st === 'completed' ? 'Review lesson' : 'Open lesson'}
+                                                    </button>
+                                                )}
                                             </div>
-                                            {t.status === 'published' && (
-                                                <button onClick={() => setActiveTab('notes')} className="text-xs text-accent font-medium hover:underline">View Notes</button>
-                                            )}
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
 
                         {activeTab === 'notes' && (
                             <div data-testid="tab-content-notes">
-                                <h2 className="text-xl font-bold text-primary mb-6">Concept Notes</h2>
-                                <NotesPanel topics={topics} board={board} subject={subject} chapter={chapter} />
+                                <NotesPanel topics={topics} lessonSlug={defaultLesson} lessonProps={lessonProps} />
                             </div>
                         )}
 
@@ -644,7 +551,7 @@ function CourseWorkspace({ board, subject, chapter, chapterData, topics, questio
                         {activeTab === 'videos' && (
                             <div data-testid="tab-content-videos">
                                 <h2 className="text-xl font-bold text-primary mb-6">Video Explanations</h2>
-                                <VideosPanel videos={videos} />
+                                <VideosPanel videos={videos} isAuthenticated={isAuthenticated} progress={videoProgress} onProgress={onVideoProgress} />
                             </div>
                         )}
 

@@ -24,6 +24,7 @@ def create_videos_routes(db, get_current_user, get_admin_user):
         difficulty: Optional[str] = "medium"
         status: str = "coming_soon"
         order: Optional[int] = 0
+        required: bool = False
 
     class VideoUpdate(BaseModel):
         title: Optional[str] = None
@@ -39,6 +40,7 @@ def create_videos_routes(db, get_current_user, get_admin_user):
         difficulty: Optional[str] = None
         status: Optional[str] = None
         order: Optional[int] = None
+        required: Optional[bool] = None
 
     def doc_to_response(doc):
         return {k: v for k, v in doc.items() if k != "_id"} | {"id": str(doc["_id"])}

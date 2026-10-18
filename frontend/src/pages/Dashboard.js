@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { BookOpen, Target, ArrowRight, Play, FileText, HelpCircle, Calendar, Sparkles, CheckCircle2, TrendingUp, Clock, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ContinueLearning } from '../components/ContinueLearning';
 import AIMentor from '../components/AIMentor';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -39,7 +40,10 @@ export default function Dashboard() {
     const [enrollments, setEnrollments] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [recentTopics, setRecentTopics] = useState([]);
-    const [activeTab, setActiveTab] = useState('overview');
+    const [searchParams] = useSearchParams();
+    const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'mentor' ? 'mentor' : 'overview');
+    const mentorContext = searchParams.get('tab') === 'mentor' && searchParams.get('topic')
+        ? { board: searchParams.get('board') || 'igcse', subject: searchParams.get('subject') || '', topic: searchParams.get('topic') } : null;
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -126,11 +130,13 @@ export default function Dashboard() {
                     <div className="grid lg:grid-cols-3 gap-8">
                         {/* Main Content */}
                         <div className="lg:col-span-2 space-y-8">
-                            {/* Continue Learning */}
+                            <ContinueLearning />
+
+                            {/* Recently published (admin) */}
                             {recentTopics.length > 0 && (
-                                <div data-testid="continue-learning">
+                                <div data-testid="recent-topics">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h2 className="font-bold text-primary text-base">Continue Learning</h2>
+                                        <h2 className="font-bold text-primary text-base">Recently published</h2>
                                         <Link to="/learn" className="text-xs text-accent font-medium hover:underline flex items-center gap-1">Browse All <ArrowRight className="w-3 h-3" /></Link>
                                     </div>
                                     <div className="space-y-2">
@@ -237,7 +243,7 @@ export default function Dashboard() {
 
                 {activeTab === 'mentor' && (
                     <div className="max-w-3xl">
-                        <AIMentor />
+                        <AIMentor initialContext={mentorContext} />
                     </div>
                 )}
             </div>

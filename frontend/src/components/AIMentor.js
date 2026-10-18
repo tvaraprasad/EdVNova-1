@@ -37,16 +37,16 @@ function ChatBubble({ role, content }) {
     );
 }
 
-export default function AIMentor() {
+export default function AIMentor({ initialContext }) {
     const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState(initialContext?.topic ? `Explain ${initialContext.topic} step by step.` : '');
     const [sending, setSending] = useState(false);
     const [sessionId, setSessionId] = useState('');
     const [sessions, setSessions] = useState([]);
     const [showSidebar, setShowSidebar] = useState(false);
-    const [board, setBoard] = useState('igcse');
-    const [subject, setSubject] = useState('');
-    const [topic, setTopic] = useState('');
+    const [board, setBoard] = useState(initialContext?.board || 'igcse');
+    const [subject, setSubject] = useState(initialContext?.subject || '');
+    const [topic, setTopic] = useState(initialContext?.topic || '');
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
