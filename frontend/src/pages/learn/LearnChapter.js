@@ -489,7 +489,7 @@ function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topi
                                 {sidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
                             </button>
                             <nav className="flex items-center gap-1.5 text-xs text-slate-500 overflow-hidden flex-1 min-w-0" aria-label="Breadcrumb">
-                                <Link to={`/learn/${board}`} className="hover:text-primary whitespace-nowrap">{board?.toUpperCase()}</Link>
+                                <Link to={`/learn/${board}`} className="hover:text-primary whitespace-nowrap">{course?.board_name || board?.toUpperCase()}</Link>
                                 <ChevronRight className="w-3 h-3 flex-shrink-0" />
                                 <Link to={`/learn/${board}/${subject}`} className="hover:text-primary whitespace-nowrap" data-testid="breadcrumb-course">{course?.course_title || chapterData?.subject_name}</Link>
                                 <ChevronRight className="w-3 h-3 flex-shrink-0" />

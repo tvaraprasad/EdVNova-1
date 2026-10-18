@@ -33,3 +33,12 @@ The code changes are backward compatible. On the main DB, nothing changes until 
 - Mastery: no assessment system exists, so mastery is never awarded (an honest note is shown).
 - Practical P3/P5 chapters exist as drafts and stay hidden until a topic is published.
 - In dev mode, the lesson visit request is sent twice because of React StrictMode. This is harmless and only happens in dev.
+
+## Corrections made 2026-10-18 (staging only, iteration 27: all tests pass)
+- AS Level Chemistry: Chapters 1-22 + Paper 3. Full A Level Chemistry: AS Foundation 1-22, A Level Extension 23-37, Paper 3 (the shared AS record) + Paper 5. Empty chapters are labelled "Coming soon".
+- The title "Full A Level Chemistry" appears in the outline, breadcrumb, subject card and continue card. A Level Extension is expanded by default. AS Foundation is collapsed (except for the active chapter) and can be expanded with one click.
+- A lesson is available only when it is published and has content or attached files. Drafts and empty published lessons cannot be opened, visited or completed by students and do not count towards progress. Admins can still see them, and publishing a lesson with content makes it available automatically.
+- Navigation uses official 9701 topic labels (syllabus_title). The published lesson keeps its title "Equilibrium Constants" and its URL.
+- Label-only staging update (run 188e9a19d0): 8 chapter names, 56 draft titles, 57 syllabus_title fields. No IDs, slugs, content or progress were changed. A leftover "TEST" section was removed from staging 7.1.
+- MAIN dry run regenerated (read-only): 97 inserts, 58 updates, 0 blocked.
+- Code-level effect on the main preview: the published-but-empty IGCSE Maths "Fractions" lesson now shows as Coming soon (no data was changed).

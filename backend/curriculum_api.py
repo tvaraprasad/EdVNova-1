@@ -162,18 +162,22 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         )
         if not topic:
             raise HTTPException(404, "Topic not found")
-        if topic.get("status") != "published":
-            try:
-                await get_admin_user(request)
-            except HTTPException:
-                raise HTTPException(404, "Topic not found")
+        try:
+            await get_admin_user(request)
+            is_admin = True
+        except HTTPException:
+            is_admin = False
+        if not is_admin and not await lessons_with_content(db, [topic]):
+            raise HTTPException(404, "Topic not found")
         result = {k: v for k, v in topic.items() if k != "_id"}
         result["id"] = str(topic["_id"])
         # Get prev/next topics in same chapter
         all_topics = await db.curriculum_topics.find(
             visible_topic_query(board_slug, subject_slug, chapter_slug),
-            {"_id": 0, "slug": 1, "title": 1, "order": 1}
+            {"_id": 1, "slug": 1, "title": 1, "order": 1, "status": 1, "content": 1}
         ).sort("order", 1).to_list(100)
+        ready = await lessons_with_content(db, all_topics)
+        all_topics = [{k: t[k] for k in ("slug", "title", "order") if k in t} for t in all_topics if is_admin or str(t["_id"]) in ready or t["slug"] == topic_slug]
         current_idx = next((i for i, t in enumerate(all_topics) if t["slug"] == topic_slug), -1)
         result["prev_topic"] = all_topics[current_idx - 1] if current_idx > 0 else None
         result["next_topic"] = all_topics[current_idx + 1] if current_idx < len(all_topics) - 1 else None

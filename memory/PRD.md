@@ -105,6 +105,13 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
   - Approval pack: /app/memory/CHEM_9701_DELIVERY.md
   - Draft topics now return 404 to non-admins
   - MAIN DB NOT MIGRATED, waiting for owner approval
+- 2026-10-18 staging corrections (iteration 27, all tests pass):
+  - Practical P3/P5 chapters always listed as "Coming soon". AS shows 1-22 + P3. Full A Level shows AS Foundation / A Level Extension / P3 + P5
+  - course_title "Full A Level Chemistry" shown in the outline, breadcrumb, subject card and continue card. AS Foundation group collapsed and A Level Extension expanded
+  - A lesson counts as available only if it is published AND has content or assets (lessons_with_content in pathways.py). Visit/complete/subtopic/get_topic return 404 otherwise (admins exempt)
+  - Navigation shows syllabus_title (official 9701 labels in chem_9701_spec.py). Published lesson titles unchanged
+  - Staging label update applied (run 188e9a19d0, 67 label-only updates). TEST section removed from staging 7.1. MAIN dry run regenerated (97 inserts / 58 updates)
+
 
 ## Awaiting user approval
 - Apply the Chemistry 9701 migration to the main DB (see CHEM_9701_DELIVERY.md)

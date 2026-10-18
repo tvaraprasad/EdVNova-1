@@ -1,0 +1,36 @@
+{
+  "summary": "Tested the Chemistry minimal corrections in STAGING (edvnova_chem_staging via the staging cookie at /staging/api). Backend: 12/12 pytest pass. Frontend Playwright checks pass for anonymous, admin and student on desktop, plus the student on a 390px mobile screen. Verified: AS Level Chemistry shows chapters 1-22 + P3 with no P5. Full A Level Chemistry has AS Foundation (1-22, as-level), A Level Extension (23-37, a-level) and Practical skills (P3 as-level, P5 a-level). The 7.1 topic data is identical in both views (as-level record). Only equilibrium-constants is available. Visit, complete and subtopic return 404 for a draft and for a published-but-empty lesson. Visit + complete works for 7.1 and counts as 1/1. GET draft topic returns 404 for anonymous and student users and 200 for admin. The chapter endpoint returns a boolean 'available' on each topic. The main /api a-level chemistry is unchanged ('A Level Chemistry', 4 chapters). UI: outline title and breadcrumb, 22 Coming soon pills on AS, nav label '7.1 Chemical equilibria' and lesson H1 'Equilibrium Constants'. A Level Extension is expanded with 15 chapters. AS Foundation is collapsed except for the active chapter 7 (18 rows visible) and toggles to 39 rows and back. P3/P5 show Coming soon. Draft topics are disabled and show 'Soon'. Admin sees '0 of 1 completed'. The student sees '1 of 1 completed 100%' and the dashboard continue card shows 'Full A Level Chemistry'. /learn/a-level shows the subject card title 'Full A Level Chemistry'. No functional bugs found; only minor review notes.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/curriculum/boards/{b}/{s}/{c}/{t}", "issue": "A published-but-empty topic (e.g. igcse/mathematics/number/fractions) still returns 200 to anonymous users. Only progress endpoints and the UI block it, so the rule 'cannot be visited' is only enforced at the progress level."},
+      {"endpoint": "GET /api/curriculum/boards/{b}/{s}/{c}/{t}", "issue": "prev_topic, next_topic and related_topics use visible_topic_query, which includes drafts and empty lessons. The full topic page can therefore link to unavailable lessons."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Course outline", "issues": ["The 'Soon' label on locked topics is 10px text-slate-400 on a light background, which is low contrast (pre-existing style)"]},
+      {"screen": "Lesson 7.1 Discover card", "issues": ["Shows a raw YouTube URL as plain text (https://youtu.be/1GiZzCzmO5Q). This is a content/rendering issue, not part of this change"]},
+      {"screen": "Breadcrumb", "issues": ["The first crumb shows the board slug in upper case ('AS-LEVEL', 'A-LEVEL') instead of 'AS Level' (pre-existing)"]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter27_chem_corrections.py", "/app/test_reports/pytest/iter27.xml"],
+  "action_items": [
+    "Optional: return 404 from get_topic for published-but-empty lessons to non-admins, for consistency with progress gating",
+    "Optional: filter prev_topic, next_topic and related_topics in get_topic to available lessons only"
+  ],
+  "critical_code_review_comments": [
+    "has_content() treats any truthy non-list/str value (e.g. a number or True in the content dict) as content. Today's content shape is safe, but this is fragile.",
+    "Admins cannot open drafts from the learner course player because the sidebar buttons are disabled for everyone. Admin draft access works only through the API and the full topic page. This is acceptable for the stated requirement, but noting it.",
+    "The 'Coming soon' pill uses c.total === 0, so a chapter with only required videos and no lessons will not show the pill. This is acceptable."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter27_chem_corrections.py"],
+  "success_rate": {"backend": "100% (12/12)", "frontend": "100%"},
+  "test_credentials": "Admin admin@edvnova.com / Admin@123 (staging). Temp student TEST_iter27_f9a11bcd@test.com / Test@12345 (staging only; progress records deleted).",
+  "seed_data_creation": "Created one staging user TEST_iter27_f9a11bcd@test.com (id 6ad4a9a298b180a596ec90b0). Deleted its learning_progress (1) and chapter_milestones (1) records. Staging counts are back to the baseline lp=8, cm=3, vp=0. The remaining records come from earlier iterations' TEST users. Main test_database was never written (lp count unchanged at 2).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run: cd /app/backend && python -m pytest tests/test_iter27_chem_corrections.py (reads REACT_APP_BACKEND_URL and STAGING_ACCESS_KEY from frontend/.env). It creates a TEST_iter27 user in staging and completes 7.1. Delete that user's learning_progress and chapter_milestones afterwards. The staging backend on 8002 has no reload."
+}
