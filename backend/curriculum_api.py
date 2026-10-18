@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
+from curriculum.pathways import pathway_chapters, resolve_chapter_board, visible_topic_query
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -123,12 +124,10 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         )
         if not subject:
             raise HTTPException(404, "Subject not found")
-        chapters = await db.curriculum_chapters.find(
-            {"board_slug": board_slug, "subject_slug": subject_slug}, {"_id": 0}
-        ).sort("order", 1).to_list(100)
+        chapters, _ = await pathway_chapters(db, board_slug, subject_slug)
         for ch in chapters:
             ch["published_count"] = await db.curriculum_topics.count_documents({
-                "board_slug": board_slug, "subject_slug": subject_slug,
+                "board_slug": ch["board_slug"], "subject_slug": subject_slug,
                 "chapter_slug": ch["slug"], "status": "published"
             })
         subject["chapters"] = chapters
@@ -136,13 +135,14 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
 
     @router.get("/boards/{board_slug}/{subject_slug}/{chapter_slug}")
     async def get_chapter(board_slug: str, subject_slug: str, chapter_slug: str):
+        board_slug = await resolve_chapter_board(db, board_slug, subject_slug, chapter_slug) or board_slug
         chapter = await db.curriculum_chapters.find_one(
             {"board_slug": board_slug, "subject_slug": subject_slug, "slug": chapter_slug}, {"_id": 0}
         )
         if not chapter:
             raise HTTPException(404, "Chapter not found")
         topics = await db.curriculum_topics.find(
-            {"board_slug": board_slug, "subject_slug": subject_slug, "chapter_slug": chapter_slug},
+            visible_topic_query(board_slug, subject_slug, chapter_slug),
             {"_id": 0, "content": 0}
         ).sort("order", 1).to_list(100)
         chapter["topics"] = topics
@@ -155,6 +155,7 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
 
     @router.get("/boards/{board_slug}/{subject_slug}/{chapter_slug}/{topic_slug}")
     async def get_topic(board_slug: str, subject_slug: str, chapter_slug: str, topic_slug: str):
+        board_slug = await resolve_chapter_board(db, board_slug, subject_slug, chapter_slug) or board_slug
         topic = await db.curriculum_topics.find_one(
             {"board_slug": board_slug, "subject_slug": subject_slug,
              "chapter_slug": chapter_slug, "slug": topic_slug}
@@ -165,7 +166,7 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         result["id"] = str(topic["_id"])
         # Get prev/next topics in same chapter
         all_topics = await db.curriculum_topics.find(
-            {"board_slug": board_slug, "subject_slug": subject_slug, "chapter_slug": chapter_slug},
+            visible_topic_query(board_slug, subject_slug, chapter_slug),
             {"_id": 0, "slug": 1, "title": 1, "order": 1}
         ).sort("order", 1).to_list(100)
         current_idx = next((i for i, t in enumerate(all_topics) if t["slug"] == topic_slug), -1)

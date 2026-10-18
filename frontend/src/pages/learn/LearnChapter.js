@@ -294,10 +294,12 @@ export default function LearnChapter() {
 
     useEffect(() => { loadCourse(); }, [loadCourse, isAuthenticated]);
 
+    const dataBoard = chapterData?.board_slug || board;
+
     useEffect(() => {
-        if (!isAuthenticated) { setVideoProgress({}); return; }
-        axios.get(`${API_URL}/api/progress/videos/${board}/${subject}/${chapter}`, { withCredentials: true }).then(r => setVideoProgress(r.data || {})).catch(() => {});
-    }, [board, subject, chapter, isAuthenticated]);
+        if (!isAuthenticated || !chapterData) { setVideoProgress({}); return; }
+        axios.get(`${API_URL}/api/progress/videos/${dataBoard}/${subject}/${chapter}`, { withCredentials: true }).then(r => setVideoProgress(r.data || {})).catch(() => {});
+    }, [dataBoard, subject, chapter, isAuthenticated, chapterData]);
 
     useEffect(() => {
         setLoading(true);
@@ -306,17 +308,19 @@ export default function LearnChapter() {
         if (lessonParam) setActiveTab('notes');
         const fetchAll = async () => {
             try {
-                const [chRes, qRes, wRes, vRes] = await Promise.all([
-                    axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}/${chapter}`),
-                    axios.get(`${API_URL}/api/questions/browse?board=${board}&subject=${subject}&topic=${chapter}&limit=50`).catch(() => ({ data: { questions: [] } })),
-                    axios.get(`${API_URL}/api/worksheets/browse?board=${board}&subject=${subject}&chapter=${chapter}`).catch(() => ({ data: { worksheets: [] } })),
-                    axios.get(`${API_URL}/api/videos/chapter/${board}/${subject}/${chapter}`).catch(() => ({ data: [] })),
+                const chRes = await axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}/${chapter}`);
+                const src = chRes.data.board_slug || board;
+                const [qRes, wRes, vRes] = await Promise.all([
+                    axios.get(`${API_URL}/api/questions/browse?board=${src}&subject=${subject}&topic=${chapter}&limit=50`).catch(() => ({ data: { questions: [] } })),
+                    axios.get(`${API_URL}/api/worksheets/browse?board=${src}&subject=${subject}&chapter=${chapter}`).catch(() => ({ data: { worksheets: [] } })),
+                    axios.get(`${API_URL}/api/videos/chapter/${src}/${subject}/${chapter}`).catch(() => ({ data: [] })),
                 ]);
                 setChapterData(chRes.data);
-                const topicResults = await Promise.all((chRes.data.topics || []).map(t =>
-                    axios.get(`${API_URL}/api/curriculum/boards/${board}/${subject}/${chapter}/${t.slug}`).catch(() => null)
+                const topicResults = await Promise.all((chRes.data.topics || []).filter(t => t.status === 'published').map(t =>
+                    axios.get(`${API_URL}/api/curriculum/boards/${src}/${subject}/${chapter}/${t.slug}`).catch(() => null)
                 ));
-                const resolvedTopics = topicResults.filter(Boolean).map(r => r.data);
+                const full = Object.fromEntries(topicResults.filter(Boolean).map(r => [r.data.slug, r.data]));
+                const resolvedTopics = (chRes.data.topics || []).map(t => full[t.slug] || t);
                 setTopics(resolvedTopics);
                 setQuestions(qRes.data.questions || []);
                 setWorksheets(wRes.data.worksheets || []);
@@ -336,7 +340,7 @@ export default function LearnChapter() {
     if (!chapterData) return <div className="min-h-screen pt-20 flex items-center justify-center"><p className="text-gray-500">Chapter not found</p></div>;
 
     return <CourseWorkspace
-        board={board} subject={subject} chapter={chapter}
+        board={board} dataBoard={dataBoard} subject={subject} chapter={chapter}
         chapterData={chapterData} topics={topics} questions={questions}
         videos={videos} worksheets={worksheets} attachments={attachments}
         activeTab={activeTab} setActiveTab={setActiveTab}
@@ -356,12 +360,13 @@ function statusMap(course) {
 }
 
 // ── Course Workspace Layout (Sidebar + Main) ──
-function CourseWorkspace({ board, subject, chapter, chapterData, topics, questions, videos, worksheets, attachments, activeTab, setActiveTab, isAuthenticated, course, setCourse, loadCourse, lessonParam, setSearchParams, videoProgress, setVideoProgress, justCompleted, setJustCompleted, milestone, setMilestone }) {
+function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topics, questions, videos, worksheets, attachments, activeTab, setActiveTab, isAuthenticated, course, setCourse, loadCourse, lessonParam, setSearchParams, videoProgress, setVideoProgress, justCompleted, setJustCompleted, milestone, setMilestone }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileSidebar, setMobileSidebar] = useState(false);
     const navigate = useNavigate();
 
     const statuses = useMemo(() => statusMap(course), [course]);
+    const courseTopic = slug => course?.chapters?.find(c => c.slug === chapter)?.topics.find(t => t.slug === slug);
     const published = topics.filter(t => t.status === 'published');
     const seq = useMemo(() => (course?.chapters || []).flatMap(c => c.topics.filter(t => t.available).map(t => ({ chapter: c.slug, topic: t.slug, title: t.title }))), [course]);
 
@@ -392,13 +397,13 @@ function CourseWorkspace({ board, subject, chapter, chapterData, topics, questio
     }));
 
     const onVisit = useCallback(slug => {
-        axios.post(`${API_URL}/api/progress/visit`, { board, subject, chapter, topic: slug }, { withCredentials: true })
+        axios.post(`${API_URL}/api/progress/visit`, { board: dataBoard, subject, chapter, topic: slug, view_board: board }, { withCredentials: true })
             .then(() => setLocalStatus(slug, 'in_progress')).catch(() => {});
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [board, subject, chapter]);
+    }, [board, dataBoard, subject, chapter]);
 
     const onComplete = async slug => {
-        const res = await axios.post(`${API_URL}/api/progress/complete`, { board, subject, chapter, topic: slug }, { withCredentials: true });
+        const res = await axios.post(`${API_URL}/api/progress/complete`, { board: dataBoard, subject, chapter, topic: slug }, { withCredentials: true });
         setCourse(res.data.course);
         setJustCompleted(res.data.newly_completed ? slug : null);
         setMilestone(res.data.chapter_completed_first_time ? slug : null);
@@ -410,6 +415,12 @@ function CourseWorkspace({ board, subject, chapter, chapterData, topics, questio
             toast.success(res.chapter_completed_first_time ? 'Video watched. Chapter completed. Well done!' : 'Video marked as watched');
             if (v.required) loadCourse();
         }
+    };
+
+    const onSubtopic = async (slug, subId) => {
+        const res = await axios.post(`${API_URL}/api/progress/subtopic`, { board: dataBoard, subject, chapter, topic: slug, subtopic: subId }, { withCredentials: true });
+        setCourse(c => c && ({ ...c, chapters: c.chapters.map(ch => ch.slug !== chapter ? ch : { ...ch, topics: ch.topics.map(t => t.slug === slug ? { ...t, subtopics_completed: res.data.subtopics_completed } : t) }) }));
+        if (res.data.lesson_completed) { setJustCompleted(slug); loadCourse(); }
     };
 
     const lessonProps = topic => {
@@ -424,6 +435,15 @@ function CourseWorkspace({ board, subject, chapter, chapterData, topics, questio
             onVisit, onComplete, isAuthenticated,
             justCompleted: justCompleted === topic.slug, chapterDone: milestone === topic.slug,
             board, subject, chapter,
+            journey: {
+                subtopics: courseTopic(topic.slug)?.subtopics || topic.subtopics || [],
+                subtopicsDone: courseTopic(topic.slug)?.subtopics_completed || [],
+                onSubtopic: subId => onSubtopic(topic.slug, subId),
+                attachments: attachments.filter(a => a.topic_title === topic.title),
+                videoCount: videos.filter(v => v.status === 'available').length,
+                questionCount: questions.length,
+                onOpenTab: setActiveTab,
+            },
         };
     };
 
@@ -544,7 +564,7 @@ function CourseWorkspace({ board, subject, chapter, chapterData, topics, questio
                         {activeTab === 'workbook' && (
                             <div data-testid="tab-content-workbook">
                                 <h2 className="text-xl font-bold text-primary mb-6">Workbook Questions</h2>
-                                <WorkbookPanel questions={questions} board={board} subject={subject} chapter={chapter} isAuth={isAuthenticated} />
+                                <WorkbookPanel questions={questions} board={dataBoard} subject={subject} chapter={chapter} isAuth={isAuthenticated} />
                             </div>
                         )}
 

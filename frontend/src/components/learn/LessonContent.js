@@ -30,77 +30,90 @@ export function RichContent({ content }) {
     return null;
 }
 
-const hasContent = c => !!c && Object.values(c).some(v => (Array.isArray(v) ? v.length > 0 : !!v));
+const filled = v => (Array.isArray(v) ? v.length > 0 : !!v);
+export const hasContent = c => !!c && Object.values(c).some(filled);
 
-export function LessonContent({ topic }) {
-    const c = topic.content || {};
-    if (!hasContent(c)) {
-        return <p className="text-sm text-slate-500" data-testid="lesson-content-empty">Notes for this lesson are still being written. You can practise questions or ask the AI Mentor about this topic in the meantime.</p>;
-    }
+const Box = ({ tone, label, children, testid }) => (
+    <div className={`p-4 rounded-xl border mb-4 ${tone}`} data-testid={testid}>
+        <p className="text-xs font-bold uppercase tracking-wider mb-3 opacity-80">{label}</p>
+        {children}
+    </div>
+);
+
+export function Definitions({ items }) {
+    if (!filled(items)) return null;
     return (
-        <div data-testid={`lesson-content-${topic.slug}`}>
-            {c.introduction && <div className="mb-6"><RichContent content={c.introduction} /></div>}
-            {c.sections?.map((s, i) => (
-                <div key={i} className="mb-7">
-                    <h3 className="text-base font-bold text-primary mb-2">{s.title}</h3>
-                    <RichContent content={s.content} />
+        <Box tone="bg-blue-50/50 border-blue-100 text-blue-700" label="Key definitions" testid="lesson-definitions">
+            {items.map((d, i) => (
+                <div key={i} className="mb-2 last:mb-0 text-slate-700">
+                    <strong className="text-primary">{d.term}:</strong>{' '}
+                    {typeof d.definition === 'string' ? <span className="text-sm">{d.definition}</span> : <RichContent content={d.definition} />}
                 </div>
             ))}
-            {c.definitions?.length > 0 && (
-                <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl mb-5">
-                    <p className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-3">Key Definitions</p>
-                    {c.definitions.map((d, i) => (
-                        <div key={i} className="mb-2 last:mb-0">
-                            <strong className="text-primary">{d.term}:</strong>{' '}
-                            {typeof d.definition === 'string' ? <span className="text-sm text-slate-700">{d.definition}</span> : <RichContent content={d.definition} />}
-                        </div>
-                    ))}
+        </Box>
+    );
+}
+
+export function Formulas({ items }) {
+    if (!filled(items)) return null;
+    return (
+        <Box tone="bg-violet-50/50 border-violet-100 text-violet-700" label="Formulas" testid="lesson-formulas">
+            {items.map((f, i) => (
+                <div key={i} className="flex flex-wrap items-baseline gap-3 mb-2">
+                    <code className="text-sm font-mono bg-white px-2 py-0.5 rounded border text-violet-700">{f.formula}</code>
+                    <span className="text-sm text-slate-600">{f.name}{f.description ? `: ${f.description}` : ''}</span>
                 </div>
-            )}
-            {c.formulas?.length > 0 && (
-                <div className="p-4 bg-violet-50/50 border border-violet-100 rounded-xl mb-5">
-                    <p className="text-xs font-bold text-violet-700 uppercase tracking-wider mb-3">Formulas</p>
-                    {c.formulas.map((f, i) => (
-                        <div key={i} className="flex items-baseline gap-3 mb-2">
-                            <code className="text-sm font-mono bg-white px-2 py-0.5 rounded border text-violet-700">{f.formula}</code>
-                            <span className="text-sm text-slate-600">{f.name} — {f.description}</span>
-                        </div>
-                    ))}
+            ))}
+        </Box>
+    );
+}
+
+export function WorkedExamples({ items }) {
+    if (!filled(items)) return null;
+    return (
+        <Box tone="bg-green-50/50 border-green-100 text-green-700" label="Worked examples" testid="lesson-worked-examples">
+            {items.map((w, i) => (
+                <div key={i} className="mb-4 last:mb-0">
+                    <p className="text-sm font-medium text-primary mb-1">Q: {w.question}</p>
+                    <p className="text-sm text-slate-700 whitespace-pre-wrap">A: {w.solution}</p>
                 </div>
+            ))}
+        </Box>
+    );
+}
+
+export function TipsAndMistakes({ tips, mistakes }) {
+    if (!filled(tips) && !filled(mistakes)) return null;
+    return (
+        <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            {filled(tips) && (
+                <Box tone="bg-accent/5 border-accent/10 text-accent" label="Examiner tips" testid="lesson-examiner-tips">
+                    <ul className="space-y-1">{tips.map((t, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><Lightbulb className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-0.5" />{t}</li>)}</ul>
+                </Box>
             )}
-            {c.worked_examples?.length > 0 && (
-                <div className="p-4 bg-green-50/50 border border-green-100 rounded-xl mb-5">
-                    <p className="text-xs font-bold text-green-700 uppercase tracking-wider mb-3">Worked Examples</p>
-                    {c.worked_examples.map((w, i) => (
-                        <div key={i} className="mb-4 last:mb-0">
-                            <p className="text-sm font-medium text-primary mb-1">Q: {w.question}</p>
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap">A: {w.solution}</p>
-                        </div>
-                    ))}
-                </div>
+            {filled(mistakes) && (
+                <Box tone="bg-amber-50/50 border-amber-100 text-amber-700" label="Common mistakes" testid="lesson-common-mistakes">
+                    <ul className="space-y-1">{mistakes.map((m, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />{m}</li>)}</ul>
+                </Box>
             )}
-            {(c.examiner_tips?.length > 0 || c.common_mistakes?.length > 0) && (
-                <div className="grid sm:grid-cols-2 gap-4 mb-5">
-                    {c.examiner_tips?.length > 0 && (
-                        <div className="p-4 bg-accent/5 border border-accent/10 rounded-xl">
-                            <p className="text-xs font-bold text-accent uppercase tracking-wider mb-2">Examiner Tips</p>
-                            <ul className="space-y-1">{c.examiner_tips.map((t, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><Lightbulb className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-0.5" />{t}</li>)}</ul>
-                        </div>
-                    )}
-                    {c.common_mistakes?.length > 0 && (
-                        <div className="p-4 bg-amber-50/50 border border-amber-100 rounded-xl">
-                            <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Common Mistakes</p>
-                            <ul className="space-y-1">{c.common_mistakes.map((m, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />{m}</li>)}</ul>
-                        </div>
-                    )}
-                </div>
-            )}
-            {c.summary?.length > 0 && (
-                <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Summary</p>
-                    <ul className="space-y-1">{c.summary.map((s, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />{s}</li>)}</ul>
-                </div>
-            )}
+        </div>
+    );
+}
+
+export function Summary({ items }) {
+    if (!filled(items)) return null;
+    return (
+        <Box tone="bg-slate-50 border-slate-100 text-slate-500" label="Summary" testid="lesson-summary">
+            <ul className="space-y-1">{items.map((s, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />{s}</li>)}</ul>
+        </Box>
+    );
+}
+
+export function Section({ section }) {
+    return (
+        <div className="mb-6 last:mb-0">
+            {section.title && <h4 className="text-base font-bold text-primary mb-2">{section.title}</h4>}
+            <RichContent content={section.content} />
         </div>
     );
 }

@@ -390,7 +390,7 @@ function TopicForm({ topicSummary, onBack }) {
         try {
             const content = {
                 introduction: blocksToStorable(introduction),
-                sections: sections.map(s => ({ title: s.title, content: blocksToStorable(s.contentBlocks || s.content) })),
+                sections: sections.map(s => ({ title: s.title, content: blocksToStorable(s.contentBlocks || s.content), ...(s.subtopic_id ? { subtopic_id: s.subtopic_id } : {}) })),
                 definitions: definitions.map(d => ({ term: d.term, definition: blocksToStorable(d.defBlocks || d.definition) })),
                 formulas,
                 worked_examples: workedExamples,
@@ -512,6 +512,12 @@ function TopicForm({ topicSummary, onBack }) {
                                 <div key={i} className="p-3 bg-white rounded-lg border border-gray-100 mb-2 space-y-2">
                                     <div className="flex items-center gap-2">
                                         <Input value={s.title || ''} onChange={e => { const u = [...sections]; u[i] = { ...u[i], title: e.target.value }; setSections(u); }} placeholder="Section title" className="text-sm flex-1" />
+                                        {topic?.subtopics?.length > 0 && (
+                                            <select value={s.subtopic_id || ''} onChange={e => { const u = [...sections]; u[i] = { ...u[i], subtopic_id: e.target.value }; setSections(u); }} className="h-9 text-xs border rounded-md px-2 max-w-[200px] bg-white" aria-label="Subtopic" data-testid={`section-subtopic-select-${i}`}>
+                                                <option value="">No subtopic</option>
+                                                {topic.subtopics.map(st => <option key={st.id} value={st.id}>{st.title}</option>)}
+                                            </select>
+                                        )}
                                         <button onClick={() => setSections(p => p.filter((_, j) => j !== i))} className="text-xs text-red-400 hover:text-red-600">Remove</button>
                                     </div>
                                     <RichContentEditor blocks={s.contentBlocks || textToBlocks(s.content)} onChange={blocks => { const u = [...sections]; u[i] = { ...u[i], contentBlocks: blocks }; setSections(u); }} placeholder="Section content..." />

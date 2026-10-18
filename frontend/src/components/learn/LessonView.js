@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, ExternalLink, FileCheck, Loader2, PenLine, Sparkles, Award } from 'lucide-react';
-import { LessonContent } from './LessonContent';
+import { hasContent } from './LessonContent';
+import { LessonJourney } from './LessonJourney';
 
 const STATUS_LABEL = { not_started: 'Not started', in_progress: 'In progress', completed: 'Completed' };
 
@@ -88,22 +89,25 @@ function LearningLinks({ board, subject, topic }) {
     );
 }
 
-export function LessonView({ topic, status, position, prev, next, onGo, onVisit, onComplete, isAuthenticated, justCompleted, chapterDone, board, subject, chapter }) {
+export function LessonView({ topic, status, position, prev, next, onGo, onVisit, onComplete, isAuthenticated, justCompleted, chapterDone, board, subject, chapter, journey }) {
     useEffect(() => { if (isAuthenticated) onVisit(topic.slug); }, [topic.slug, isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <article className="ev-fade-up" key={topic.slug} data-testid="lesson-view">
             <header className="mb-6">
                 <div className="flex flex-wrap items-center gap-2 mb-2 text-xs text-slate-500">
+                    {topic.syllabus_ref && <span className="font-semibold text-slate-600 tabular-nums" data-testid="lesson-syllabus-ref">{topic.syllabus_ref}</span>}
                     <span className="font-semibold text-accent uppercase tracking-[0.14em] text-[11px]">Lesson {position.index} of {position.total}</span>
                     <span aria-hidden="true">·</span><span>Reading</span>
-                    {topic.study_time && <><span aria-hidden="true">·</span><span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" />{topic.study_time}</span></>}
+                    {topic.study_time && <><span aria-hidden="true">·</span><span className="inline-flex items-center gap-1" title="Estimated study time"><Clock className="w-3 h-3" />About {topic.study_time}</span></>}
                     {isAuthenticated && <StatusPill status={status} />}
                 </div>
                 <h2 className="text-2xl font-bold text-primary tracking-tight" data-testid="lesson-title">{topic.title}</h2>
             </header>
 
-            <div className="ev-card p-5 md:p-7 mb-6"><LessonContent topic={topic} /></div>
+            {hasContent(topic.content) || journey.subtopics.length > 0
+                ? <LessonJourney topic={topic} canTrack={isAuthenticated && status !== 'not_started'} {...journey} />
+                : <div className="ev-card p-5 md:p-7 mb-6"><p className="text-sm text-slate-500" data-testid="lesson-content-empty">Notes for this lesson are still being written. You can practise questions or ask the AI Mentor about this topic in the meantime.</p></div>}
 
             <div className="space-y-4">
                 <CompletionPanel status={status} isAuthenticated={isAuthenticated} onComplete={() => onComplete(topic.slug)} justCompleted={justCompleted} chapterDone={chapterDone} next={next} onGo={onGo} />
@@ -121,7 +125,7 @@ export function LessonView({ topic, status, position, prev, next, onGo, onVisit,
                     ) : <span />}
                 </nav>
                 <div className="flex justify-end">
-                    <Link to={`/${board}/${subject}/${chapter}/${topic.slug}`} className="text-xs text-slate-500 hover:text-accent inline-flex items-center gap-1" data-testid="full-topic-link">
+                    <Link to={`/${topic.board_slug || board}/${subject}/${chapter}/${topic.slug}`} className="text-xs text-slate-500 hover:text-accent inline-flex items-center gap-1" data-testid="full-topic-link">
                         Open full topic page <ExternalLink className="w-3 h-3" />
                     </Link>
                 </div>

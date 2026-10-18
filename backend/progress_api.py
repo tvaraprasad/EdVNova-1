@@ -4,6 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from bson import ObjectId
 import re
+from curriculum.pathways import BOARDS, pathway_chapters, visible_topic_query
 
 COMPLETE_RATIO = 0.9
 MAX_RATE = 2.0
@@ -51,6 +52,14 @@ class LessonRef(BaseModel):
     topic: str = Field(min_length=1, max_length=160)
 
 
+class VisitRef(LessonRef):
+    view_board: Optional[str] = None
+
+
+class SubtopicRef(LessonRef):
+    subtopic: str = Field(min_length=1, max_length=120)
+
+
 class VideoHeartbeat(BaseModel):
     position: float = Field(ge=0)
     duration: float = Field(gt=0, le=6 * 3600)
@@ -86,19 +95,21 @@ def create_progress_routes(db, get_current_user):
         subj = await db.curriculum_subjects.find_one({"board_slug": board, "slug": subject}, {"_id": 0, "name": 1, "board_name": 1})
         if not subj:
             raise HTTPException(404, "Subject not found")
-        chapters = await db.curriculum_chapters.find(
-            {"board_slug": board, "subject_slug": subject}, {"_id": 0, "slug": 1, "name": 1, "order": 1}).sort("order", 1).to_list(200)
+        chapters, _ = await pathway_chapters(db, board, subject)
+        boards = sorted({c["board_slug"] for c in chapters} | {board})
         topics = await db.curriculum_topics.find(
-            {"board_slug": board, "subject_slug": subject},
-            {"_id": 0, "slug": 1, "title": 1, "chapter_slug": 1, "order": 1, "status": 1, "study_time": 1}).sort("order", 1).to_list(2000)
+            {"board_slug": {"$in": boards}, "subject_slug": subject, "$or": [{"status": "published"}, {"syllabus_review": {"$exists": False}}]},
+            {"_id": 0, "slug": 1, "title": 1, "board_slug": 1, "chapter_slug": 1, "order": 1, "status": 1, "study_time": 1, "syllabus_ref": 1, "subtopics": 1}).sort("order", 1).to_list(3000)
         videos = await db.videos.find(
-            {"board": board, "subject": subject, "status": "available"},
-            {"_id": 1, "chapter": 1, "title": 1, "required": 1, "youtube_url": 1}).sort("order", 1).to_list(500)
+            {"board": {"$in": boards}, "subject": subject, "status": "available"},
+            {"_id": 1, "board": 1, "chapter": 1, "title": 1, "required": 1, "youtube_url": 1}).sort("order", 1).to_list(500)
 
-        lesson_status, video_done, last = {}, set(), None
+        lesson_status, sub_done, video_done, last = {}, {}, set(), None
         if user_id:
-            async for p in db.learning_progress.find({"user_id": user_id, "board": board, "subject": subject}):
-                lesson_status[(p["chapter"], p["topic"])] = p["status"]
+            async for p in db.learning_progress.find({"user_id": user_id, "board": {"$in": boards}, "subject": subject}):
+                k = (p["board"], p["chapter"], p["topic"])
+                lesson_status[k] = p["status"]
+                sub_done[k] = p.get("subtopics_completed", [])
                 if not last or p["last_visited_at"] > last["last_visited_at"]:
                     last = p
             vids = [str(v["_id"]) for v in videos]
@@ -108,23 +119,28 @@ def create_progress_routes(db, get_current_user):
         out_chapters, seq = [], []
         total = done = 0
         for ch in chapters:
+            cb = ch["board_slug"]
             ch_topics = []
             for t in topics:
-                if t["chapter_slug"] != ch["slug"]:
+                if t["board_slug"] != cb or t["chapter_slug"] != ch["slug"]:
                     continue
                 published = t.get("status") == "published"
-                st = lesson_status.get((ch["slug"], t["slug"]), "not_started") if published else "unavailable"
-                item = {"slug": t["slug"], "title": t["title"], "status": st, "available": published, "study_time": t.get("study_time", "")}
+                k = (cb, ch["slug"], t["slug"])
+                st = lesson_status.get(k, "not_started") if published else "unavailable"
+                item = {"slug": t["slug"], "title": t["title"], "status": st, "available": published, "study_time": t.get("study_time", ""),
+                        "syllabus_ref": t.get("syllabus_ref", ""), "subtopics": t.get("subtopics", []) if published else [],
+                        "subtopics_completed": sub_done.get(k, [])}
                 ch_topics.append(item)
                 if published:
-                    seq.append({"chapter": ch["slug"], "chapter_name": ch["name"], "topic": t["slug"], "title": t["title"], "status": st})
-            req_videos = [v for v in videos if v.get("chapter") == ch["slug"] and v.get("required") and _yt_id(v.get("youtube_url", ""))]
+                    seq.append({"board": cb, "chapter": ch["slug"], "chapter_name": ch["name"], "topic": t["slug"], "title": t["title"], "status": st})
+            req_videos = [v for v in videos if v.get("board") == cb and v.get("chapter") == ch["slug"] and v.get("required") and _yt_id(v.get("youtube_url", ""))]
             ch_total = sum(1 for t in ch_topics if t["available"]) + len(req_videos)
             ch_done = sum(1 for t in ch_topics if t["status"] == "completed") + sum(1 for v in req_videos if str(v["_id"]) in video_done)
             total += ch_total
             done += ch_done
             out_chapters.append({
-                "slug": ch["slug"], "name": ch["name"], "topics": ch_topics,
+                "slug": ch["slug"], "name": ch["name"], "board": cb, "group": ch.get("group", ""),
+                "syllabus_number": ch.get("syllabus_number", ""), "kind": ch.get("kind", "theory"), "topics": ch_topics,
                 "required_videos": [{"id": str(v["_id"]), "title": v["title"], "completed": str(v["_id"]) in video_done} for v in req_videos],
                 "total": ch_total, "completed": ch_done,
                 "percent": round(ch_done * 100 / ch_total) if ch_total else 0,
@@ -132,7 +148,7 @@ def create_progress_routes(db, get_current_user):
 
         last_visited = None
         if last:
-            title = next((s["title"] for s in seq if s["chapter"] == last["chapter"] and s["topic"] == last["topic"]), None)
+            title = next((s["title"] for s in seq if (s["board"], s["chapter"], s["topic"]) == (last["board"], last["chapter"], last["topic"])), None)
             if title:
                 last_visited = {"chapter": last["chapter"], "topic": last["topic"], "title": title,
                                 "visited_at": last["last_visited_at"].isoformat() if isinstance(last["last_visited_at"], datetime) else last["last_visited_at"]}
@@ -154,7 +170,7 @@ def create_progress_routes(db, get_current_user):
 
     async def chapter_milestone(user_id: str, board: str, subject: str, chapter: str):
         summary = await course_summary(user_id, board, subject)
-        ch = next((c for c in summary["chapters"] if c["slug"] == chapter), None)
+        ch = next((c for c in summary["chapters"] if c["slug"] == chapter and c["board"] == board), None)
         first = False
         if ch and ch["total"] and ch["completed"] == ch["total"]:
             res = await db.chapter_milestones.update_one(
@@ -169,13 +185,15 @@ def create_progress_routes(db, get_current_user):
         return await course_summary(user["id"] if user else None, board, subject)
 
     @router.post("/visit")
-    async def visit(ref: LessonRef, request: Request):
+    async def visit(ref: VisitRef, request: Request):
         user = await get_current_user(request)
+        view = ref.view_board if ref.view_board in BOARDS else ref.board
+        ref = LessonRef(**ref.model_dump(exclude={"view_board"}))
         await published_topic(ref)
         now = _now()
         await db.learning_progress.update_one(
             {"user_id": user["id"], **ref.model_dump()},
-            {"$set": {"last_visited_at": now},
+            {"$set": {"last_visited_at": now, "view_board": view},
              "$setOnInsert": {"status": "in_progress", "first_visited_at": now}},
             upsert=True)
         doc = await db.learning_progress.find_one({"user_id": user["id"], **ref.model_dump()}, {"_id": 0, "status": 1})
@@ -196,12 +214,35 @@ def create_progress_routes(db, get_current_user):
         summary, first = await chapter_milestone(user["id"], ref.board, ref.subject, ref.chapter)
         return {"status": "completed", "newly_completed": newly, "chapter_completed_first_time": first, "course": summary}
 
+    @router.post("/subtopic")
+    async def complete_subtopic(ref: SubtopicRef, request: Request):
+        user = await get_current_user(request)
+        lesson = LessonRef(**ref.model_dump(exclude={"subtopic"}))
+        topic = await db.curriculum_topics.find_one(
+            {"board_slug": ref.board, "subject_slug": ref.subject, "chapter_slug": ref.chapter, "slug": ref.topic, "status": "published"},
+            {"_id": 0, "subtopics": 1, "content.sections": 1})
+        if not topic:
+            raise HTTPException(404, "Lesson not found or not published")
+        if ref.subtopic not in {s["id"] for s in topic.get("subtopics", [])}:
+            raise HTTPException(404, "Subtopic not found")
+        key = {"user_id": user["id"], **lesson.model_dump()}
+        if not await db.learning_progress.find_one(key, {"_id": 1}):
+            raise HTTPException(400, "Open the lesson before completing a section")
+        await db.learning_progress.update_one(key, {"$addToSet": {"subtopics_completed": ref.subtopic}, "$set": {"last_visited_at": _now()}})
+        doc = await db.learning_progress.find_one(key, {"_id": 0, "subtopics_completed": 1, "status": 1})
+        authored = {sec.get("subtopic_id") for sec in (topic.get("content") or {}).get("sections", []) if sec.get("subtopic_id")}
+        lesson_completed = False
+        if authored and authored <= set(doc["subtopics_completed"]) and doc["status"] != "completed":
+            res = await db.learning_progress.update_one({**key, "status": {"$ne": "completed"}}, {"$set": {"status": "completed", "completed_at": _now()}})
+            lesson_completed = res.modified_count == 1
+        return {"subtopics_completed": doc["subtopics_completed"], "lesson_completed": lesson_completed}
+
     @router.get("/continue")
     async def continue_learning(request: Request):
         user = await get_current_user(request)
         recent = await db.learning_progress.aggregate([
             {"$match": {"user_id": user["id"]}},
-            {"$group": {"_id": {"board": "$board", "subject": "$subject"}, "last": {"$max": "$last_visited_at"}}},
+            {"$group": {"_id": {"board": {"$ifNull": ["$view_board", "$board"]}, "subject": "$subject"}, "last": {"$max": "$last_visited_at"}}},
             {"$sort": {"last": -1}}, {"$limit": 4},
         ]).to_list(4)
         courses = []

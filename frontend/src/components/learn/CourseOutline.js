@@ -41,12 +41,14 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
             </div>
 
             <div className="flex-1 overflow-y-auto py-2">
-                {chapters.map(c => {
+                {chapters.map((c, ci) => {
                     const isActive = c.slug === chapter;
+                    const groupStart = c.group && c.group !== chapters[ci - 1]?.group;
                     const expanded = !!q || !!open[c.slug];
                     const topics = c.topics.filter(t => !q || t.title.toLowerCase().includes(q) || c.name.toLowerCase().includes(q));
                     return (
                         <div key={c.slug} className={isActive ? 'bg-soft/60' : ''}>
+                            {groupStart && <p className="px-4 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500" data-testid={`outline-group-${c.group.toLowerCase().replace(/\s+/g, '-')}`}>{c.group}</p>}
                             <button
                                 onClick={() => setOpen(o => ({ ...o, [c.slug]: !o[c.slug] }))}
                                 aria-expanded={expanded}
@@ -54,7 +56,7 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                                 data-testid={`sidebar-chapter-${c.slug}`}
                             >
                                 <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${expanded ? '' : '-rotate-90'}`} />
-                                <span className="flex-1 min-w-0 truncate">{c.name}</span>
+                                <span className="flex-1 min-w-0 truncate">{c.syllabus_number && <span className="tabular-nums text-slate-400 mr-1.5">{c.syllabus_number}</span>}{c.name}</span>
                                 {isAuthenticated && c.total > 0 && (
                                     <span className={`text-[10px] tabular-nums font-semibold ${c.completed === c.total ? 'text-emerald-600' : 'text-slate-400'}`} data-testid={`chapter-progress-${c.slug}`}>{c.completed}/{c.total}</span>
                                 )}
@@ -67,7 +69,8 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                                     {topics.length === 0 && <p className="px-2 py-1.5 text-[11px] text-slate-400">No lessons yet</p>}
                                     {topics.map(t => {
                                         const current = isActive && t.slug === activeLesson;
-                                        return (
+                                        const subs = current ? t.subtopics || [] : [];
+                                        return (<div key={t.slug}>{
                                             <button
                                                 key={t.slug}
                                                 disabled={!t.available}
@@ -77,9 +80,21 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                                                 data-testid={`sidebar-topic-${t.slug}`}
                                             >
                                                 <TopicIcon status={isAuthenticated || !t.available ? t.status : 'not_started'} />
-                                                <span className="truncate flex-1">{t.title}</span>
+                                                <span className="truncate flex-1">{t.syllabus_ref && <span className="tabular-nums text-slate-400 mr-1">{t.syllabus_ref}</span>}{t.title}</span>
                                                 {!t.available && <span className="text-[10px] text-slate-400">Soon</span>}
                                             </button>
+                                            }{subs.length > 0 && (
+                                                <ul className="ml-6 my-1 space-y-0.5" data-testid={`sidebar-subtopics-${t.slug}`}>
+                                                    {subs.map(st => (
+                                                        <li key={st.id}>
+                                                            <button onClick={() => document.getElementById(`sub-${st.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="w-full text-left flex items-center gap-1.5 px-1 py-0.5 text-[11px] text-slate-500 hover:text-accent" data-testid={`sidebar-subtopic-${st.id}`}>
+                                                                {isAuthenticated && t.subtopics_completed?.includes(st.id) ? <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0" /> : <span className="w-1 h-1 rounded-full bg-slate-300 mx-1 flex-shrink-0" />}
+                                                                <span className="truncate">{st.title}</span>
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}</div>
                                         );
                                     })}
                                     {c.required_videos?.map(v => (
