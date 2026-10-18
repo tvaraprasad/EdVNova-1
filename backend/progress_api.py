@@ -141,7 +141,7 @@ def create_progress_routes(db, get_current_user):
             done += ch_done
             out_chapters.append({
                 "slug": ch["slug"], "name": ch["name"], "board": cb, "group": ch.get("group", ""),
-                "syllabus_number": ch.get("syllabus_number", ""), "kind": ch.get("kind", "theory"), "topics": ch_topics,
+                "syllabus_number": ch.get("syllabus_number", ""), "coursebook_number": ch.get("coursebook_number", ""), "kind": ch.get("kind", "theory"), "topics": ch_topics,
                 "required_videos": [{"id": str(v["_id"]), "title": v["title"], "completed": str(v["_id"]) in video_done} for v in req_videos],
                 "total": ch_total, "completed": ch_done,
                 "percent": round(ch_done * 100 / ch_total) if ch_total else 0,

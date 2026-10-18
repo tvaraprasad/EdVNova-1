@@ -59,8 +59,8 @@ class TestStructure:
     def test_as_level(self):
         d = course("as-level")
         assert d["course_title"] == "AS Level Chemistry"
-        nums = [c["syllabus_number"] for c in d["chapters"]]
-        assert nums == [str(i) for i in range(1, 23)] + ["P3"]
+        nums = [(c["coursebook_number"] or c["syllabus_number"]) for c in d["chapters"]]
+        assert nums == [str(i) for i in range(1, 19)] + ["P3"]
 
     def test_a_level_groups(self):
         d = course("a-level")
@@ -69,9 +69,12 @@ class TestStructure:
         asf = [c for c in ch if c["group"] == "AS Foundation"]
         ext = [c for c in ch if c["group"] == "A Level Extension"]
         prac = [c for c in ch if c["group"] == "Practical skills"]
-        assert [c["syllabus_number"] for c in asf] == [str(i) for i in range(1, 23)] and all(c["board"] == "as-level" for c in asf)
-        assert [c["syllabus_number"] for c in ext] == [str(i) for i in range(23, 38)] and all(c["board"] == "a-level" for c in ext)
+        assert [c["coursebook_number"] for c in asf] == [str(i) for i in range(1, 19)] and all(c["board"] == "as-level" for c in asf)
+        assert [c["coursebook_number"] for c in ext] == [str(i) for i in range(19, 31)] and all(c["board"] == "a-level" for c in ext)
         assert [(c["syllabus_number"], c["board"]) for c in prac] == [("P3", "as-level"), ("P5", "a-level")]
+
+    def test_extension_listed_first(self):
+        assert course("a-level")["chapters"][0]["coursebook_number"] == "19"
 
     def test_7_1_same_record_both_views(self):
         a = next(c for c in course("as-level")["chapters"] if c["slug"] == "chemical-equilibria")

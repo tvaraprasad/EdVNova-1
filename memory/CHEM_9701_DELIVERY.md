@@ -42,3 +42,10 @@ The code changes are backward compatible. On the main DB, nothing changes until 
 - Label-only staging update (run 188e9a19d0): 8 chapter names, 56 draft titles, 57 syllabus_title fields. No IDs, slugs, content or progress were changed. A leftover "TEST" section was removed from staging 7.1.
 - MAIN dry run regenerated (read-only): 97 inserts, 58 updates, 0 blocked.
 - Code-level effect on the main preview: the published-but-empty IGCSE Maths "Fractions" lesson now shows as Coming soon (no data was changed).
+
+## Coursebook chapter structure (staging run e4f4aea0a1, 2026-10-18)
+- Navigation now follows the Ryan & Norris coursebook. AS is Chapters 1-18. A Level Extension is Chapters 19-30 and is listed first in the Full A Level view. AS Foundation is a collapsible section below it. Paper 3 and Paper 5 are separate Practical skills sections.
+- Topics keep their 9701 syllabus refs (syllabus_ref and syllabus_topics on each chapter); chapters carry coursebook_number.
+- Records were reused: 2 chapters inserted (electrons-in-atoms, entropy-gibbs-free-energy). 9 non-coursebook chapters were set to nav_status=retired and kept for admins; they are hidden from students unless they hold published lessons. Empty draft topics were moved into the coursebook chapters. The published 7.1 lesson was not moved (same ID, chapter and URL; 8 progress records intact).
+- Placement of topics marked coursebook_placement=unverified needs checking against the book: 22.2, 20.1, 19.1, 19.2, 21.1, 22.1, 27.1, 29.1, 29.2, 31.1, 32.2, 32.1, 29.4. The coursebook file was not in the uploads, so the order inside each chapter follows syllabus order.
+- Pre-change staging dump: /root/edvnova_backups/staging_pre_coursebook. MAIN dry run regenerated: 91 inserts, 58 updates, 0 blocked.

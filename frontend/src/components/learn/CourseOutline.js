@@ -71,7 +71,7 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                                 data-testid={`sidebar-chapter-${c.slug}`}
                             >
                                 <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${expanded ? '' : '-rotate-90'}`} />
-                                <span className="flex-1 min-w-0 truncate">{c.syllabus_number && <span className="tabular-nums text-slate-400 mr-1.5">{c.syllabus_number}</span>}{c.name}</span>
+                                <span className="flex-1 min-w-0 truncate">{(c.coursebook_number || c.syllabus_number) && <span className="tabular-nums text-slate-400 mr-1.5">{c.coursebook_number || c.syllabus_number}</span>}{c.name}</span>
                                 {empty && <span className="text-[10px] font-medium text-amber-700 bg-amber-50 rounded-full px-2 py-0.5 whitespace-nowrap" data-testid={`chapter-coming-soon-${c.slug}`}>Coming soon</span>}
                                 {isAuthenticated && c.total > 0 && (
                                     <span className={`text-[10px] tabular-nums font-semibold ${c.completed === c.total ? 'text-emerald-600' : 'text-slate-400'}`} data-testid={`chapter-progress-${c.slug}`}>{c.completed}/{c.total}</span>

@@ -35,8 +35,13 @@ async def pathway_chapters(db, board, subject, projection=None):
     base = await db.curriculum_chapters.find({"board_slug": foundation, "subject_slug": subject}, proj).sort("order", 1).to_list(200) if foundation else []
     theory = lambda chs: [c for c in chs if c.get("kind") != "practical"]
     practical = lambda chs: [c for c in chs if c.get("kind") == "practical"]
+    async def in_nav(c):
+        return c.get("nav_status") != "retired" or await db.curriculum_topics.count_documents(
+            {"board_slug": c.get("board_slug") or (foundation if c in base else board), "subject_slug": subject, "chapter_slug": c["slug"], "status": "published"}) > 0
+    own = [c for c in own if await in_nav(c)]
+    base = [c for c in base if await in_nav(c)]
     ordered = []
-    for group, chs in (("AS Foundation" if foundation else "", theory(base)), ("A Level Extension" if foundation else "", theory(own)),
+    for group, chs in (("A Level Extension" if foundation else "", theory(own)), ("AS Foundation" if foundation else "", theory(base)),
                        ("Practical skills", practical(base)), ("Practical skills", practical(own))):
         for c in chs:
             c.setdefault("board_slug", foundation if c in base else board)

@@ -10,7 +10,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from curriculum.chem_9701_spec import parse  # noqa: E402
+from curriculum.chem_9701_spec import UNVERIFIED_PLACEMENT, parse  # noqa: E402
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 MAIN_DB = os.environ["DB_NAME"]
@@ -118,10 +118,14 @@ def build(db, run_id):
     as_subj = db.curriculum_subjects.find_one({"board_slug": "as-level", "slug": SUBJ})
     plan.update("curriculum_subjects", as_subj, {"syllabus_code": "9701"}, "Syllabus code")
 
-    by_ref = {}
-    for ci, ch in enumerate(spec):
-        order = ci if ch["board"] == "as-level" else ci - 23
-        ch_meta = {**meta, "syllabus_number": ch["syllabus_number"], "section": ch["section"], "level": ch["level"], "kind": ch["kind"], "order": order}
+    by_ref, spec_keys = {}, set()
+    for ch in spec:
+        order = sum(1 for c in spec if c["board"] == ch["board"] and spec.index(c) < spec.index(ch))
+        spec_keys.add((ch["board"], ch["slug"]))
+        practical = ch["kind"] == "practical"
+        ch_meta = {**meta, "coursebook_number": "" if practical else ch["syllabus_number"], "syllabus_number": ch["syllabus_number"] if practical else "",
+                   "syllabus_topics": sorted({t["syllabus_ref"].split(".")[0] for t in ch["topics"]}, key=lambda x: (len(x), x)),
+                   "nav_status": "active", "section": ch["section"], "level": ch["level"], "kind": ch["kind"], "order": order}
         existing = db.curriculum_chapters.find_one({"board_slug": ch["board"], "subject_slug": SUBJ, "slug": ch["slug"]})
         if existing:
             changes = dict(ch_meta)
@@ -137,10 +141,16 @@ def build(db, run_id):
         for ti, t in enumerate(ch["topics"]):
             by_ref[t["syllabus_ref"]] = (ch, t, ti)
 
+    for ch in db.curriculum_chapters.find({"subject_slug": SUBJ, "board_slug": {"$in": ["as-level", "a-level"]}}):
+        if (ch["board_slug"], ch["slug"]) not in spec_keys:
+            plan.update("curriculum_chapters", ch, {"nav_status": "retired", "order": 900 + int(ch.get("order", 0)) if int(ch.get("order", 0)) < 900 else int(ch["order"])},
+                        f"Retire non-coursebook chapter {ch['slug']} (records kept; hidden from student navigation unless it has published lessons)")
+
     mapped_ids = set()
     for ref, (ch, t, ti) in by_ref.items():
         target = {"board_slug": ch["board"], "chapter_slug": ch["slug"], "chapter_title": ch["name"], "board_title": BOARD_TITLE[ch["board"]], "order": ti}
-        t_meta = {**meta, "syllabus_ref": ref, "syllabus_title": t["title"], "level": ch["level"]}
+        t_meta = {**meta, "syllabus_ref": ref, "syllabus_title": t["title"], "level": ch["level"],
+                  "coursebook_placement": "unverified" if ref in UNVERIFIED_PLACEMENT else "mapped"}
         doc = topics.find_one({"subject_slug": SUBJ, "syllabus_ref": ref, "board_slug": {"$in": ["as-level", "a-level"]}})
         src = next((k for k, v in MAP.items() if v == ref), None)
         if not doc and src:
