@@ -105,6 +105,7 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
   - Approval pack: /app/memory/CHEM_9701_DELIVERY.md
   - Draft topics now return 404 to non-admins
   - MAIN DB NOT MIGRATED, waiting for owner approval
+- 2026-10-18 RELEASED to main DB (run 02c6adec86, backup pre_release_20261018T123334Z)
 - 2026-10-18 coursebook navigation (staging run e4f4aea0a1): AS 1-18, A Level 19-30 listed first, retired chapters hidden from students via nav_status; see CHEM_9701_DELIVERY.md
 - 2026-10-18 staging corrections (iteration 27, all tests pass):
   - Practical P3/P5 chapters always listed as "Coming soon". AS shows 1-22 + P3. Full A Level shows AS Foundation / A Level Extension / P3 + P5

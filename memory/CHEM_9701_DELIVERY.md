@@ -56,3 +56,9 @@ The code changes are backward compatible. On the main DB, nothing changes until 
 - The staging backend ran as a manual background process and had stopped. It is now supervisor-managed (/etc/supervisor/conf.d/staging_backend.conf, port 8002). The staging cookie now lasts 30 days.
 - The sidebar no longer prefixes topics with syllabus numbers (shown in a tooltip instead). The chapter page shows "9701 syllabus x.y" as a separate muted tag.
 - Release: `python -m scripts.chem_9701_migrate --db test_database --apply --approved` (91 inserts, 58 updates, 0 blocked; old 4 chapters reused/renamed, organic-chemistry-advanced retired and its topics remapped). Take a fresh mongodump first. Rollback with `--rollback <run_id>`.
+
+## RELEASED to main DB test_database (2026-10-18, run 02c6adec86)
+- Backup: /root/edvnova_backups/pre_release_20261018T123334Z (full mongodump). Rollback: `python -m scripts.chem_9701_migrate --db test_database --rollback 02c6adec86`
+- 91 inserts, 58 updates, 0 flags. A re-run dry run shows 0 changes. Progress, users, assets and the published-lesson count are unchanged (2/0/1/9/8/16).
+- Rendered without staging: AS shows 1-18 + P3. Full A Level shows 19-30 first, AS Foundation collapsible, P3 + P5.
+- On hold: coursebook subtopic names and page tags, until the Coursebook contents pages are uploaded. The uploaded file was the Practical Workbook and was not used.
