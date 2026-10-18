@@ -95,7 +95,19 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
   - Frontend: CourseOutline sidebar, LessonView (finish, prev/next, links), YouTubeTracker, ContinueLearning on the dashboard, Required checkbox in VideoManager, AI Mentor prefill via /dashboard?tab=mentor&topic=, TopicPage moved to the new system.
   - Proposal: /app/memory/INTERACTIVE_LAB_PROPOSAL.md
 
+- [x] **Chemistry 9701 AS + A Level unified curriculum** (built and tested in STAGING only, iteration_26).
+  - Specification: backend/curriculum/chem_9701_spec.py
+  - Pathways: backend/curriculum/pathways.py (A Level includes the AS foundation through subject.foundation_board)
+  - Migration: backend/scripts/chem_9701_migrate.py
+  - Subtopic progress: /api/progress/subtopic
+  - Learning journey UI: LessonJourney.js
+  - Private staging bridge: frontend/src/staging.js and setupProxy.js; scripts in /app/scripts/staging
+  - Approval pack: /app/memory/CHEM_9701_DELIVERY.md
+  - Draft topics now return 404 to non-admins
+  - MAIN DB NOT MIGRATED, waiting for owner approval
+
 ## Awaiting user approval
+- Apply the Chemistry 9701 migration to the main DB (see CHEM_9701_DELIVERY.md)
 - Phase 2: course-player polish, saved notes, course collections, dashboard discovery
 - Phase 3: interactive simulations (see the proposal) and mastery features
 - Quiz and worksheet submission system (none exists yet; needed for quiz completion rules)

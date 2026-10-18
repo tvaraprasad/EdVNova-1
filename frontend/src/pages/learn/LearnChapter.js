@@ -420,7 +420,11 @@ function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topi
     const onSubtopic = async (slug, subId) => {
         const res = await axios.post(`${API_URL}/api/progress/subtopic`, { board: dataBoard, subject, chapter, topic: slug, subtopic: subId }, { withCredentials: true });
         setCourse(c => c && ({ ...c, chapters: c.chapters.map(ch => ch.slug !== chapter ? ch : { ...ch, topics: ch.topics.map(t => t.slug === slug ? { ...t, subtopics_completed: res.data.subtopics_completed } : t) }) }));
-        if (res.data.lesson_completed) { setJustCompleted(slug); loadCourse(); }
+        if (res.data.lesson_completed) {
+            setJustCompleted(slug);
+            if (res.data.course) setCourse(res.data.course);
+            setMilestone(res.data.chapter_completed_first_time ? slug : null);
+        }
     };
 
     const lessonProps = topic => {

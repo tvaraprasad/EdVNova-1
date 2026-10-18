@@ -1,0 +1,45 @@
+{
+  "summary": "Tested the Chemistry 9701 unified curriculum in isolated STAGING (backend pytest plus Playwright on desktop and 390px mobile) and ran a regression of the MAIN site. All requested flows work: staging isolation (403 without cookie or with a wrong cookie), main DB untouched, AS view has 22 chapters, A Level view has 37 (22 AS Foundation from as-level + 15 A Level Extension), chapter fallback works, the needs_review topic 'orbitals' is hidden from lists, progress is shared across views and /continue is grouped by view_board, admin subtopic assignment works, subtopic completion auto-completes the lesson, the subtopic negative cases return 401/400/404, and the course player UI (redirect, groups, numbering, locked drafts, cross-group prev/next, journey scroll, mobile drawer, 7.1 syllabus ref, mastery note) behaves as specified. Main-site regression passed (IGCSE maths finish lesson, dashboard continue card, admin login, AS/A Level physics and maths pages, homepage; iter25 progress suite 15/15). Found 1 medium and 4 minor issues, listed below.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "GET /api/curriculum/boards/{board}/{subject}/{chapter}/{topic}", "issue": "Drafts can be opened through the API. get_topic has no status or visible_topic_query filter, so any draft, including the needs_review draft 'orbitals' (/staging/api/curriculum/boards/a-level/chemistry/atomic-structure/orbitals), returns 200 with full content. This conflicts with 'Drafts never openable'. The UI correctly refuses to render drafts. Content is empty today, but it will leak once drafts are authored.", "priority": "MEDIUM"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/progress/subtopic", "issue": "When the last authored subtopic auto-completes the lesson, chapter_milestone() is not called. A test student reached 7 Equilibria 1/1 through a subtopic, but no chapter_milestones doc was created and the UI never shows the chapter-completed panel. /progress/complete does call it."},
+      {"endpoint": "POST /api/progress/visit", "issue": "view_board is only checked against BOARDS, not against the course pathway. Sending view_board 'igcse' for an as-level chemistry lesson makes /progress/continue return an 'IGCSE Chemistry 0/3' card. Accept view_board only if view_board == board or the subject's foundation_board == board."},
+      {"endpoint": "POST /api/progress/visit (frontend)", "issue": "Each lesson open sends 2 identical visit POSTs (seen on staging and main). This is harmless but redundant, probably a double effect in StrictMode or from a dependency change."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Lesson with subtopics but no authored sections (e.g. 23.1 Lattice energy, temporarily published for the test)", "issues": ["The 'Understand' stage is rendered even though it only holds an outline where every item says 'not written yet'. This conflicts with 'stages shown only when content exists'. LessonJourney sets available.understand true whenever subtopics.length > 0, and LessonView shows the journey whenever subtopics exist."]},
+      {"screen": "/learn/a-level/chemistry default redirect", "issues": ["It redirects to chapter 1 atomic-structure, which has only drafts, so the user sees 'Notes Coming Soon'. Consider redirecting to the last visited chapter or the first chapter with a published lesson."]},
+      {"screen": "Admin topic list and editor breadcrumb (staging)", "issues": ["The chapter column and breadcrumb show the stale chapter_title 'Equilibria' while the course outline shows '7 Equilibria' (consistent). This is fine if intended; if not, check that the migration refreshed topic.chapter_title for renamed chapters."]},
+      {"screen": "TopicEditor", "issues": ["The '+ Add Section' button has no data-testid (it was located by text)."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter26_chem_staging.py", "/app/test_reports/pytest/pytest_iter26.xml"],
+  "action_items": [
+    "MEDIUM: In curriculum_api.get_topic, return 404 for topics that are not published (or that fail visible_topic_query) for non-admins. At minimum, hide needs_review drafts, and confirm the full-topic page still handles the 404.",
+    "Minor: In /progress/subtopic, when lesson_completed is true, call chapter_milestone(user, board, subject, chapter) and return chapter_completed_first_time and course like /progress/complete does. The frontend can then show the milestone panel.",
+    "Minor: Validate view_board in /progress/visit against the pathway (view_board == board, or subject(view_board).foundation_board == board). Otherwise fall back to board.",
+    "Minor: In LessonJourney, show the Understand stage only when sections, definitions or formulas exist, or at least one subtopic is authored. Do not show it just because subtopics exist.",
+    "Minor: Remove the duplicate /progress/visit call on lesson mount."
+  ],
+  "critical_code_review_comments": [
+    "pathways.pathway_chapters: c.setdefault('board_slug', foundation if c in base else board) uses dict-equality membership. It works, but tagging the board while iterating each group is cleaner.",
+    "complete_subtopic: auto-complete requires every authored subtopic_id to be in subtopics_completed. If a section references a subtopic id that was later removed from topic.subtopics, the lesson can never auto-complete, because the id is no longer accepted. Intersect authored ids with valid subtopic ids.",
+    "course_summary runs once per course in /continue (up to 4 times), and each run is several queries. This is acceptable for now.",
+    "TopicEditor 'Save Draft' sets status 'draft' on an already published topic. Admins editing live lessons must use Save & Publish. Make sure this is intended."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter26_chem_staging.py (new)"],
+  "success_rate": {"backend": "92% (12/13 staging tests; the failure is draft topic openable via API). iter25 regression 15/15.", "frontend": "100% of requested flows"},
+  "test_credentials": "admin@edvnova.com / ADMIN_PASSWORD (Admin@123) works on main and staging. Staging key is from frontend/.env. Students are TEST_*@test.com / Test@12345.",
+  "seed_data_creation": "STAGING (edvnova_chem_staging): 1) Admin UI added a section 'TEST Kc expression' (subtopic_id equilibrium-constant-kc) to as-level/chemistry/equilibrium-constants and saved with Save & Publish; it is left in place for the next agent. 2) a-level/chemistry/lattice-energy-and-born-haber-cycles was temporarily set to published to test cross-group prev/next, then reverted to draft (no progress docs left). 3) TEST_chemshare_*, TEST_chemsubneg_*, TEST_chemdraft_* and TEST_chemui_1792319582@test.com students with their progress. MAIN: only the TEST_mainreg_1792319727@test.com student, with igcse maths 'fractions' completed, plus iter25 test students. No main curriculum was modified (main a-level chemistry still has 4 chapters, 425 topics).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run REACT_APP_BACKEND_URL=<url> pytest tests/test_iter26_chem_staging.py. test_draft_topic_not_openable should pass after the get_topic fix. Staging backend: /app/scripts/staging/start_staging.sh (port 8002). The only published chemistry lesson in staging is as-level chemical-equilibria/equilibrium-constants (7.1, 7 subtopics, 1 authored: equilibrium-constant-kc). To test cross-group prev/next, temporarily publish a-level lattice-energy-and-born-haber-cycles (23.1) and revert it afterwards. Note: test_iter25_progress.py needs REACT_APP_BACKEND_URL exported in the shell.",
+  "rca of the issue": "Draft leak: get_topic queries curriculum_topics by slug only. visible_topic_query is applied to prev/next siblings but not to the topic itself. Repro: curl -b edv_staging=<key> <url>/staging/api/curriculum/boards/a-level/chemistry/atomic-structure/orbitals returns 200 with status draft and syllabus_review needs_review. Fix: add a status/visibility filter, or an admin check for drafts."
+}

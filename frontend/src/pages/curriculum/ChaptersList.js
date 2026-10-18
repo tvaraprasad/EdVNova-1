@@ -17,7 +17,7 @@ export default function ChaptersList() {
                 const chapters = res.data?.chapters;
                 if (chapters && chapters.length > 0) {
                     // Go directly to first chapter's course workspace
-                    navigate(`${prefix}/${board}/${subject}/${chapters[0].slug}`, { replace: true });
+                    navigate(`${prefix}/${board}/${subject}/${(chapters.find(c => c.published_count > 0) || chapters[0]).slug}`, { replace: true });
                 } else {
                     setLoading(false);
                 }

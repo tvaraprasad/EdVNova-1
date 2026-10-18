@@ -187,7 +187,11 @@ def create_progress_routes(db, get_current_user):
     @router.post("/visit")
     async def visit(ref: VisitRef, request: Request):
         user = await get_current_user(request)
-        view = ref.view_board if ref.view_board in BOARDS else ref.board
+        view = ref.board
+        if ref.view_board in BOARDS and ref.view_board != ref.board:
+            vs = await db.curriculum_subjects.find_one({"board_slug": ref.view_board, "slug": ref.subject}, {"_id": 0, "foundation_board": 1})
+            if (vs or {}).get("foundation_board") == ref.board:
+                view = ref.view_board
         ref = LessonRef(**ref.model_dump(exclude={"view_board"}))
         await published_topic(ref)
         now = _now()
@@ -230,12 +234,17 @@ def create_progress_routes(db, get_current_user):
             raise HTTPException(400, "Open the lesson before completing a section")
         await db.learning_progress.update_one(key, {"$addToSet": {"subtopics_completed": ref.subtopic}, "$set": {"last_visited_at": _now()}})
         doc = await db.learning_progress.find_one(key, {"_id": 0, "subtopics_completed": 1, "status": 1})
-        authored = {sec.get("subtopic_id") for sec in (topic.get("content") or {}).get("sections", []) if sec.get("subtopic_id")}
-        lesson_completed = False
+        valid = {s["id"] for s in topic.get("subtopics", [])}
+        authored = {sec.get("subtopic_id") for sec in (topic.get("content") or {}).get("sections", []) if sec.get("subtopic_id")} & valid
+        lesson_completed = first = False
+        course = None
         if authored and authored <= set(doc["subtopics_completed"]) and doc["status"] != "completed":
             res = await db.learning_progress.update_one({**key, "status": {"$ne": "completed"}}, {"$set": {"status": "completed", "completed_at": _now()}})
             lesson_completed = res.modified_count == 1
-        return {"subtopics_completed": doc["subtopics_completed"], "lesson_completed": lesson_completed}
+            if lesson_completed:
+                course, first = await chapter_milestone(user["id"], ref.board, ref.subject, ref.chapter)
+        return {"subtopics_completed": doc["subtopics_completed"], "lesson_completed": lesson_completed,
+                "chapter_completed_first_time": first, "course": course}
 
     @router.get("/continue")
     async def continue_learning(request: Request):

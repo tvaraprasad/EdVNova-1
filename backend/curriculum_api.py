@@ -154,7 +154,7 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         return chapter
 
     @router.get("/boards/{board_slug}/{subject_slug}/{chapter_slug}/{topic_slug}")
-    async def get_topic(board_slug: str, subject_slug: str, chapter_slug: str, topic_slug: str):
+    async def get_topic(board_slug: str, subject_slug: str, chapter_slug: str, topic_slug: str, request: Request):
         board_slug = await resolve_chapter_board(db, board_slug, subject_slug, chapter_slug) or board_slug
         topic = await db.curriculum_topics.find_one(
             {"board_slug": board_slug, "subject_slug": subject_slug,
@@ -162,6 +162,11 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         )
         if not topic:
             raise HTTPException(404, "Topic not found")
+        if topic.get("status") != "published":
+            try:
+                await get_admin_user(request)
+            except HTTPException:
+                raise HTTPException(404, "Topic not found")
         result = {k: v for k, v in topic.items() if k != "_id"}
         result["id"] = str(topic["_id"])
         # Get prev/next topics in same chapter
@@ -240,6 +245,11 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         topic = await db.curriculum_topics.find_one({"_id": ObjectId(topic_id)})
         if not topic:
             raise HTTPException(404, "Topic not found")
+        if topic.get("status") != "published":
+            try:
+                await get_admin_user(request)
+            except HTTPException:
+                raise HTTPException(404, "Topic not found")
         result = {k: v for k, v in topic.items() if k != "_id"}
         result["id"] = str(topic["_id"])
         return result

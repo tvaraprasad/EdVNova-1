@@ -70,7 +70,7 @@ export function LessonJourney({ topic, subtopics = [], subtopicsDone = [], canTr
     const explore = attachments.length > 0 || videoCount > 0;
     const available = {
         discover: filled(c.introduction),
-        understand: sections.length > 0 || filled(c.definitions) || filled(c.formulas) || subtopics.length > 0,
+        understand: sections.length > 0 || filled(c.definitions) || filled(c.formulas),
         explore,
         practise: filled(c.worked_examples) || questionCount > 0,
         review: filled(c.summary) || filled(c.examiner_tips) || filled(c.common_mistakes),

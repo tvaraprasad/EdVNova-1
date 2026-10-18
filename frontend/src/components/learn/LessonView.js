@@ -105,7 +105,7 @@ export function LessonView({ topic, status, position, prev, next, onGo, onVisit,
                 <h2 className="text-2xl font-bold text-primary tracking-tight" data-testid="lesson-title">{topic.title}</h2>
             </header>
 
-            {hasContent(topic.content) || journey.subtopics.length > 0
+            {hasContent(topic.content)
                 ? <LessonJourney topic={topic} canTrack={isAuthenticated && status !== 'not_started'} {...journey} />
                 : <div className="ev-card p-5 md:p-7 mb-6"><p className="text-sm text-slate-500" data-testid="lesson-content-empty">Notes for this lesson are still being written. You can practise questions or ask the AI Mentor about this topic in the meantime.</p></div>}
 
