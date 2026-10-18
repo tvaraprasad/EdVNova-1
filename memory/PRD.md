@@ -87,7 +87,18 @@ React 19 + TailwindCSS + Shadcn UI | FastAPI | MongoDB | JWT Auth | GPT-4o-mini 
   - GlobalSearch now renders in a portal; backdrop-filter on the header was clipping it.
   - Past-papers rows no longer overflow on mobile; AI Mentor no longer scrolls the whole page; the toast is offset below the header.
 
+- [x] **Learning Experience 3.0 Phase 1: progress tracking** (Jun 2026, iteration_25 plus a security fix).
+  - Backend progress_api.py with collections learning_progress, video_progress and chapter_milestones (unique indexes).
+  - Endpoints under /api/progress: course/{b}/{s} (works anonymously), visit, complete, continue, videos/{b}/{s}/{c}, video/{id}.
+  - Rules: Finish lesson requires a prior visit; updates are idempotent and race-safe; only published topics count; videos count only when Admin marks them `required`.
+  - Video tracking: YouTube IFrame API, a cumulative server watch budget (elapsed×2+15s), duration that can only grow (admin duration as the floor), complete at 90% unique watched, resume position saved.
+  - Frontend: CourseOutline sidebar, LessonView (finish, prev/next, links), YouTubeTracker, ContinueLearning on the dashboard, Required checkbox in VideoManager, AI Mentor prefill via /dashboard?tab=mentor&topic=, TopicPage moved to the new system.
+  - Proposal: /app/memory/INTERACTIVE_LAB_PROPOSAL.md
+
 ## Awaiting user approval
+- Phase 2: course-player polish, saved notes, course collections, dashboard discovery
+- Phase 3: interactive simulations (see the proposal) and mastery features
+- Quiz and worksheet submission system (none exists yet; needed for quiz completion rules)
 - Pass B: apply the design system to discovery pages, workspace polish, practice and dashboards (DO NOT START until approved)
 - P2 AI Mind Map Studio — DO NOT START until user approves P0/P1 report
 - P3 AI Study Studio (Notes/Worksheets/Quizzes/Flashcards, Draft->Review->Publish)

@@ -1,0 +1,42 @@
+{
+  "summary": "Learning Experience 3.0 Phase 1 tested end-to-end (backend pytest + Playwright desktop/mobile/admin). Lesson progress (visit/complete/idempotency/milestone/next_lesson/continue/privacy) all correct. Frontend workspace, sidebar, prev/next incl. cross-chapter, milestone-once, overview Review lesson, anonymous mode, dashboard Continue Learning (empty + main + other cards), AI mentor prefill, mobile drawer, admin Required toggle all work. One HIGH bug: the video heartbeat anti-cheat can be bypassed two ways (client-supplied duration, and 15s slack granted on every request), so a Required video can be marked complete without watching it.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/progress/video/{id}", "issue": "Client-controlled duration: on the first heartbeat the server trusts data.duration (duration = doc.duration or data.duration). Sending {position:5,duration:5,intervals:[[0,5]]} returns completed:true at once. Reproduced with Ohms Law marked Required: electricity chapter went from 0/3 to 1/3 without any playback.", "priority": "HIGH"},
+      {"endpoint": "POST /api/progress/video/{id}", "issue": "Rate cap inflates with rapid requests: budget = elapsed*2 + 15s SLACK on every request, and the first request gets elapsed=60, so 135s. Sending advancing intervals in a tight loop completed a 600s video in 35 requests in 2.7s. The 'single full claim capped' check passes (14%). Repeating the identical [0,1000] interval does not inflate, because merged intervals restart at 0.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/progress/complete", "issue": "Race: 'newly' is read before the conditional update. Two concurrent completes can both return newly_completed:true. No duplicate docs, because of the unique index. Use the update_one modified_count to decide."},
+      {"endpoint": "auth cookies (env)", "issue": "iter23 regression test expects samesite=lax, but the preview ingress returns 'samesite=none; partitioned'. server.py still sets COOKIE_SAMESITE='lax', so the ingress rewrites the cookie. This is not an app regression."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard AI Mentor via lesson-link-ai-mentor (client-side nav)", "issues": ["When opened from the lesson page, the dashboard lands scrolled far down (the mentor input and footer are in view, header and tabs are off screen). This is likely input focus or a retained scroll position. A direct load lands at scrollY 0 correctly."]},
+      {"screen": "Dashboard 'Your Subjects'", "issues": ["Mathematics shows '32 notes available', but only 6 lessons are published. This count is inconsistent with the new honest progress totals (pre-existing)."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter25_progress.py", "/app/test_reports/pytest/pytest_iter25.xml"],
+  "action_items": [
+    "HIGH: In video_heartbeat, ignore client duration for completion. Use the admin-stored video duration (parse 'mm:ss') or, at minimum, the first-reported duration with a sane lower bound. Do not let duration be set below the stored duration.",
+    "HIGH: Make the watch budget cumulative per user and video rather than per request. Track total accepted seconds against (now - created_at)*MAX_RATE + one-time slack, or only grant SLACK when elapsed exceeds the heartbeat interval. Rapid calls must not add 15s each. Also drop the 60s free budget on the first request (use a small constant).",
+    "Minor: in /progress/complete, set newly_completed from update_one(...).modified_count == 1 to make it race-safe.",
+    "Minor: avoid the scroll jump when navigating to /dashboard?tab=mentor from a lesson (scroll to top or to the mentor panel)."
+  ],
+  "critical_code_review_comments": [
+    "progress_api.video_heartbeat: per-request slack and a trusted client duration defeat the anti-cheat design (see action items).",
+    "progress_api.course_summary is called again inside chapter_milestone on every complete or heartbeat. It runs several full-collection queries per call. That is acceptable now, but consider caching for large syllabi.",
+    "chapter_videos returns progress for videos of any status. This is harmless, since it is own data only.",
+    "VideoManager edit buttons had no data-testid. Added edit-video-<id>."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter25_progress.py", "/app/frontend/src/components/admin/VideoManager.js (added data-testid edit-video-<id> only)"],
+  "success_rate": {"backend": "93% (14/15 progress tests; failure = duration bypass; rapid-inflation bug confirmed via separate script)", "frontend": "100% of requested flows"},
+  "test_credentials": "admin@edvnova.com / ADMIN_PASSWORD from backend/.env (unchanged). Students auto-registered as prog*_<hex>@test.com / Test@12345.",
+  "seed_data_creation": "Only TEST students (prog*_ / prog_ui*_ @test.com) and their learning_progress/video_progress docs. Ohms Law 'required' was toggled on, then reverted to false; the DB is verified restored, and only updated_at changed. No curriculum records modified.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run tests/test_iter25_progress.py. test_client_duration_short_bypass should pass after the fix. Also add a rapid-loop test (advancing intervals, ~35 requests) that must NOT complete a 600s video. Ohms Law video id 6a53bb2dc74f9a207a632742 (igcse/physics/electricity, duration '5:30'). Maths has 6 published lessons (number 3, algebra 2, statistics 1). Physics has 4 (electricity: current, resistance).",
+  "rca of the issue": "Video bypass: 1) `duration = doc.get('duration') or data.duration` lets the first heartbeat define the video length, and 90% of 5s is reached with one interval. 2) `budget = elapsed*MAX_RATE + SLACK_SECONDS` is computed per request from the last updated_at, so N quick requests yield about N*15s of accepted watch time. Repro: register a student, then POST /api/progress/video/<id> {position:5,duration:5,intervals:[[0,5]]} returns completed:true. Mitigation: use a server-side duration and a cumulative budget."
+}

@@ -34,7 +34,7 @@ export function YouTubeTracker({ videoId, ytId, title, startAt = 0, onProgress }
     useEffect(() => {
         const host = hostRef.current;
         let player, tick, flushTimer, destroyed = false;
-        let seg = null, lastT = null, lastWall = 0;
+        let seg = null, lastT = null, lastWall = 0, started = false;
         const pending = [];
 
         const closeSeg = () => {
@@ -64,6 +64,7 @@ export function YouTubeTracker({ videoId, ytId, title, startAt = 0, onProgress }
         const onState = e => {
             const S = window.YT.PlayerState;
             if (e.data === S.PLAYING) {
+                if (!started) { started = true; flush(); }
                 clearInterval(tick); tick = setInterval(sample, 1000); sample();
                 clearInterval(flushTimer); flushTimer = setInterval(() => flush(), FLUSH_MS);
             } else {

@@ -46,6 +46,8 @@ export default function Dashboard() {
         ? { board: searchParams.get('board') || 'igcse', subject: searchParams.get('subject') || '', topic: searchParams.get('topic') } : null;
     const [loading, setLoading] = useState(true);
 
+    useEffect(() => { window.scrollTo(0, 0); }, []);
+
     useEffect(() => {
         const fetchData = async () => {
             try {

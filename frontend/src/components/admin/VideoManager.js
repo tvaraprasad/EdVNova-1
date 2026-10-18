@@ -171,7 +171,7 @@ export default function VideoManager() {
                                 </span>
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                     {v.youtube_url && <a href={v.youtube_url} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-blue-500"><ExternalLink className="w-4 h-4" /></a>}
-                                    <button onClick={() => openEdit(v)} className="p-1.5 text-gray-400 hover:text-accent"><Edit className="w-4 h-4" /></button>
+                                    <button onClick={() => openEdit(v)} className="p-1.5 text-gray-400 hover:text-accent" data-testid={`edit-video-${v.id}`}><Edit className="w-4 h-4" /></button>
                                     <button onClick={() => handleDelete(v.id)} className="p-1.5 text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                                 </div>
                             </div>

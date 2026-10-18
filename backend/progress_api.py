@@ -19,6 +19,17 @@ def _yt_id(url: str) -> str:
     return m.group(1) if m else ""
 
 
+def parse_duration(text) -> float:
+    try:
+        parts = [float(x) for x in str(text or "").strip().split(":") if x != ""]
+    except ValueError:
+        return 0
+    total = 0
+    for part in parts:
+        total = total * 60 + part
+    return total if len(parts) >= 2 else 0
+
+
 def merge_intervals(intervals):
     out = []
     for s, e in sorted(intervals):
@@ -178,11 +189,10 @@ def create_progress_routes(db, get_current_user):
         doc = await db.learning_progress.find_one(key)
         if not doc:
             raise HTTPException(400, "Open the lesson before finishing it")
-        newly = doc["status"] != "completed"
-        if newly:
-            await db.learning_progress.update_one(
-                {**key, "status": {"$ne": "completed"}},
-                {"$set": {"status": "completed", "completed_at": _now(), "last_visited_at": _now()}})
+        res = await db.learning_progress.update_one(
+            {**key, "status": {"$ne": "completed"}},
+            {"$set": {"status": "completed", "completed_at": _now(), "last_visited_at": _now()}})
+        newly = res.modified_count == 1
         summary, first = await chapter_milestone(user["id"], ref.board, ref.subject, ref.chapter)
         return {"status": "completed", "newly_completed": newly, "chapter_completed_first_time": first, "course": summary}
 
@@ -223,18 +233,19 @@ def create_progress_routes(db, get_current_user):
         user = await get_current_user(request)
         if not ObjectId.is_valid(video_id):
             raise HTTPException(400, "Invalid ID format")
-        video = await db.videos.find_one({"_id": ObjectId(video_id), "status": "available"}, {"board": 1, "subject": 1, "chapter": 1, "required": 1})
+        video = await db.videos.find_one({"_id": ObjectId(video_id), "status": "available"}, {"board": 1, "subject": 1, "chapter": 1, "required": 1, "duration": 1})
         if not video:
             raise HTTPException(404, "Video not found")
         key = {"user_id": user["id"], "video_id": video_id}
         doc = await db.video_progress.find_one(key) or {}
         now = _now()
-        duration = doc.get("duration") or data.duration
-        last_at = doc.get("updated_at")
-        if last_at and last_at.tzinfo is None:
-            last_at = last_at.replace(tzinfo=timezone.utc)
-        elapsed = (now - last_at).total_seconds() if last_at else 60
-        budget = elapsed * MAX_RATE + SLACK_SECONDS
+        # Duration can only grow: admin-entered length and earlier reports are lower bounds.
+        duration = max(parse_duration(video.get("duration")), doc.get("duration") or 0, data.duration)
+        created = doc.get("created_at") or now
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=timezone.utc)
+        # Cumulative budget: total accepted watch time can never exceed real elapsed time at max speed.
+        budget = (now - created).total_seconds() * MAX_RATE + SLACK_SECONDS - doc.get("accepted_total", 0)
 
         accepted = []
         for iv in data.intervals:
@@ -254,6 +265,7 @@ def create_progress_routes(db, get_current_user):
         was_done = doc.get("completed", False)
         completed = was_done or watched >= COMPLETE_RATIO * duration
         update = {"position": min(data.position, duration), "duration": duration, "intervals": intervals,
+                  "accepted_total": doc.get("accepted_total", 0) + sum(e - s for s, e in accepted),
                   "completed": completed, "updated_at": now, "board": video.get("board"), "subject": video.get("subject"), "chapter": video.get("chapter")}
         if completed and not was_done:
             update["completed_at"] = now
