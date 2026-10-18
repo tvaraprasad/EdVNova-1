@@ -56,7 +56,7 @@ export default function SubjectsList() {
                                                 <Icon className={`w-6 h-6 ${colors.text}`} />
                                             </div>
                                             <div className="flex-1">
-                                                <h3 className="text-lg font-bold text-primary mb-0.5">{subj.name}</h3>
+                                                <h3 className="text-lg font-bold text-primary mb-0.5" data-testid={`subject-title-${subj.slug}`}>{subj.foundation_board ? `Full ${data.name} ${subj.name}` : subj.name}</h3>
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-xs text-gray-500">{subj.chapter_count} Chapters</span>
                                                     <span className="text-xs text-gray-500">{subj.topic_count} Topics</span>

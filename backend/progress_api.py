@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from bson import ObjectId
 import re
-from curriculum.pathways import BOARDS, pathway_chapters, visible_topic_query
+from curriculum.pathways import BOARDS, lessons_with_content, pathway_chapters, visible_topic_query
 
 COMPLETE_RATIO = 0.9
 MAX_RATE = 2.0
@@ -86,20 +86,21 @@ def create_progress_routes(db, get_current_user):
     async def published_topic(ref: LessonRef):
         t = await db.curriculum_topics.find_one(
             {"board_slug": ref.board, "subject_slug": ref.subject, "chapter_slug": ref.chapter,
-             "slug": ref.topic, "status": "published"}, {"_id": 0, "title": 1})
-        if not t:
+             "slug": ref.topic, "status": "published"}, {"_id": 1, "title": 1, "content": 1})
+        if not t or not await lessons_with_content(db, [{**t, "status": "published"}]):
             raise HTTPException(404, "Lesson not found or not published")
         return t
 
     async def course_summary(user_id: Optional[str], board: str, subject: str):
-        subj = await db.curriculum_subjects.find_one({"board_slug": board, "slug": subject}, {"_id": 0, "name": 1, "board_name": 1})
+        subj = await db.curriculum_subjects.find_one({"board_slug": board, "slug": subject}, {"_id": 0, "name": 1, "board_name": 1, "foundation_board": 1})
         if not subj:
             raise HTTPException(404, "Subject not found")
         chapters, _ = await pathway_chapters(db, board, subject)
         boards = sorted({c["board_slug"] for c in chapters} | {board})
         topics = await db.curriculum_topics.find(
             {"board_slug": {"$in": boards}, "subject_slug": subject, "$or": [{"status": "published"}, {"syllabus_review": {"$exists": False}}]},
-            {"_id": 0, "slug": 1, "title": 1, "board_slug": 1, "chapter_slug": 1, "order": 1, "status": 1, "study_time": 1, "syllabus_ref": 1, "subtopics": 1}).sort("order", 1).to_list(3000)
+            {"_id": 1, "slug": 1, "title": 1, "board_slug": 1, "chapter_slug": 1, "order": 1, "status": 1, "study_time": 1, "syllabus_ref": 1, "syllabus_title": 1, "subtopics": 1, "content": 1}).sort("order", 1).to_list(3000)
+        ready = await lessons_with_content(db, topics)
         videos = await db.videos.find(
             {"board": {"$in": boards}, "subject": subject, "status": "available"},
             {"_id": 1, "board": 1, "chapter": 1, "title": 1, "required": 1, "youtube_url": 1}).sort("order", 1).to_list(500)
@@ -124,11 +125,11 @@ def create_progress_routes(db, get_current_user):
             for t in topics:
                 if t["board_slug"] != cb or t["chapter_slug"] != ch["slug"]:
                     continue
-                published = t.get("status") == "published"
+                published = str(t["_id"]) in ready
                 k = (cb, ch["slug"], t["slug"])
                 st = lesson_status.get(k, "not_started") if published else "unavailable"
                 item = {"slug": t["slug"], "title": t["title"], "status": st, "available": published, "study_time": t.get("study_time", ""),
-                        "syllabus_ref": t.get("syllabus_ref", ""), "subtopics": t.get("subtopics", []) if published else [],
+                        "syllabus_ref": t.get("syllabus_ref", ""), "syllabus_title": t.get("syllabus_title", ""), "subtopics": t.get("subtopics", []) if published else [],
                         "subtopics_completed": sub_done.get(k, [])}
                 ch_topics.append(item)
                 if published:
@@ -162,8 +163,10 @@ def create_progress_routes(db, get_current_user):
         if nxt:
             next_lesson = {k: nxt[k] for k in ("chapter", "chapter_name", "topic", "title")}
 
+        board_name, name = subj.get("board_name", ""), subj.get("name", "")
         return {
-            "board": board, "subject": subject, "subject_name": subj.get("name", ""), "board_name": subj.get("board_name", ""),
+            "board": board, "subject": subject, "subject_name": name, "board_name": board_name,
+            "course_title": f"Full {board_name} {name}" if subj.get("foundation_board") else f"{board_name} {name}".strip(),
             "total": total, "completed": done, "percent": round(done * 100 / total) if total else 0,
             "chapters": out_chapters, "last_visited": last_visited, "next_lesson": next_lesson,
         }
@@ -224,8 +227,8 @@ def create_progress_routes(db, get_current_user):
         lesson = LessonRef(**ref.model_dump(exclude={"subtopic"}))
         topic = await db.curriculum_topics.find_one(
             {"board_slug": ref.board, "subject_slug": ref.subject, "chapter_slug": ref.chapter, "slug": ref.topic, "status": "published"},
-            {"_id": 0, "subtopics": 1, "content.sections": 1})
-        if not topic:
+            {"_id": 1, "subtopics": 1, "content": 1, "status": 1})
+        if not topic or not await lessons_with_content(db, [topic]):
             raise HTTPException(404, "Lesson not found or not published")
         if ref.subtopic not in {s["id"] for s in topic.get("subtopics", [])}:
             raise HTTPException(404, "Subtopic not found")

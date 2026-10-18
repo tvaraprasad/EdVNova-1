@@ -11,6 +11,21 @@ def visible_topic_query(board, subject, chapter=None):
     return q
 
 
+def has_content(c):
+    return isinstance(c, dict) and any((len(v) > 0 if isinstance(v, (list, str)) else bool(v)) for v in c.values())
+
+
+async def lessons_with_content(db, topics):
+    """String ids of published topics that have lesson content or attached files."""
+    pub = [t for t in topics if t.get("status") == "published"]
+    ready = {str(t["_id"]) for t in pub if has_content(t.get("content"))}
+    rest = [str(t["_id"]) for t in pub if str(t["_id"]) not in ready]
+    if rest:
+        ready |= set(await db.learning_assets.distinct("parent_id", {"parent_id": {"$in": rest}}))
+        ready |= set(await db.topic_attachments.distinct("topic_id", {"topic_id": {"$in": rest}}))
+    return ready
+
+
 async def pathway_chapters(db, board, subject, projection=None):
     """Ordered chapters for a course view; each chapter keeps its own source board_slug."""
     proj = {"_id": 0, **(projection or {})} if projection else {"_id": 0}
@@ -27,14 +42,7 @@ async def pathway_chapters(db, board, subject, projection=None):
             c.setdefault("board_slug", foundation if c in base else board)
             c["group"] = group
             ordered.append(c)
-    out = []
-    for c in ordered:
-        if c.get("kind") == "practical":
-            published = await db.curriculum_topics.count_documents({"board_slug": c["board_slug"], "subject_slug": subject, "chapter_slug": c["slug"], "status": "published"})
-            if not published:
-                continue
-        out.append(c)
-    return out, foundation
+    return ordered, foundation
 
 
 async def resolve_chapter_board(db, board, subject, chapter):

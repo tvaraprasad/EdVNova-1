@@ -12,8 +12,12 @@ function TopicIcon({ status }) {
 export function CourseOutline({ course, board, subject, chapter, activeLesson, onSelect, isAuthenticated, subjectName, boardName }) {
     const [query, setQuery] = useState('');
     const [open, setOpen] = useState({ [chapter]: true });
+    const [closedGroups, setClosedGroups] = useState({ 'AS Foundation': true });
     const q = query.trim().toLowerCase();
-    const chapters = (course?.chapters || []).filter(c => !q || c.name.toLowerCase().includes(q) || c.topics.some(t => t.title.toLowerCase().includes(q)));
+    const label = t => (t.syllabus_ref && t.syllabus_title) || t.title;
+    const matches = t => label(t).toLowerCase().includes(q) || t.title.toLowerCase().includes(q);
+    const chapters = (course?.chapters || []).filter(c => !q || c.name.toLowerCase().includes(q) || c.topics.some(matches));
+    const groupCount = g => chapters.filter(c => c.group === g).length;
 
     return (
         <div className="flex flex-col h-full">
@@ -21,7 +25,7 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                 <Link to={`/learn/${board}`} className="text-xs text-accent hover:underline inline-flex items-center gap-1 mb-2" data-testid="outline-back-link">
                     <ChevronLeft className="w-3 h-3" /> All {boardName || board?.toUpperCase()} subjects
                 </Link>
-                <h3 className="font-bold text-primary text-sm leading-snug">{boardName || board?.toUpperCase()} {subjectName}</h3>
+                <h3 className="font-bold text-primary text-sm leading-snug" data-testid="outline-course-title">{course?.course_title || `${boardName || board?.toUpperCase()} ${subjectName || ''}`}</h3>
                 {isAuthenticated && course && (
                     <div className="mt-3" data-testid="course-progress">
                         <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
@@ -45,10 +49,21 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                     const isActive = c.slug === chapter;
                     const groupStart = c.group && c.group !== chapters[ci - 1]?.group;
                     const expanded = !!q || !!open[c.slug];
-                    const topics = c.topics.filter(t => !q || t.title.toLowerCase().includes(q) || c.name.toLowerCase().includes(q));
+                    const topics = c.topics.filter(t => !q || matches(t) || c.name.toLowerCase().includes(q));
+                    const groupId = c.group.toLowerCase().replace(/\s+/g, '-');
+                    const groupClosed = !q && closedGroups[c.group] && c.group === 'AS Foundation' && chapters.some(x => x.group === 'A Level Extension');
+                    const header = groupStart && (
+                        <button onClick={() => setClosedGroups(g => ({ ...g, [c.group]: !groupClosed }))} aria-expanded={!groupClosed} className="w-full flex items-center gap-1.5 px-4 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 hover:text-primary transition-colors" data-testid={`outline-group-${groupId}`}>
+                            <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${groupClosed ? '-rotate-90' : ''}`} />
+                            <span className="flex-1 text-left">{c.group}</span><span className="tabular-nums normal-case tracking-normal font-medium text-slate-400">{groupCount(c.group)} chapters</span>
+                        </button>
+                    );
+                    if (groupClosed && !isActive) return header ? <div key={c.slug}>{header}</div> : null;
+                    const empty = c.total === 0;
                     return (
                         <div key={c.slug} className={isActive ? 'bg-soft/60' : ''}>
-                            {groupStart && <p className="px-4 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500" data-testid={`outline-group-${c.group.toLowerCase().replace(/\s+/g, '-')}`}>{c.group}</p>}
+                            {c.group && groupStart && (c.group === 'AS Foundation' || c.group === 'A Level Extension') ? header
+                                : groupStart && <p className="px-4 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500" data-testid={`outline-group-${groupId}`}>{c.group}</p>}
                             <button
                                 onClick={() => setOpen(o => ({ ...o, [c.slug]: !o[c.slug] }))}
                                 aria-expanded={expanded}
@@ -57,6 +72,7 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                             >
                                 <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${expanded ? '' : '-rotate-90'}`} />
                                 <span className="flex-1 min-w-0 truncate">{c.syllabus_number && <span className="tabular-nums text-slate-400 mr-1.5">{c.syllabus_number}</span>}{c.name}</span>
+                                {empty && <span className="text-[10px] font-medium text-amber-700 bg-amber-50 rounded-full px-2 py-0.5 whitespace-nowrap" data-testid={`chapter-coming-soon-${c.slug}`}>Coming soon</span>}
                                 {isAuthenticated && c.total > 0 && (
                                     <span className={`text-[10px] tabular-nums font-semibold ${c.completed === c.total ? 'text-emerald-600' : 'text-slate-400'}`} data-testid={`chapter-progress-${c.slug}`}>{c.completed}/{c.total}</span>
                                 )}
@@ -66,7 +82,7 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                             )}
                             {expanded && (
                                 <div className="ml-6 border-l border-slate-200 pl-2 pb-2 space-y-0.5">
-                                    {topics.length === 0 && <p className="px-2 py-1.5 text-[11px] text-slate-400">No lessons yet</p>}
+                                    {topics.length === 0 && <p className="px-2 py-1.5 text-[11px] text-slate-400">Lessons coming soon</p>}
                                     {topics.map(t => {
                                         const current = isActive && t.slug === activeLesson;
                                         const subs = current ? t.subtopics || [] : [];
@@ -80,7 +96,7 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                                                 data-testid={`sidebar-topic-${t.slug}`}
                                             >
                                                 <TopicIcon status={isAuthenticated || !t.available ? t.status : 'not_started'} />
-                                                <span className="truncate flex-1">{t.syllabus_ref && <span className="tabular-nums text-slate-400 mr-1">{t.syllabus_ref}</span>}{t.title}</span>
+                                                <span className="truncate flex-1">{t.syllabus_ref && <span className="tabular-nums text-slate-400 mr-1">{t.syllabus_ref}</span>}{label(t)}</span>
                                                 {!t.available && <span className="text-[10px] text-slate-400">Soon</span>}
                                             </button>
                                             }{subs.length > 0 && (

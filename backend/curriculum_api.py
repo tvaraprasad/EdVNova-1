@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
-from curriculum.pathways import pathway_chapters, resolve_chapter_board, visible_topic_query
+from curriculum.pathways import lessons_with_content, pathway_chapters, resolve_chapter_board, visible_topic_query
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -142,10 +142,10 @@ def create_curriculum_routes(db, get_current_user, get_admin_user):
         if not chapter:
             raise HTTPException(404, "Chapter not found")
         topics = await db.curriculum_topics.find(
-            visible_topic_query(board_slug, subject_slug, chapter_slug),
-            {"_id": 0, "content": 0}
+            visible_topic_query(board_slug, subject_slug, chapter_slug)
         ).sort("order", 1).to_list(100)
-        chapter["topics"] = topics
+        ready = await lessons_with_content(db, topics)
+        chapter["topics"] = [{**{k: v for k, v in t.items() if k not in ("_id", "content")}, "available": str(t["_id"]) in ready} for t in topics]
         # Subject info for breadcrumb
         subject = await db.curriculum_subjects.find_one(
             {"board_slug": board_slug, "slug": subject_slug}, {"_id": 0, "name": 1, "slug": 1}

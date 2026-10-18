@@ -23,7 +23,7 @@ function MainCourse({ c }) {
             <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 60% 120% at 100% 0%, rgba(76,141,255,0.22), transparent 60%)' }} />
             <div className="relative">
                 <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#7FB0FF] mb-2">{c.board_name || c.board.toUpperCase()}</p>
-                <h3 className="text-xl font-bold text-white mb-1" data-testid="continue-course-name">{c.subject_name}</h3>
+                <h3 className="text-xl font-bold text-white mb-1" data-testid="continue-course-name">{c.course_title || c.subject_name}</h3>
                 {c.last_visited && <p className="text-sm text-[#C5D5E8]" data-testid="continue-last-lesson">Last opened: {c.last_visited.title}</p>}
                 <div className="mt-5 mb-2 flex items-center justify-between text-xs text-[#C5D5E8]">
                     <span data-testid="continue-progress-text">{c.completed} of {c.total} completed</span>
@@ -91,7 +91,7 @@ export function ContinueLearning() {
                                 <div className="flex items-center gap-3 mb-3">
                                     <span className="ev-icon-tile !w-9 !h-9"><BookOpen className="w-4 h-4" /></span>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-semibold text-primary truncate">{c.subject_name}</p>
+                                        <p className="text-sm font-semibold text-primary truncate">{c.course_title || c.subject_name}</p>
                                         <p className="text-xs text-slate-500 truncate">{c.board_name}{c.last_visited ? ` · ${c.last_visited.title}` : ''}</p>
                                     </div>
                                     <span className="text-xs font-semibold text-primary tabular-nums">{c.percent}%</span>

@@ -20,7 +20,7 @@ const TABS = [
 
 // ── Concept Notes: one lesson at a time ──
 function NotesPanel({ topics, lessonSlug, lessonProps }) {
-    const published = topics.filter(t => t.status === 'published');
+    const published = topics.filter(t => t.available);
     const topic = published.find(t => t.slug === lessonSlug) || published[0];
     if (!topic) {
         return (
@@ -316,11 +316,11 @@ export default function LearnChapter() {
                     axios.get(`${API_URL}/api/videos/chapter/${src}/${subject}/${chapter}`).catch(() => ({ data: [] })),
                 ]);
                 setChapterData(chRes.data);
-                const topicResults = await Promise.all((chRes.data.topics || []).filter(t => t.status === 'published').map(t =>
+                const topicResults = await Promise.all((chRes.data.topics || []).filter(t => t.available).map(t =>
                     axios.get(`${API_URL}/api/curriculum/boards/${src}/${subject}/${chapter}/${t.slug}`).catch(() => null)
                 ));
                 const full = Object.fromEntries(topicResults.filter(Boolean).map(r => [r.data.slug, r.data]));
-                const resolvedTopics = (chRes.data.topics || []).map(t => full[t.slug] || t);
+                const resolvedTopics = (chRes.data.topics || []).map(t => full[t.slug] ? { ...full[t.slug], available: t.available } : t);
                 setTopics(resolvedTopics);
                 setQuestions(qRes.data.questions || []);
                 setWorksheets(wRes.data.worksheets || []);
@@ -367,7 +367,7 @@ function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topi
 
     const statuses = useMemo(() => statusMap(course), [course]);
     const courseTopic = slug => course?.chapters?.find(c => c.slug === chapter)?.topics.find(t => t.slug === slug);
-    const published = topics.filter(t => t.status === 'published');
+    const published = topics.filter(t => t.available);
     const seq = useMemo(() => (course?.chapters || []).flatMap(c => c.topics.filter(t => t.available).map(t => ({ chapter: c.slug, topic: t.slug, title: t.title }))), [course]);
 
     const defaultLesson = (() => {
@@ -491,7 +491,7 @@ function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topi
                             <nav className="flex items-center gap-1.5 text-xs text-slate-500 overflow-hidden flex-1 min-w-0" aria-label="Breadcrumb">
                                 <Link to={`/learn/${board}`} className="hover:text-primary whitespace-nowrap">{board?.toUpperCase()}</Link>
                                 <ChevronRight className="w-3 h-3 flex-shrink-0" />
-                                <Link to={`/learn/${board}/${subject}`} className="hover:text-primary whitespace-nowrap">{chapterData?.subject_name}</Link>
+                                <Link to={`/learn/${board}/${subject}`} className="hover:text-primary whitespace-nowrap" data-testid="breadcrumb-course">{course?.course_title || chapterData?.subject_name}</Link>
                                 <ChevronRight className="w-3 h-3 flex-shrink-0" />
                                 <span className="text-primary font-medium truncate">{chapterData?.name}</span>
                             </nav>
@@ -522,7 +522,7 @@ function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topi
                         {activeTab === 'overview' && (
                             <div data-testid="tab-content-overview">
                                 <h2 className="text-xl font-bold text-primary mb-2">{chapterData?.name}</h2>
-                                <p className="text-sm text-slate-500 mb-6">{chapterData?.subject_name} · {topics.length} concepts · {published.length} lessons available · {questions.length} questions</p>
+                                <p className="text-sm text-slate-500 mb-6">{course?.course_title || chapterData?.subject_name} · {published.length} of {topics.length} {topics.length === 1 ? 'lesson' : 'lessons'} available · {questions.length} {questions.length === 1 ? 'question' : 'questions'}</p>
                                 {isAuthenticated && chProgress?.total > 0 && (
                                     <div className="ev-card p-4 mb-5" data-testid="overview-chapter-progress">
                                         <div className="flex items-center justify-between text-xs text-slate-500 mb-2"><span>{chProgress.completed} of {chProgress.total} completed</span><span className="font-semibold text-primary tabular-nums">{chProgress.percent}%</span></div>
@@ -538,16 +538,16 @@ function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topi
                                                     {isAuthenticated && st === 'completed' ? <CheckCircle2 className="w-4 h-4" aria-label="Completed" /> : idx + 1}
                                                 </span>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-primary text-sm">{t.title}</p>
+                                                    <p className="font-medium text-primary text-sm">{t.syllabus_ref ? `${t.syllabus_ref} ${t.syllabus_title || t.title}` : t.title}</p>
                                                     <div className="flex items-center gap-3 mt-0.5 text-xs">
                                                         <span className="text-slate-500">{t.study_time}</span>
-                                                        {t.status !== 'published' ? <span className="text-slate-400">Coming soon</span>
+                                                        {!t.available ? <span className="text-slate-400">Coming soon</span>
                                                             : isAuthenticated && st === 'completed' ? <span className="text-emerald-700">Completed</span>
                                                             : isAuthenticated && st === 'in_progress' ? <span className="text-accent">In progress</span>
                                                             : <span className="text-slate-500">Available</span>}
                                                     </div>
                                                 </div>
-                                                {t.status === 'published' && (
+                                                {t.available && (
                                                     <button onClick={() => goTo(chapter, t.slug)} className="text-xs text-accent font-semibold hover:underline" data-testid={`open-lesson-${t.slug}`}>
                                                         {isAuthenticated && st === 'completed' ? 'Review lesson' : 'Open lesson'}
                                                     </button>
