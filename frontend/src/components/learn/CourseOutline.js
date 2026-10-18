@@ -96,7 +96,7 @@ export function CourseOutline({ course, board, subject, chapter, activeLesson, o
                                                 data-testid={`sidebar-topic-${t.slug}`}
                                             >
                                                 <TopicIcon status={isAuthenticated || !t.available ? t.status : 'not_started'} />
-                                                <span className="truncate flex-1">{t.syllabus_ref && <span className="tabular-nums text-slate-400 mr-1">{t.syllabus_ref}</span>}{label(t)}</span>
+                                                <span className="truncate flex-1" title={t.syllabus_ref ? `Cambridge 9701 syllabus ref ${t.syllabus_ref}` : undefined}>{label(t)}</span>
                                                 {!t.available && <span className="text-[10px] text-slate-400">Soon</span>}
                                             </button>
                                             }{subs.length > 0 && (

@@ -49,3 +49,10 @@ The code changes are backward compatible. On the main DB, nothing changes until 
 - Records were reused: 2 chapters inserted (electrons-in-atoms, entropy-gibbs-free-energy). 9 non-coursebook chapters were set to nav_status=retired and kept for admins; they are hidden from students unless they hold published lessons. Empty draft topics were moved into the coursebook chapters. The published 7.1 lesson was not moved (same ID, chapter and URL; 8 progress records intact).
 - Placement of topics marked coursebook_placement=unverified needs checking against the book: 22.2, 20.1, 19.1, 19.2, 21.1, 22.1, 27.1, 29.1, 29.2, 31.1, 32.2, 32.1, 29.4. The coursebook file was not in the uploads, so the order inside each chapter follows syllabus order.
 - Pre-change staging dump: /root/edvnova_backups/staging_pre_coursebook. MAIN dry run regenerated: 91 inserts, 58 updates, 0 blocked.
+
+## Root cause of "still four categories" (2026-10-18)
+- Main preview and website read DB test_database. It still has the old 4 A Level chapters, because the release has not been approved.
+- The staging view (cookie via /?staging=<key>) reads edvnova_chem_staging. It already has the 18 + 12 coursebook chapters.
+- The staging backend ran as a manual background process and had stopped. It is now supervisor-managed (/etc/supervisor/conf.d/staging_backend.conf, port 8002). The staging cookie now lasts 30 days.
+- The sidebar no longer prefixes topics with syllabus numbers (shown in a tooltip instead). The chapter page shows "9701 syllabus x.y" as a separate muted tag.
+- Release: `python -m scripts.chem_9701_migrate --db test_database --apply --approved` (91 inserts, 58 updates, 0 blocked; old 4 chapters reused/renamed, organic-chemistry-advanced retired and its topics remapped). Take a fresh mongodump first. Rollback with `--rollback <run_id>`.

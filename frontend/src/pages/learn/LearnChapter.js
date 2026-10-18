@@ -538,7 +538,7 @@ function CourseWorkspace({ board, dataBoard, subject, chapter, chapterData, topi
                                                     {isAuthenticated && st === 'completed' ? <CheckCircle2 className="w-4 h-4" aria-label="Completed" /> : idx + 1}
                                                 </span>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-primary text-sm">{t.syllabus_ref ? `${t.syllabus_ref} ${t.syllabus_title || t.title}` : t.title}</p>
+                                                    <p className="font-medium text-primary text-sm">{(t.syllabus_ref && t.syllabus_title) || t.title}{t.syllabus_ref && <span className="ml-2 text-[11px] font-normal text-slate-400 tabular-nums">9701 syllabus {t.syllabus_ref}</span>}</p>
                                                     <div className="flex items-center gap-3 mt-0.5 text-xs">
                                                         <span className="text-slate-500">{t.study_time}</span>
                                                         {!t.available ? <span className="text-slate-400">Coming soon</span>

@@ -11,7 +11,7 @@ export function initStaging() {
         document.cookie = `${KEY}=; path=/; max-age=0`;
         localStorage.removeItem(KEY);
     } else if (value) {
-        document.cookie = `${KEY}=${value}; path=/; max-age=86400; samesite=lax; secure`;
+        document.cookie = `${KEY}=${value}; path=/; max-age=2592000; samesite=lax; secure`;
         localStorage.setItem(KEY, '1');
     }
     if (!localStorage.getItem(KEY)) return false;
